@@ -544,7 +544,7 @@ describe('AudioEngine', () => {
       await audioEngine.init();
       const result = audioEngine.getAudioContext();
       expect(result).toBeTruthy();
-      expect((result as Record<string, unknown>).suspend).toBe(mockSuspend);
+      expect((result as unknown as Record<string, unknown>).suspend).toBe(mockSuspend);
     });
   });
 

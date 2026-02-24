@@ -478,6 +478,10 @@ describe('recordFromNode', () => {
       makeFakeOfflineAudioContextClass(() => ({
         decodeAudioData: vi.fn(async () => ({
           length: samples.length,
+          sampleRate: 44100,
+          numberOfChannels: 1,
+          duration: samples.length / 44100,
+          getChannelData: vi.fn(() => samples),
         })),
         createBufferSource: vi.fn(() => ({
           buffer: null,
@@ -486,6 +490,7 @@ describe('recordFromNode', () => {
         })),
         destination: {},
         startRendering: vi.fn(async () => ({
+          length: samples.length,
           getChannelData: vi.fn(() => samples),
         })),
       })),
@@ -593,6 +598,10 @@ describe('recordFromNode', () => {
       makeFakeOfflineAudioContextClass(() => ({
         decodeAudioData: vi.fn(async () => ({
           length: sampleData.length,
+          sampleRate: 48000,
+          numberOfChannels: 1,
+          duration: sampleData.length / 48000,
+          getChannelData: vi.fn(() => sampleData),
         })),
         createBufferSource: vi.fn(() => ({
           buffer: null,
@@ -601,6 +610,7 @@ describe('recordFromNode', () => {
         })),
         destination: {},
         startRendering: vi.fn(async () => ({
+          length: sampleData.length,
           getChannelData: vi.fn(() => sampleData),
         })),
       })),
@@ -655,6 +665,10 @@ describe('recordFromNode', () => {
       makeFakeOfflineAudioContextClass(() => ({
         decodeAudioData: vi.fn(async () => ({
           length: sampleData.length,
+          sampleRate: 44100,
+          numberOfChannels: 1,
+          duration: sampleData.length / 44100,
+          getChannelData: vi.fn(() => sampleData),
         })),
         createBufferSource: vi.fn(() => ({
           buffer: null,
@@ -663,6 +677,7 @@ describe('recordFromNode', () => {
         })),
         destination: {},
         startRendering: vi.fn(async () => ({
+          length: sampleData.length,
           getChannelData: vi.fn(() => sampleData),
         })),
       })),

@@ -294,7 +294,7 @@ describe('useExperienceStore', () => {
       expect(useExperienceStore.getState().effectsUsed.size).toBe(1);
       // localStorage.setItem should have been called only once for the first add
       const setItemCalls = localStorageMock.setItem.mock.calls.filter(
-        ([key]: [string]) => key === STORAGE_KEY,
+        ([key]: [string, string]) => key === STORAGE_KEY,
       );
       expect(setItemCalls.length).toBe(1);
     });

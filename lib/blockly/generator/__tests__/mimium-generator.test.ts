@@ -645,7 +645,7 @@ describe('mimium-generator', () => {
     });
 
     describe('all effect blocks produce valid output', () => {
-      const effectBlocks = [
+      const effectBlocks: MockBlockOptions[] = [
         { type: 'biyo_lowpass', fields: { CUTOFF: '1000', RESONANCE: '1' } },
         { type: 'biyo_highpass', fields: { CUTOFF: '2000', RESONANCE: '1' } },
         { type: 'biyo_bandpass', fields: { CENTER: '1000', WIDTH: '500' } },
