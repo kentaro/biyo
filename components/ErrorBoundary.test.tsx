@@ -1,9 +1,10 @@
+import type React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import ErrorBoundary from './ErrorBoundary';
 
 // A component that throws during rendering
-function ThrowingComponent({ message }: { message: string }) {
+function ThrowingComponent({ message }: { message: string }): React.JSX.Element {
   throw new Error(message);
 }
 
