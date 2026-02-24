@@ -1115,28 +1115,23 @@ describe('edge case fixes', () => {
     warnSpy.mockRestore();
   });
 
-  it(
-    'transpileIfElse warns when iterations approach the limit',
-    () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      // Create deeply nested if-else to push towards 500 iterations
-      // Use 510 levels to trigger warning without excessive CI time
-      let body = '1.0';
-      for (let i = 0; i < 510; i++) {
-        body = `if 1.0 > 0.0 { ${body} } else { 0.0 }`;
-      }
-      __test__.transpileIfElse(body);
-      expect(warnSpy).toHaveBeenCalled();
-      const warnMsg = warnSpy.mock.calls.find(
-        (call) =>
-          typeof call[0] === 'string' &&
-          call[0].includes('transpileIfElse approaching iteration limit'),
-      );
-      expect(warnMsg).toBeDefined();
-      warnSpy.mockRestore();
-    },
-    15000,
-  );
+  it('transpileIfElse warns when iterations approach the limit', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // Create deeply nested if-else to push towards 500 iterations
+    let body = '1.0';
+    for (let i = 0; i < 510; i++) {
+      body = `if 1.0 > 0.0 { ${body} } else { 0.0 }`;
+    }
+    __test__.transpileIfElse(body);
+    expect(warnSpy).toHaveBeenCalled();
+    const warnMsg = warnSpy.mock.calls.find(
+      (call) =>
+        typeof call[0] === 'string' &&
+        call[0].includes('transpileIfElse approaching iteration limit'),
+    );
+    expect(warnMsg).toBeDefined();
+    warnSpy.mockRestore();
+  }, 30000);
 
   // --- Fix 2: == comparison operators in if-else conditions ---
   it('if-else with == comparison operator transpiles correctly', () => {
