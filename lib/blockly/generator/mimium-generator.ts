@@ -379,9 +379,10 @@ mimiumGenerator.forBlock.biyo_sequencer = (
   const n = notes.length;
   const code = `(
     let _step_idx = floor(fmod(now / samplerate / ${speed}, ${n}.0));
-    ${notes
+    let _seq_freq = ${notes
       .map((midi: number, i: number) => `if _step_idx == ${i}.0 { midi_to_hz(${midi}.0) } else {`)
-      .join(' ')} 0.0 ${notes.map(() => '}').join(' ')}
+      .join(' ')} 0.0 ${notes.map(() => '}').join(' ')};
+    triangle(_seq_freq, 0.0) * envelope(metro(${speed}), 0.01, ${(parseFloat(speed) * 0.8).toFixed(4)})
   )`;
   return [code, Order.ATOMIC];
 };
@@ -403,14 +404,16 @@ mimiumGenerator.forBlock.biyo_melody = (
       noteFields.push({ noteName, midi: noteToMidi(noteName, octave) });
     }
   }
+  // Generate a melody that actually produces sound (triangle wave per note)
   const code = `(
     let _mel_idx = floor(fmod(now / samplerate / ${speed}, ${stepCount}.0));
-    ${noteFields
+    let _mel_freq = ${noteFields
       .map(
         (n, i) =>
           `if _mel_idx == ${i}.0 { ${n.noteName === 'REST' ? '0.0' : `midi_to_hz(${n.midi}.0)`} } else {`,
       )
-      .join(' ')} 0.0 ${noteFields.map(() => '}').join(' ')}
+      .join(' ')} 0.0 ${noteFields.map(() => '}').join(' ')};
+    if _mel_freq < 1.0 { 0.0 } else { triangle(_mel_freq, 0.0) * envelope(metro(${speed}), 0.01, ${(parseFloat(speed) * 0.8).toFixed(4)}) }
   )`;
   return [code, Order.ATOMIC];
 };
@@ -431,9 +434,10 @@ mimiumGenerator.forBlock.biyo_drum_pattern = (
   };
   const patStr = patterns[String(pattern)] ?? patterns.rock;
   const n = patStr.length;
+  // Generate actual drum sounds: kick (sine pitch envelope) + hihat (noise burst)
   const code = `(
     let _dp_idx = floor(fmod(now / samplerate / ${speed}, ${n}.0));
-    ${patStr
+    let _dp_trig = ${patStr
       .split('')
       .map(
         (ch: string, i: number) =>
@@ -442,7 +446,9 @@ mimiumGenerator.forBlock.biyo_drum_pattern = (
       .join(' ')} 0.0 ${patStr
       .split('')
       .map(() => '}')
-      .join(' ')}
+      .join(' ')};
+    let _dp_env = envelope(metro(${speed}), 0.001, ${(parseFloat(speed) * 0.5).toFixed(4)});
+    _dp_trig * (sinwave(60.0, 0.0) * _dp_env * 0.7 + noise() * _dp_env * _dp_env * 0.3)
   )`;
   return [code, Order.ATOMIC];
 };
@@ -481,7 +487,7 @@ mimiumGenerator.forBlock.biyo_note = (block: Blockly.Block, _generator: Blockly.
   const noteName = block.getFieldValue('NOTE') ?? 'C';
   const octave = parseFloat(String(block.getFieldValue('OCTAVE') ?? '4'));
   const midi = noteToMidi(String(noteName), Number(octave));
-  return [`midi_to_hz(${midi}.0)`, Order.FUNCTION_CALL];
+  return [`sinwave(midi_to_hz(${midi}.0), 0.0)`, Order.FUNCTION_CALL];
 };
 
 mimiumGenerator.forBlock.biyo_chord = (block: Blockly.Block, _generator: Blockly.CodeGenerator) => {

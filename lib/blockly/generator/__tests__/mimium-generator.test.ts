@@ -1034,12 +1034,12 @@ describe('mimium-generator', () => {
     });
 
     describe('biyo_note', () => {
-      it('generates midi_to_hz for a note', () => {
+      it('generates sinwave with midi_to_hz for a note', () => {
         const [code, order] = generateBlock({
           type: 'biyo_note',
           fields: { NOTE: 'C', OCTAVE: '4' },
         });
-        expect(code).toBe('midi_to_hz(60.0)');
+        expect(code).toBe('sinwave(midi_to_hz(60.0), 0.0)');
         expect(order).toBe(Order.FUNCTION_CALL);
       });
     });
