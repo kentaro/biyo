@@ -73,16 +73,19 @@ export default function ShareButton() {
         fontFamily: 'var(--font-main)',
         fontSize: 'var(--fs-xs)',
         fontWeight: 700,
-        color: status === 'copied' ? 'var(--c-text-inverse)' : 'var(--c-text)',
-        background: status === 'copied' ? 'var(--c-ok)' : 'var(--c-surface-alt)',
-        border: '1px solid var(--c-border)',
+        color: 'var(--c-text-inverse)',
+        background:
+          status === 'copied'
+            ? 'var(--c-ok)'
+            : 'linear-gradient(135deg, var(--c-utility), var(--c-effect))',
+        border: 'none',
         borderRadius: 'var(--r-sm)',
         padding: 'var(--sp-1) var(--sp-3)',
         cursor: 'pointer',
         whiteSpace: 'nowrap',
         boxShadow: 'var(--shadow-sm)',
         transition: 'background 0.2s, color 0.2s',
-        minHeight: 44,
+        height: 36,
         display: 'flex',
         alignItems: 'center',
       }}

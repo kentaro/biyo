@@ -185,6 +185,9 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
     cursor: 'pointer',
     whiteSpace: 'nowrap',
     boxShadow: 'var(--shadow-sm)',
+    height: 36,
+    display: 'flex',
+    alignItems: 'center',
   };
 
   return (

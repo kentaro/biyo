@@ -928,6 +928,25 @@ function BlockEditorInner() {
       };
     }
 
+    // Reposition trashcan to bottom-center of workspace
+    const repositionTrashcan = () => {
+      if (!trashcan) return;
+      const svgGroup = (trashcan as unknown as { svgGroup?: SVGElement }).svgGroup;
+      if (!svgGroup || !containerRef.current) return;
+      const containerWidth = containerRef.current.clientWidth;
+      // Trashcan SVG is ~47px wide; center it horizontally
+      const trashWidth = 47;
+      const centerX = containerWidth / 2 - trashWidth / 2;
+      // Keep the Y from Blockly's default (bottom of workspace)
+      const currentTransform = svgGroup.getAttribute('transform') || '';
+      const yMatch = currentTransform.match(/translate\([^,]+,\s*([^)]+)\)/);
+      const y = yMatch ? yMatch[1] : '0';
+      svgGroup.setAttribute('transform', `translate(${centerX}, ${y})`);
+    };
+
+    // Initial position + reposition on Blockly resize
+    setTimeout(repositionTrashcan, 100);
+
     workspaceRef.current = workspace;
     globalWorkspace = workspace;
     workspace.addChangeListener(onWorkspaceChange);
@@ -937,6 +956,7 @@ function BlockEditorInner() {
     const resizeObserver = new ResizeObserver(() => {
       if (workspaceRef.current) {
         Blockly.svgResize(workspaceRef.current);
+        repositionTrashcan();
       }
     });
     if (containerRef.current) {
