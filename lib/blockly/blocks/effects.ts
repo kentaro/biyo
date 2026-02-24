@@ -4,13 +4,8 @@ const COLOUR = '#3976C6';
 
 const biyo_lowpass = {
   type: 'biyo_lowpass',
-  message0: '\u30E2\u30B3\u30E2\u30B3 %1 \u3064\u3088\u3055 %2 \u304D\u3087\u3046\u3069 %3',
+  message0: '\u30E2\u30B3\u30E2\u30B3 \u3064\u3088\u3055 %1 \u304D\u3087\u3046\u3069 %2 %3',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'CUTOFF',
@@ -29,6 +24,11 @@ const biyo_lowpass = {
         ['\u3064\u3088\u3044', '5'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -39,13 +39,8 @@ const biyo_lowpass = {
 
 const biyo_highpass = {
   type: 'biyo_highpass',
-  message0: '\u30AD\u30E9\u30AD\u30E9 %1 \u3064\u3088\u3055 %2 \u304D\u3087\u3046\u3069 %3',
+  message0: '\u30AD\u30E9\u30AD\u30E9 \u3064\u3088\u3055 %1 \u304D\u3087\u3046\u3069 %2 %3',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'CUTOFF',
@@ -64,6 +59,11 @@ const biyo_highpass = {
         ['\u3064\u3088\u3044', '5'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -74,13 +74,8 @@ const biyo_highpass = {
 
 const biyo_bandpass = {
   type: 'biyo_bandpass',
-  message0: '\u30EF\u30F3\u30EF\u30F3 %1 \u305F\u304B\u3055 %2 \u306F\u3070 %3',
+  message0: '\u30EF\u30F3\u30EF\u30F3 \u305F\u304B\u3055 %1 \u306F\u3070 %2 %3',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'CENTER',
@@ -99,6 +94,11 @@ const biyo_bandpass = {
         ['\u3072\u308D\u3044', '2000'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -110,13 +110,8 @@ const biyo_bandpass = {
 const biyo_delay = {
   type: 'biyo_delay',
   message0:
-    '\u3084\u307E\u3073\u3053 %1 \u3058\u304B\u3093 %2 \u304F\u308A\u304B\u3048\u3057 %3 \u307E\u305C\u308B %4',
+    '\u3084\u307E\u3073\u3053 \u3058\u304B\u3093 %1 \u304F\u308A\u304B\u3048\u3057 %2 \u307E\u305C\u308B %3 %4',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'TIME',
@@ -146,6 +141,11 @@ const biyo_delay = {
         ['\u304A\u304A\u304F', '0.8'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -157,13 +157,8 @@ const biyo_delay = {
 const biyo_reverb = {
   type: 'biyo_reverb',
   message0:
-    '\u304A\u3075\u308D %1 \u3072\u308D\u3055 %2 \u3084\u308F\u3089\u304B\u3055 %3 \u307E\u305C\u308B %4',
+    '\u304A\u3075\u308D \u3072\u308D\u3055 %1 \u3084\u308F\u3089\u304B\u3055 %2 \u307E\u305C\u308B %3 %4',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'SIZE',
@@ -192,6 +187,11 @@ const biyo_reverb = {
         ['\u304A\u304A\u304F', '0.6'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -202,13 +202,8 @@ const biyo_reverb = {
 
 const biyo_tremolo = {
   type: 'biyo_tremolo',
-  message0: '\u30D6\u30EB\u30D6\u30EB %1 \u306F\u3084\u3055 %2 \u3075\u304B\u3055 %3',
+  message0: '\u30D6\u30EB\u30D6\u30EB \u306F\u3084\u3055 %1 \u3075\u304B\u3055 %2 %3',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'SPEED',
@@ -229,6 +224,11 @@ const biyo_tremolo = {
         ['\u3059\u3054\u304F', '1.0'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -239,13 +239,8 @@ const biyo_tremolo = {
 
 const biyo_autowah = {
   type: 'biyo_autowah',
-  message0: '\u3046\u306B\u3087\u3046\u306B\u3087 %1 \u306F\u3084\u3055 %2 \u3075\u304B\u3055 %3',
+  message0: '\u3046\u306B\u3087\u3046\u306B\u3087 \u306F\u3084\u3055 %1 \u3075\u304B\u3055 %2 %3',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'SPEED',
@@ -266,6 +261,11 @@ const biyo_autowah = {
         ['\u3059\u3054\u304F', '1.0'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -276,13 +276,8 @@ const biyo_autowah = {
 
 const biyo_vibrato = {
   type: 'biyo_vibrato',
-  message0: '\u3050\u306B\u3083\u3050\u306B\u3083 %1 \u306F\u3084\u3055 %2 \u3075\u304B\u3055 %3',
+  message0: '\u3050\u306B\u3083\u3050\u306B\u3083 \u306F\u3084\u3055 %1 \u3075\u304B\u3055 %2 %3',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'SPEED',
@@ -303,6 +298,11 @@ const biyo_vibrato = {
         ['\u3059\u3054\u304F', '1.0'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -313,13 +313,8 @@ const biyo_vibrato = {
 
 const biyo_distortion = {
   type: 'biyo_distortion',
-  message0: '\u30D1\u30EA\u30D1\u30EA %1 \u3064\u3088\u3055 %2',
+  message0: '\u30D1\u30EA\u30D1\u30EA \u3064\u3088\u3055 %1 %2',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'DRIVE',
@@ -329,6 +324,11 @@ const biyo_distortion = {
         ['\u3064\u3088\u3044', '15'],
         ['\u30AC\u30EA\u30AC\u30EA', '40'],
       ],
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -340,13 +340,8 @@ const biyo_distortion = {
 
 const biyo_gain_up = {
   type: 'biyo_gain_up',
-  message0: '\u3067\u304B\u3067\u304B %1 \u304A\u304A\u304D\u3055 %2',
+  message0: '\u3067\u304B\u3067\u304B \u304A\u304A\u304D\u3055 %1 %2',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'GAIN',
@@ -355,6 +350,11 @@ const biyo_gain_up = {
         ['\u3075\u3064\u3046', '1.5'],
         ['\u3059\u3054\u304F', '2.5'],
       ],
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -366,13 +366,8 @@ const biyo_gain_up = {
 
 const biyo_gain_down = {
   type: 'biyo_gain_down',
-  message0: '\u3061\u3044\u3055\u304F %1 \u3061\u3044\u3055\u3055 %2',
+  message0: '\u3061\u3044\u3055\u304F \u3061\u3044\u3055\u3055 %1 %2',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'AMOUNT',
@@ -381,6 +376,11 @@ const biyo_gain_down = {
         ['\u3075\u3064\u3046', '0.5'],
         ['\u3059\u3054\u304F', '0.2'],
       ],
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -396,7 +396,7 @@ const biyo_telephone = {
   args0: [
     {
       type: 'input_value',
-      name: 'SIGNAL',
+      name: 'NEXT',
       check: 'Signal',
     },
   ],

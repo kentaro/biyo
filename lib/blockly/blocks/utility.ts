@@ -20,7 +20,7 @@ const ROOT_OPTIONS: [string, string][] = [
 
 const biyo_scale = {
   type: 'biyo_scale',
-  message0: 'おんかい ね %1 しゅるい %2 たかさ %3 はやさ %4',
+  message0: 'おんかい ね %1 しゅるい %2 たかさ %3 はやさ %4 %5',
   args0: [
     {
       type: 'field_dropdown',
@@ -54,6 +54,11 @@ const biyo_scale = {
         ['はやい', '160'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: NOTES_COLOUR,
@@ -64,7 +69,7 @@ const biyo_scale = {
 
 const biyo_arpeggio = {
   type: 'biyo_arpeggio',
-  message0: 'アルペジオ ね %1 しゅるい %2 はやさ %3',
+  message0: 'アルペジオ ね %1 しゅるい %2 はやさ %3 %4',
   args0: [
     {
       type: 'field_dropdown',
@@ -90,6 +95,11 @@ const biyo_arpeggio = {
         ['すごくはやい', '200'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: NOTES_COLOUR,
@@ -99,7 +109,7 @@ const biyo_arpeggio = {
 
 const biyo_mix = {
   type: 'biyo_mix',
-  message0: '\u307E\u305C\u307E\u305C %1 \u3068 %2 \u30D0\u30E9\u30F3\u30B9 %3',
+  message0: '\u307E\u305C\u307E\u305C %1 \u3068 %2 \u30D0\u30E9\u30F3\u30B9 %3 %4',
   args0: [
     {
       type: 'input_value',
@@ -120,6 +130,11 @@ const biyo_mix = {
         ['\u307F\u304E\u304A\u304A\u3081', '0.75'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -130,13 +145,18 @@ const biyo_mix = {
 
 const biyo_number = {
   type: 'biyo_number',
-  message0: '\u3059\u3046\u3058 %1',
+  message0: '\u3059\u3046\u3058 %1 %2',
   args0: [
     {
       type: 'field_number',
       name: 'VALUE',
       value: 0,
       precision: 0.01,
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -148,7 +168,7 @@ const biyo_number = {
 
 const biyo_note = {
   type: 'biyo_note',
-  message0: '\u30C9\u30EC\u30DF %1 \u30AA\u30AF\u30BF\u30FC\u30D6 %2',
+  message0: '\u30C9\u30EC\u30DF %1 \u30AA\u30AF\u30BF\u30FC\u30D6 %2 %3',
   args0: [
     {
       type: 'field_dropdown',
@@ -179,6 +199,11 @@ const biyo_note = {
         ['\u3059\u3054\u304F\u305F\u304B\u3044', '6'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: NOTES_COLOUR,
@@ -189,7 +214,7 @@ const biyo_note = {
 
 const biyo_chord = {
   type: 'biyo_chord',
-  message0: '\u308F\u304A\u3093 \u306D %1 \u3057\u3085\u308B\u3044 %2',
+  message0: '\u308F\u304A\u3093 \u306D %1 \u3057\u3085\u308B\u3044 %2 %3',
   args0: [
     {
       type: 'field_dropdown',
@@ -218,6 +243,11 @@ const biyo_chord = {
         ['\u30BB\u30D6\u30F3\u30B9', '7th'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: NOTES_COLOUR,
@@ -228,7 +258,7 @@ const biyo_chord = {
 
 const biyo_multiply = {
   type: 'biyo_multiply',
-  message0: '\u304B\u3051\u3056\u3093 %1 \u3068 %2',
+  message0: '\u304B\u3051\u3056\u3093 %1 \u3068 %2 %3',
   args0: [
     {
       type: 'input_value',
@@ -238,6 +268,11 @@ const biyo_multiply = {
     {
       type: 'input_value',
       name: 'SIGNAL_B',
+      check: 'Signal',
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
       check: 'Signal',
     },
   ],
@@ -254,7 +289,7 @@ const biyo_invert = {
   args0: [
     {
       type: 'input_value',
-      name: 'SIGNAL',
+      name: 'NEXT',
       check: 'Signal',
     },
   ],

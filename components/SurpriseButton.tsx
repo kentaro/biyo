@@ -19,14 +19,14 @@ const PRESETS: Preset[] = [
   {
     name: 'ねむれるもりのうた',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_reverb" x="80" y="80">
-        <field name="SIZE">0.6</field>
-        <field name="DAMPING">0.5</field>
-        <field name="MIX">0.3</field>
-        <value name="SIGNAL">
-          <block type="biyo_sine">
-            <field name="NOTE">C</field>
-            <field name="OCTAVE">4</field>
+      <block type="biyo_sine" x="80" y="80">
+        <field name="NOTE">C</field>
+        <field name="OCTAVE">4</field>
+        <value name="NEXT">
+          <block type="biyo_reverb">
+            <field name="SIZE">0.6</field>
+            <field name="DAMPING">0.5</field>
+            <field name="MIX">0.3</field>
           </block>
         </value>
       </block>
@@ -35,14 +35,14 @@ const PRESETS: Preset[] = [
   {
     name: 'ゆめのなかのふえ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_reverb" x="80" y="80">
-        <field name="SIZE">0.85</field>
-        <field name="DAMPING">0.5</field>
-        <field name="MIX">0.6</field>
-        <value name="SIGNAL">
-          <block type="biyo_triangle">
-            <field name="NOTE">E</field>
-            <field name="OCTAVE">4</field>
+      <block type="biyo_triangle" x="80" y="80">
+        <field name="NOTE">E</field>
+        <field name="OCTAVE">4</field>
+        <value name="NEXT">
+          <block type="biyo_reverb">
+            <field name="SIZE">0.85</field>
+            <field name="DAMPING">0.5</field>
+            <field name="MIX">0.6</field>
           </block>
         </value>
       </block>
@@ -51,12 +51,12 @@ const PRESETS: Preset[] = [
   {
     name: 'おしゃべりロボ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_distortion" x="80" y="80">
-        <field name="DRIVE">5</field>
-        <value name="SIGNAL">
-          <block type="biyo_square">
-            <field name="NOTE">G</field>
-            <field name="OCTAVE">3</field>
+      <block type="biyo_square" x="80" y="80">
+        <field name="NOTE">G</field>
+        <field name="OCTAVE">3</field>
+        <value name="NEXT">
+          <block type="biyo_distortion">
+            <field name="DRIVE">5</field>
           </block>
         </value>
       </block>
@@ -65,12 +65,12 @@ const PRESETS: Preset[] = [
   {
     name: 'ガリガリこうじょう',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_distortion" x="80" y="80">
-        <field name="DRIVE">15</field>
-        <value name="SIGNAL">
-          <block type="biyo_saw">
-            <field name="NOTE">D</field>
-            <field name="OCTAVE">3</field>
+      <block type="biyo_saw" x="80" y="80">
+        <field name="NOTE">D</field>
+        <field name="OCTAVE">3</field>
+        <value name="NEXT">
+          <block type="biyo_distortion">
+            <field name="DRIVE">15</field>
           </block>
         </value>
       </block>
@@ -79,12 +79,13 @@ const PRESETS: Preset[] = [
   {
     name: 'ほしぞらさんぽ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_delay" x="80" y="80">
-        <field name="TIME">0.6</field>
-        <field name="FEEDBACK">0.7</field>
-        <field name="MIX">0.5</field>
-        <value name="SIGNAL">
-          <block type="biyo_space" />
+      <block type="biyo_space" x="80" y="80">
+        <value name="NEXT">
+          <block type="biyo_delay">
+            <field name="TIME">0.6</field>
+            <field name="FEEDBACK">0.7</field>
+            <field name="MIX">0.5</field>
+          </block>
         </value>
       </block>
     </xml>`,
@@ -92,12 +93,13 @@ const PRESETS: Preset[] = [
   {
     name: 'とんでけUFO',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_reverb" x="80" y="80">
-        <field name="SIZE">0.85</field>
-        <field name="DAMPING">0.2</field>
-        <field name="MIX">0.6</field>
-        <value name="SIGNAL">
-          <block type="biyo_ufo" />
+      <block type="biyo_ufo" x="80" y="80">
+        <value name="NEXT">
+          <block type="biyo_reverb">
+            <field name="SIZE">0.85</field>
+            <field name="DAMPING">0.2</field>
+            <field name="MIX">0.6</field>
+          </block>
         </value>
       </block>
     </xml>`,
@@ -105,23 +107,23 @@ const PRESETS: Preset[] = [
   {
     name: 'ドキドキドラム',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_reverb" x="80" y="80">
-        <field name="SIZE">0.3</field>
-        <field name="DAMPING">0.8</field>
-        <field name="MIX">0.15</field>
-        <value name="SIGNAL">
-          <block type="biyo_kick">
-            <field name="FREQ">60</field>
+      <block type="biyo_kick" x="80" y="80">
+        <field name="FREQ">60</field>
+        <value name="NEXT">
+          <block type="biyo_reverb">
+            <field name="SIZE">0.3</field>
+            <field name="DAMPING">0.8</field>
+            <field name="MIX">0.15</field>
           </block>
         </value>
       </block>
-      <block type="biyo_delay" x="80" y="200">
-        <field name="TIME">0.1</field>
-        <field name="FEEDBACK">0.4</field>
-        <field name="MIX">0.5</field>
-        <value name="SIGNAL">
-          <block type="biyo_hihat">
-            <field name="LENGTH">0.05</field>
+      <block type="biyo_hihat" x="80" y="200">
+        <field name="LENGTH">0.05</field>
+        <value name="NEXT">
+          <block type="biyo_delay">
+            <field name="TIME">0.1</field>
+            <field name="FEEDBACK">0.4</field>
+            <field name="MIX">0.5</field>
           </block>
         </value>
       </block>
@@ -130,15 +132,16 @@ const PRESETS: Preset[] = [
   {
     name: 'まほうのじゅもん',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_tremolo" x="80" y="80">
-        <field name="SPEED">5</field>
-        <field name="DEPTH">0.8</field>
-        <value name="SIGNAL">
+      <block type="biyo_noise" x="80" y="80">
+        <value name="NEXT">
           <block type="biyo_autowah">
             <field name="SPEED">2</field>
             <field name="DEPTH">0.8</field>
-            <value name="SIGNAL">
-              <block type="biyo_noise" />
+            <value name="NEXT">
+              <block type="biyo_tremolo">
+                <field name="SPEED">5</field>
+                <field name="DEPTH">0.8</field>
+              </block>
             </value>
           </block>
         </value>
@@ -148,16 +151,16 @@ const PRESETS: Preset[] = [
   {
     name: 'ぐにゃぐにゃスライム',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_vibrato" x="80" y="80">
-        <field name="SPEED">10</field>
-        <field name="DEPTH">0.6</field>
-        <value name="SIGNAL">
+      <block type="biyo_filtered_noise" x="80" y="80">
+        <field name="BRIGHTNESS">2000</field>
+        <value name="NEXT">
           <block type="biyo_autowah">
             <field name="SPEED">6</field>
             <field name="DEPTH">0.5</field>
-            <value name="SIGNAL">
-              <block type="biyo_filtered_noise">
-                <field name="BRIGHTNESS">2000</field>
+            <value name="NEXT">
+              <block type="biyo_vibrato">
+                <field name="SPEED">10</field>
+                <field name="DEPTH">0.6</field>
               </block>
             </value>
           </block>
@@ -168,13 +171,13 @@ const PRESETS: Preset[] = [
   {
     name: 'ピコピコぼうけん',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_delay" x="80" y="80">
-        <field name="TIME">0.3</field>
-        <field name="FEEDBACK">0.2</field>
-        <field name="MIX">0.2</field>
-        <value name="SIGNAL">
-          <block type="biyo_famicom">
-            <field name="CHORD">C_major</field>
+      <block type="biyo_famicom" x="80" y="80">
+        <field name="CHORD">C_major</field>
+        <value name="NEXT">
+          <block type="biyo_delay">
+            <field name="TIME">0.3</field>
+            <field name="FEEDBACK">0.2</field>
+            <field name="MIX">0.2</field>
           </block>
         </value>
       </block>
@@ -183,12 +186,13 @@ const PRESETS: Preset[] = [
   {
     name: 'しんやのおばけやしき',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_reverb" x="80" y="80">
-        <field name="SIZE">1.0</field>
-        <field name="DAMPING">0.2</field>
-        <field name="MIX">0.6</field>
-        <value name="SIGNAL">
-          <block type="biyo_ghost" />
+      <block type="biyo_ghost" x="80" y="80">
+        <value name="NEXT">
+          <block type="biyo_reverb">
+            <field name="SIZE">1.0</field>
+            <field name="DAMPING">0.2</field>
+            <field name="MIX">0.6</field>
+          </block>
         </value>
       </block>
     </xml>`,
@@ -196,12 +200,13 @@ const PRESETS: Preset[] = [
   {
     name: 'うみのそこたんけん',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_reverb" x="80" y="80">
-        <field name="SIZE">0.85</field>
-        <field name="DAMPING">0.8</field>
-        <field name="MIX">0.6</field>
-        <value name="SIGNAL">
-          <block type="biyo_bubbles" />
+      <block type="biyo_bubbles" x="80" y="80">
+        <value name="NEXT">
+          <block type="biyo_reverb">
+            <field name="SIZE">0.85</field>
+            <field name="DAMPING">0.8</field>
+            <field name="MIX">0.6</field>
+          </block>
         </value>
       </block>
     </xml>`,
@@ -209,10 +214,11 @@ const PRESETS: Preset[] = [
   {
     name: 'かみなりさまのダンス',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_distortion" x="80" y="80">
-        <field name="DRIVE">15</field>
-        <value name="SIGNAL">
-          <block type="biyo_thunder" />
+      <block type="biyo_thunder" x="80" y="80">
+        <value name="NEXT">
+          <block type="biyo_distortion">
+            <field name="DRIVE">15</field>
+          </block>
         </value>
       </block>
     </xml>`,
@@ -220,12 +226,13 @@ const PRESETS: Preset[] = [
   {
     name: 'ビビビレーザーたいけつ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_delay" x="80" y="80">
-        <field name="TIME">0.3</field>
-        <field name="FEEDBACK">0.7</field>
-        <field name="MIX">0.5</field>
-        <value name="SIGNAL">
-          <block type="biyo_laser" />
+      <block type="biyo_laser" x="80" y="80">
+        <value name="NEXT">
+          <block type="biyo_delay">
+            <field name="TIME">0.3</field>
+            <field name="FEEDBACK">0.7</field>
+            <field name="MIX">0.5</field>
+          </block>
         </value>
       </block>
     </xml>`,
@@ -233,12 +240,13 @@ const PRESETS: Preset[] = [
   {
     name: 'あめのひのぽちゃぽちゃ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
-      <block type="biyo_reverb" x="80" y="80">
-        <field name="SIZE">0.85</field>
-        <field name="DAMPING">0.5</field>
-        <field name="MIX">0.6</field>
-        <value name="SIGNAL">
-          <block type="biyo_water_drop" />
+      <block type="biyo_water_drop" x="80" y="80">
+        <value name="NEXT">
+          <block type="biyo_reverb">
+            <field name="SIZE">0.85</field>
+            <field name="DAMPING">0.5</field>
+            <field name="MIX">0.6</field>
+          </block>
         </value>
       </block>
     </xml>`,

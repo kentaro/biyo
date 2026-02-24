@@ -27,7 +27,7 @@ const OCTAVE_OPTIONS: [string, string][] = [
 
 const biyo_sine = {
   type: 'biyo_sine',
-  message0: 'ピー おと %1 たかさ %2',
+  message0: 'ピー おと %1 たかさ %2 %3',
   args0: [
     {
       type: 'field_dropdown',
@@ -38,6 +38,11 @@ const biyo_sine = {
       type: 'field_dropdown',
       name: 'OCTAVE',
       options: OCTAVE_OPTIONS,
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -48,7 +53,7 @@ const biyo_sine = {
 
 const biyo_saw = {
   type: 'biyo_saw',
-  message0: 'ブーン おと %1 たかさ %2',
+  message0: 'ブーン おと %1 たかさ %2 %3',
   args0: [
     {
       type: 'field_dropdown',
@@ -59,6 +64,11 @@ const biyo_saw = {
       type: 'field_dropdown',
       name: 'OCTAVE',
       options: OCTAVE_OPTIONS,
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -69,7 +79,7 @@ const biyo_saw = {
 
 const biyo_triangle = {
   type: 'biyo_triangle',
-  message0: 'ポコポコ おと %1 たかさ %2',
+  message0: 'ポコポコ おと %1 たかさ %2 %3',
   args0: [
     {
       type: 'field_dropdown',
@@ -80,6 +90,11 @@ const biyo_triangle = {
       type: 'field_dropdown',
       name: 'OCTAVE',
       options: OCTAVE_OPTIONS,
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -90,7 +105,7 @@ const biyo_triangle = {
 
 const biyo_square = {
   type: 'biyo_square',
-  message0: 'プップー おと %1 たかさ %2',
+  message0: 'プップー おと %1 たかさ %2 %3',
   args0: [
     {
       type: 'field_dropdown',
@@ -102,6 +117,11 @@ const biyo_square = {
       name: 'OCTAVE',
       options: OCTAVE_OPTIONS,
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -111,8 +131,14 @@ const biyo_square = {
 
 const biyo_noise = {
   type: 'biyo_noise',
-  message0: '\u30B6\u30FC',
-  args0: [],
+  message0: '\u30B6\u30FC %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip:
@@ -122,7 +148,7 @@ const biyo_noise = {
 
 const biyo_filtered_noise = {
   type: 'biyo_filtered_noise',
-  message0: '\u30B7\u30E3\u30FC \u3042\u304B\u308B\u3055 %1',
+  message0: '\u30B7\u30E3\u30FC \u3042\u304B\u308B\u3055 %1 %2',
   args0: [
     {
       type: 'field_dropdown',
@@ -134,6 +160,11 @@ const biyo_filtered_noise = {
         ['\u30AD\u30E9\u30AD\u30E9', '8000'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -144,7 +175,7 @@ const biyo_filtered_noise = {
 
 const biyo_detune_saw = {
   type: 'biyo_detune_saw',
-  message0: 'ビリビリ おと %1 たかさ %2 ずれ %3',
+  message0: 'ビリビリ おと %1 たかさ %2 ずれ %3 %4',
   args0: [
     {
       type: 'field_dropdown',
@@ -166,6 +197,11 @@ const biyo_detune_saw = {
         ['ぐにゃぐにゃ', '8'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -175,7 +211,7 @@ const biyo_detune_saw = {
 
 const biyo_kick = {
   type: 'biyo_kick',
-  message0: '\u30C9\u30F3 \u304A\u3082\u3055 %1',
+  message0: '\u30C9\u30F3 \u304A\u3082\u3055 %1 %2',
   args0: [
     {
       type: 'field_dropdown',
@@ -185,6 +221,11 @@ const biyo_kick = {
         ['\u3075\u3064\u3046', '60'],
         ['\u304B\u308B\u3044', '80'],
       ],
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -196,7 +237,7 @@ const biyo_kick = {
 
 const biyo_hihat = {
   type: 'biyo_hihat',
-  message0: '\u30C1\u30C3 \u306A\u304C\u3055 %1',
+  message0: '\u30C1\u30C3 \u306A\u304C\u3055 %1 %2',
   args0: [
     {
       type: 'field_dropdown',
@@ -206,6 +247,11 @@ const biyo_hihat = {
         ['\u3075\u3064\u3046', '0.05'],
         ['\u306A\u304C\u3044', '0.15'],
       ],
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -217,7 +263,7 @@ const biyo_hihat = {
 
 const biyo_pluck = {
   type: 'biyo_pluck',
-  message0: 'ポン おと %1 たかさ %2 のびる %3',
+  message0: 'ポン おと %1 たかさ %2 のびる %3 %4',
   args0: [
     {
       type: 'field_dropdown',
@@ -239,6 +285,11 @@ const biyo_pluck = {
         ['すごくながい', '2.0'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -248,8 +299,14 @@ const biyo_pluck = {
 
 const biyo_microphone = {
   type: 'biyo_microphone',
-  message0: '\u30DE\u30A4\u30AF \uD83C\uDFA4',
-  args0: [],
+  message0: '\u30DE\u30A4\u30AF \uD83C\uDFA4 %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip:

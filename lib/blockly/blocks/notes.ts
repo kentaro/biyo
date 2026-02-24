@@ -7,7 +7,7 @@ const UTILITY_COLOUR = '#9F6A08';
 
 const biyo_piano_note = {
   type: 'biyo_piano_note',
-  message0: '\u304A\u3093\u3077 %1 \u30AA\u30AF\u30BF\u30FC\u30D6 %2',
+  message0: '\u304A\u3093\u3077 %1 \u30AA\u30AF\u30BF\u30FC\u30D6 %2 %3',
   args0: [
     {
       type: 'field_dropdown',
@@ -38,6 +38,11 @@ const biyo_piano_note = {
         ['\u3059\u3054\u304F\u305F\u304B\u3044', '6'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -48,7 +53,7 @@ const biyo_piano_note = {
 
 const biyo_bpm = {
   type: 'biyo_bpm',
-  message0: '\u306F\u3084\u3055 %1',
+  message0: '\u306F\u3084\u3055 %1 %2',
   args0: [
     {
       type: 'field_dropdown',
@@ -59,6 +64,11 @@ const biyo_bpm = {
         ['\u306F\u3084\u3044', '160'],
         ['\u3059\u3054\u304F\u306F\u3084\u3044', '200'],
       ],
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -71,13 +81,8 @@ const biyo_bpm = {
 const biyo_pingpong = {
   type: 'biyo_pingpong',
   message0:
-    '\u30D4\u30F3\u30DD\u30F3 %1 \u3058\u304B\u3093 %2 \u304F\u308A\u304B\u3048\u3057 %3 \u307E\u305C\u308B %4',
+    '\u30D4\u30F3\u30DD\u30F3 \u3058\u304B\u3093 %1 \u304F\u308A\u304B\u3048\u3057 %2 \u307E\u305C\u308B %3 %4',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'TIME',
@@ -107,6 +112,11 @@ const biyo_pingpong = {
         ['\u304A\u304A\u304F', '0.8'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: EFFECTS_COLOUR,
@@ -121,7 +131,7 @@ const biyo_passthrough = {
   args0: [
     {
       type: 'input_value',
-      name: 'SIGNAL',
+      name: 'NEXT',
       check: 'Signal',
     },
   ],

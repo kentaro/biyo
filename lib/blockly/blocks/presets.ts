@@ -4,7 +4,7 @@ const COLOUR = '#B050B0';
 
 const biyo_robot_voice = {
   type: 'biyo_robot_voice',
-  message0: 'ロボットこえ ぼいん %1',
+  message0: 'ロボットこえ ぼいん %1 %2',
   args0: [
     {
       type: 'field_dropdown',
@@ -17,6 +17,11 @@ const biyo_robot_voice = {
         ['お', 'o'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -26,8 +31,14 @@ const biyo_robot_voice = {
 
 const biyo_space = {
   type: 'biyo_space',
-  message0: 'うちゅう',
-  args0: [],
+  message0: 'うちゅう %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'キラキラ〜ってうちゅうをただよってるみたいなふしぎな音！',
@@ -36,8 +47,14 @@ const biyo_space = {
 
 const biyo_water_drop = {
   type: 'biyo_water_drop',
-  message0: 'ぽちゃん',
-  args0: [],
+  message0: 'ぽちゃん %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'ぽちゃん！みずのしずくがおちるかわいい音だよ',
@@ -46,8 +63,14 @@ const biyo_water_drop = {
 
 const biyo_ghost = {
   type: 'biyo_ghost',
-  message0: 'おばけ',
-  args0: [],
+  message0: 'おばけ %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'ヒュ〜ドロドロ〜！おばけがでてきそうなこわ〜い音！',
@@ -56,8 +79,14 @@ const biyo_ghost = {
 
 const biyo_siren = {
   type: 'biyo_siren',
-  message0: 'サイレン',
-  args0: [],
+  message0: 'サイレン %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'ウーウー！パトカーみたいなサイレンの音！',
@@ -66,8 +95,14 @@ const biyo_siren = {
 
 const biyo_laser = {
   type: 'biyo_laser',
-  message0: 'レーザー',
-  args0: [],
+  message0: 'レーザー %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'ビビビビ！SFえいがのレーザービームみたいな音！',
@@ -76,8 +111,14 @@ const biyo_laser = {
 
 const biyo_ufo = {
   type: 'biyo_ufo',
-  message0: 'UFO',
-  args0: [],
+  message0: 'UFO %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'ヒョ〜ン！UFOがとんでいくみたいなふしぎな音だよ',
@@ -86,8 +127,14 @@ const biyo_ufo = {
 
 const biyo_bubbles = {
   type: 'biyo_bubbles',
-  message0: 'ぶくぶく',
-  args0: [],
+  message0: 'ぶくぶく %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'ぶくぶくぶく〜！すいちゅうであわがでてるみたいな音！',
@@ -96,8 +143,14 @@ const biyo_bubbles = {
 
 const biyo_thunder = {
   type: 'biyo_thunder',
-  message0: 'かみなり',
-  args0: [],
+  message0: 'かみなり %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'ゴロゴロ ドカーン！かみなりがおちてくる音！',
@@ -106,7 +159,7 @@ const biyo_thunder = {
 
 const biyo_famicom = {
   type: 'biyo_famicom',
-  message0: 'ファミコン わおん %1',
+  message0: 'ファミコン わおん %1 %2',
   args0: [
     {
       type: 'field_dropdown',
@@ -120,6 +173,11 @@ const biyo_famicom = {
         ['ラマイナー', 'A_minor'],
       ],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -129,8 +187,14 @@ const biyo_famicom = {
 
 const biyo_clap = {
   type: 'biyo_clap',
-  message0: 'はくしゅ',
-  args0: [],
+  message0: 'はくしゅ %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'パチパチパチ！みんなではくしゅ！',
@@ -139,8 +203,14 @@ const biyo_clap = {
 
 const biyo_snare = {
   type: 'biyo_snare',
-  message0: 'スネア',
-  args0: [],
+  message0: 'スネア %1',
+  args0: [
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
+  ],
   output: 'Signal',
   colour: COLOUR,
   tooltip: 'タンッ！こだいこみたいなスネアドラムの音！',

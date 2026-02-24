@@ -78,6 +78,9 @@ function createMockBlock(opts: MockBlockOptions) {
     getFieldValue(name: string) {
       return fields[name] ?? null;
     },
+    getInputTargetBlock(_name: string) {
+      return null;
+    },
     isEnabled() {
       return opts.enabled !== false;
     },
@@ -397,9 +400,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_lowpass',
           fields: { CUTOFF: '1000', RESONANCE: '1' },
-          connectedInputs: { SIGNAL: 'noise()' },
         });
-        expect(code).toBe('lowpass(noise(), 1000.0, 1)');
+        expect(code).toBe('lowpass(0.0, 1000.0, 1)');
         expect(order).toBe(Order.FUNCTION_CALL);
       });
 
@@ -415,9 +417,8 @@ describe('mimium-generator', () => {
         const [code] = generateBlock({
           type: 'biyo_lowpass',
           fields: {},
-          connectedInputs: { SIGNAL: 'noise()' },
         });
-        expect(code).toBe('lowpass(noise(), 1000.0, 1)');
+        expect(code).toBe('lowpass(0.0, 1000.0, 1)');
       });
     });
 
@@ -426,9 +427,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_highpass',
           fields: { CUTOFF: '2000', RESONANCE: '0.7' },
-          connectedInputs: { SIGNAL: 'saw(440.0, 0.0)' },
         });
-        expect(code).toBe('highpass(saw(440.0, 0.0), 2000.0, 0.7)');
+        expect(code).toBe('highpass(0.0, 2000.0, 0.7)');
         expect(order).toBe(Order.FUNCTION_CALL);
       });
     });
@@ -438,9 +438,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_bandpass',
           fields: { CENTER: '1000', WIDTH: '500' },
-          connectedInputs: { SIGNAL: 'noise()' },
         });
-        expect(code).toBe('bandpass(noise(), 1000.0, 2.00)');
+        expect(code).toBe('bandpass(0.0, 1000.0, 2.00)');
         expect(order).toBe(Order.FUNCTION_CALL);
       });
 
@@ -448,10 +447,9 @@ describe('mimium-generator', () => {
         const [code] = generateBlock({
           type: 'biyo_bandpass',
           fields: { CENTER: '10', WIDTH: '100000' },
-          connectedInputs: { SIGNAL: 'noise()' },
         });
         // CENTER is clamped to minimum 20, so output shows 20.0
-        expect(code).toBe('bandpass(noise(), 20.0, 0.10)');
+        expect(code).toBe('bandpass(0.0, 20.0, 0.10)');
       });
     });
 
@@ -460,10 +458,10 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_delay',
           fields: { TIME: '0.3', MIX: '0.5' },
-          connectedInputs: { SIGNAL: 'noise()' },
         });
-        expect(code).toContain('(noise()) * 0.5');
-        expect(code).toContain('_delay(noise(), 0.3) * 0.5');
+        expect(code).toContain('let _dlabcd = 0.0;');
+        expect(code).toContain('_dlabcd * 0.500');
+        expect(code).toContain('_delay(_dlabcd, 0.3) * 0.5');
         expect(order).toBe(Order.ADD);
       });
 
@@ -471,20 +469,20 @@ describe('mimium-generator', () => {
         const [code] = generateBlock({
           type: 'biyo_delay',
           fields: {},
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toContain('(sig) * 0.5');
-        expect(code).toContain('_delay(sig, 0.3) * 0.5');
+        expect(code).toContain('let _dlabcd = 0.0;');
+        expect(code).toContain('_dlabcd * 0.5');
+        expect(code).toContain('_delay(_dlabcd, 0.3) * 0.5');
       });
 
       it('correctly computes dry level as 1 - mix', () => {
         const [code] = generateBlock({
           type: 'biyo_delay',
           fields: { TIME: '0.5', MIX: '0.3' },
-          connectedInputs: { SIGNAL: 's' },
         });
-        expect(code).toContain('(s) * 0.7');
-        expect(code).toContain('_delay(s, 0.5) * 0.3');
+        expect(code).toContain('let _dlabcd = 0.0;');
+        expect(code).toContain('_dlabcd * 0.700');
+        expect(code).toContain('_delay(_dlabcd, 0.5) * 0.3');
       });
     });
 
@@ -494,14 +492,10 @@ describe('mimium-generator', () => {
           type: 'biyo_reverb',
           id: 'abcd1234',
           fields: { SIZE: '0.6', MIX: '0.3' },
-          connectedInputs: { SIGNAL: 'noise()' },
         });
-        expect(code).toContain('let _rvabcd = noise()');
+        expect(code).toContain('let _rvabcd = 0.0');
         expect(code).toContain('_rvabcd * 0.700');
         expect(code).toContain('_delay(_rvabcd,');
-        // Signal referenced only once (in let binding), not duplicated
-        const noiseCount = (code.match(/noise\(\)/g) || []).length;
-        expect(noiseCount).toBe(1);
         expect(order).toBe(Order.ADD);
       });
 
@@ -510,7 +504,6 @@ describe('mimium-generator', () => {
           type: 'biyo_reverb',
           id: 'test5678',
           fields: { SIZE: '1.0', MIX: '0.5' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
         expect(code).toContain('_delay(_rvtest, 0.0400)');
         expect(code).toContain('_delay(_rvtest, 0.0700)');
@@ -524,9 +517,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_tremolo',
           fields: { SPEED: '5', DEPTH: '0.5' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toContain('(sig)');
+        expect(code).toContain('(0.0)');
         expect(code).toContain('sinwave(5.0, 0.0)');
         expect(code).toContain('0.5');
         expect(order).toBe(Order.MULTIPLY);
@@ -538,9 +530,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_autowah',
           fields: { SPEED: '2', DEPTH: '0.5' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toContain('lowpass(sig,');
+        expect(code).toContain('lowpass(0.0,');
         expect(code).toContain('500.0');
         expect(code).toContain('3000.0');
         expect(code).toContain('sinwave(2.0, 0.0)');
@@ -553,11 +544,10 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_vibrato',
           fields: { SPEED: '5', DEPTH: '0.3' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
         const baseDelay = (0.3 * 0.002 + 0.001).toFixed(6);
         const modAmt = (0.3 * 0.002).toFixed(6);
-        expect(code).toContain(`_delay(sig, ${baseDelay} + ${modAmt}`);
+        expect(code).toContain(`_delay(0.0, ${baseDelay} + ${modAmt}`);
         expect(code).toContain('sinwave(5.0, 0.0)');
         expect(order).toBe(Order.FUNCTION_CALL);
       });
@@ -568,10 +558,9 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_distortion',
           fields: { DRIVE: '5' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
         // drive=5, outputGain = min(1.0, 3/5) = 0.6
-        expect(code).toBe('soft_clip((sig) * 5.0) * 0.600');
+        expect(code).toBe('soft_clip((0.0) * 5.0) * 0.600');
         expect(order).toBe(Order.MULTIPLY);
       });
 
@@ -579,39 +568,35 @@ describe('mimium-generator', () => {
         const [code] = generateBlock({
           type: 'biyo_distortion',
           fields: {},
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toBe('soft_clip((sig) * 5.0) * 0.600');
+        expect(code).toBe('soft_clip((0.0) * 5.0) * 0.600');
       });
 
       it('accepts custom drive value', () => {
         const [code] = generateBlock({
           type: 'biyo_distortion',
           fields: { DRIVE: '10' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
         // drive=10, outputGain = min(1.0, 3/10) = 0.3
-        expect(code).toBe('soft_clip((sig) * 10.0) * 0.300');
+        expect(code).toBe('soft_clip((0.0) * 10.0) * 0.300');
       });
 
       it('caps output gain at 1.0 for low drive', () => {
         const [code] = generateBlock({
           type: 'biyo_distortion',
           fields: { DRIVE: '2' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
         // drive=2, outputGain = min(1.0, 3/2) = 1.0
-        expect(code).toBe('soft_clip((sig) * 2.0) * 1.000');
+        expect(code).toBe('soft_clip((0.0) * 2.0) * 1.000');
       });
 
       it('clamps drive minimum to 1 to prevent division by zero', () => {
         const [code] = generateBlock({
           type: 'biyo_distortion',
           fields: { DRIVE: '0' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
         // drive clamped to 1, outputGain = min(1.0, 3/1) = 1.0
-        expect(code).toBe('soft_clip((sig) * 1.0) * 1.000');
+        expect(code).toBe('soft_clip((0.0) * 1.0) * 1.000');
       });
     });
 
@@ -620,9 +605,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_gain_up',
           fields: { GAIN: '2.0' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toBe('(sig) * 2');
+        expect(code).toBe('(0.0) * 2');
         expect(order).toBe(Order.MULTIPLY);
       });
     });
@@ -632,9 +616,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_gain_down',
           fields: { AMOUNT: '0.3' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toBe('(sig) * 0.3');
+        expect(code).toBe('(0.0) * 0.3');
         expect(order).toBe(Order.MULTIPLY);
       });
     });
@@ -644,9 +627,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_telephone',
           fields: {},
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toBe('bandpass(soft_clip((sig) * 4.0), 1200.0, 3.0) * 0.5');
+        expect(code).toBe('bandpass(soft_clip((0.0) * 4.0), 1200.0, 3.0) * 0.5');
         expect(order).toBe(Order.MULTIPLY);
       });
     });
@@ -656,12 +638,12 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_pingpong',
           fields: { TIME: '0.25', FEEDBACK: '0.4' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
         // tap1=0.5, tap2=0.4*0.5=0.2, tap3=0.16*0.3=0.048, total=0.748 < 1.0
-        expect(code).toContain('(sig) * 0.500');
-        expect(code).toContain('_delay(sig, 0.25) * 0.200');
-        expect(code).toContain('_delay(sig, 0.5) * 0.048');
+        expect(code).toContain('let _ppabcd = 0.0;');
+        expect(code).toContain('_ppabcd * 0.500');
+        expect(code).toContain('_delay(_ppabcd, 0.25) * 0.200');
+        expect(code).toContain('_delay(_ppabcd, 0.5) * 0.048');
         expect(order).toBe(Order.ADD);
       });
 
@@ -669,14 +651,14 @@ describe('mimium-generator', () => {
         const [code] = generateBlock({
           type: 'biyo_pingpong',
           fields: { TIME: '0.25', FEEDBACK: '0.9' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
         // tap1=0.5, tap2=0.45, tap3=0.243, total=1.193 > 1.0
         // norm = 1/1.193 = ~0.838
         // All taps should be scaled down
-        expect(code).toContain('(sig) * 0.419');
-        expect(code).toContain('_delay(sig, 0.25) * 0.377');
-        expect(code).toContain('_delay(sig, 0.5) * 0.204');
+        expect(code).toContain('let _ppabcd = 0.0;');
+        expect(code).toContain('_ppabcd * 0.419');
+        expect(code).toContain('_delay(_ppabcd, 0.25) * 0.377');
+        expect(code).toContain('_delay(_ppabcd, 0.5) * 0.204');
       });
     });
 
@@ -685,9 +667,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_passthrough',
           fields: {},
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toBe('sig');
+        expect(code).toBe('0.0');
         expect(order).toBe(Order.ATOMIC);
       });
     });
@@ -713,7 +694,6 @@ describe('mimium-generator', () => {
           const [code, order] = generateBlock({
             type,
             fields,
-            connectedInputs: { SIGNAL: 'noise()' },
           });
           expect(code).toBeTruthy();
           expect(code.length).toBeGreaterThan(0);
@@ -1011,19 +991,18 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_envelope',
           fields: { ATTACK: '0.05', RELEASE: '0.3' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toContain('(sig) * envelope(metro(0.400)');
+        expect(code).toContain('(0.0) * envelope(metro(0.400)');
         expect(code).toContain(', 0.05, 0.3)');
         expect(order).toBe(Order.MULTIPLY);
       });
 
-      it('uses default signal 1.0 when nothing connected', () => {
+      it('uses default signal 0.0 when nothing connected', () => {
         const [code] = generateBlock({
           type: 'biyo_envelope',
           fields: { ATTACK: '0.05', RELEASE: '0.3' },
         });
-        expect(code).toContain('(1.0)');
+        expect(code).toContain('(0.0)');
       });
     });
   });
@@ -1154,9 +1133,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_invert',
           fields: {},
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toBe('-(sig)');
+        expect(code).toBe('-(0.0)');
         expect(order).toBe(Order.UNARY);
       });
 
@@ -1277,15 +1255,11 @@ describe('mimium-generator', () => {
     });
 
     it('deeply nested blocks produce valid code', () => {
-      const distortionCode = 'soft_clip((noise()) * 5.0) * 0.600';
       const [code] = generateBlock({
         type: 'biyo_lowpass',
         fields: { CUTOFF: '800', RESONANCE: '2' },
-        connectedInputs: { SIGNAL: distortionCode },
       });
-      expect(code).toBe(`lowpass(${distortionCode}, 800.0, 2)`);
-      expect(code).toContain('soft_clip');
-      expect(code).toContain('noise()');
+      expect(code).toBe('lowpass(0.0, 800.0, 2)');
       expect(code).toContain('lowpass(');
     });
 
@@ -1557,9 +1531,8 @@ describe('mimium-generator', () => {
         const [code, order] = generateBlock({
           type: 'biyo_probability',
           fields: { CHANCE: '50' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toContain('(sig) *');
+        expect(code).toContain('(0.0) *');
         expect(code).toContain('sin(floor(now / 1024.0) * 12.9898 + 78.233) * 43758.5453');
         expect(code).toContain('0.5000');
         expect(order).toBe(Order.MULTIPLY);
@@ -1569,7 +1542,6 @@ describe('mimium-generator', () => {
         const [code] = generateBlock({
           type: 'biyo_probability',
           fields: { CHANCE: '75' },
-          connectedInputs: { SIGNAL: 'sig' },
         });
         expect(code).toContain('0.7500');
       });
@@ -1586,7 +1558,6 @@ describe('mimium-generator', () => {
         const [code] = generateBlock({
           type: 'biyo_probability',
           fields: {},
-          connectedInputs: { SIGNAL: 'sig' },
         });
         expect(code).toContain('0.5000');
       });

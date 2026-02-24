@@ -17,7 +17,7 @@ const OCTAVE_OPTIONS: [string, string][] = [
 
 const biyo_random_melody = {
   type: 'biyo_random_melody',
-  message0: 'ランダムメロディ おんかい %1 はやさ %2 たかさ %3',
+  message0: 'ランダムメロディ おんかい %1 はやさ %2 たかさ %3 %4',
   args0: [
     {
       type: 'field_dropdown',
@@ -38,6 +38,11 @@ const biyo_random_melody = {
       name: 'OCTAVE',
       options: OCTAVE_OPTIONS,
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -48,7 +53,7 @@ const biyo_random_melody = {
 
 const biyo_euclidean = {
   type: 'biyo_euclidean',
-  message0: 'ユークリッドリズム ヒット %1 ステップ %2 はやさ %3',
+  message0: 'ユークリッドリズム ヒット %1 ステップ %2 はやさ %3 %4',
   args0: [
     {
       type: 'field_dropdown',
@@ -88,6 +93,11 @@ const biyo_euclidean = {
       name: 'BPM',
       options: BPM_OPTIONS,
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -98,7 +108,7 @@ const biyo_euclidean = {
 
 const biyo_lfo_random = {
   type: 'biyo_lfo_random',
-  message0: 'ゆらぎ はやさ %1 はば %2',
+  message0: 'ゆらぎ はやさ %1 はば %2 %3',
   args0: [
     {
       type: 'field_dropdown',
@@ -121,6 +131,11 @@ const biyo_lfo_random = {
         ['さいだい', '1.0'],
       ] as [string, string][],
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -130,13 +145,8 @@ const biyo_lfo_random = {
 
 const biyo_probability = {
   type: 'biyo_probability',
-  message0: 'たまに %1 かくりつ %2',
+  message0: 'たまに かくりつ %1 %2',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'CHANCE',
@@ -146,6 +156,11 @@ const biyo_probability = {
         ['75%', '75'],
         ['90%', '90'],
       ] as [string, string][],
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',

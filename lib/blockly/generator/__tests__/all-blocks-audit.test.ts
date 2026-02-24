@@ -99,6 +99,9 @@ function createMockBlock(opts: MockBlockOptions) {
     getFieldValue(name: string) {
       return fields[name] ?? null;
     },
+    getInputTargetBlock(_name: string) {
+      return null;
+    },
     isEnabled() {
       return opts.enabled !== false;
     },

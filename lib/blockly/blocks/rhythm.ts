@@ -31,12 +31,17 @@ const NOTE_DROPDOWN_OPTIONS: [string, string][] = [
 
 const biyo_metro = {
   type: 'biyo_metro',
-  message0: '\u30E1\u30C8\u30ED\u30CE\u30FC\u30E0 \u306F\u3084\u3055 %1',
+  message0: '\u30E1\u30C8\u30ED\u30CE\u30FC\u30E0 \u306F\u3084\u3055 %1 %2',
   args0: [
     {
       type: 'field_dropdown',
       name: 'BPM',
       options: BPM_OPTIONS,
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -49,7 +54,7 @@ const biyo_metro = {
 const biyo_sequencer = {
   type: 'biyo_sequencer',
   message0:
-    '\u30BF\u30BF\u30BF\u30BF \u306F\u3084\u3055 %1 \u304A\u30681 %2 \u304A\u30682 %3 \u304A\u30683 %4 \u304A\u30684 %5',
+    '\u30BF\u30BF\u30BF\u30BF \u306F\u3084\u3055 %1 \u304A\u30681 %2 \u304A\u30682 %3 \u304A\u30683 %4 \u304A\u30684 %5 %6',
   args0: [
     {
       type: 'field_dropdown',
@@ -76,6 +81,11 @@ const biyo_sequencer = {
       name: 'NOTE4',
       options: NOTE_DROPDOWN_OPTIONS,
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -87,7 +97,7 @@ const biyo_sequencer = {
 const biyo_drum_pattern = {
   type: 'biyo_drum_pattern',
   message0:
-    '\u30C9\u30F3\u30BF\u30F3\u30C9\u30F3\u30BF\u30F3 \u306F\u3084\u3055 %1 \u30D1\u30BF\u30FC\u30F3 %2',
+    '\u30C9\u30F3\u30BF\u30F3\u30C9\u30F3\u30BF\u30F3 \u306F\u3084\u3055 %1 \u30D1\u30BF\u30FC\u30F3 %2 %3',
   args0: [
     {
       type: 'field_dropdown',
@@ -103,6 +113,11 @@ const biyo_drum_pattern = {
         ['\u30B8\u30E3\u30BA', 'jazz'],
         ['\u30B5\u30F3\u30D0', 'samba'],
       ],
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
@@ -136,7 +151,8 @@ const OCTAVE_OPTIONS: [string, string][] = [
 
 const biyo_melody = {
   type: 'biyo_melody',
-  message0: 'メロディー たかさ %1 はやさ %2 ♪1 %3 ♪2 %4 ♪3 %5 ♪4 %6 ♪5 %7 ♪6 %8 ♪7 %9 ♪8 %10',
+  message0:
+    'メロディー たかさ %1 はやさ %2 ♪1 %3 ♪2 %4 ♪3 %5 ♪4 %6 ♪5 %7 ♪6 %8 ♪7 %9 ♪8 %10 %11',
   args0: [
     {
       type: 'field_dropdown',
@@ -188,6 +204,11 @@ const biyo_melody = {
       name: 'NOTE8',
       options: MELODY_NOTE_OPTIONS,
     },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
+    },
   ],
   output: 'Signal',
   colour: COLOUR,
@@ -198,13 +219,8 @@ const biyo_melody = {
 
 const biyo_envelope = {
   type: 'biyo_envelope',
-  message0: '\u306A\u3089\u3057\u3066 %1 \u305F\u3061\u3042\u304C\u308A %2 \u306E\u3073\u308B %3',
+  message0: '\u306A\u3089\u3057\u3066 \u305F\u3061\u3042\u304C\u308A %1 \u306E\u3073\u308B %2 %3',
   args0: [
-    {
-      type: 'input_value',
-      name: 'SIGNAL',
-      check: 'Signal',
-    },
     {
       type: 'field_dropdown',
       name: 'ATTACK',
@@ -224,6 +240,11 @@ const biyo_envelope = {
         ['\u306A\u304C\u304F\u306E\u3073\u308B', '1.0'],
         ['\u3059\u3054\u304F\u306A\u304C\u3044', '3.0'],
       ],
+    },
+    {
+      type: 'input_value',
+      name: 'NEXT',
+      check: 'Signal',
     },
   ],
   output: 'Signal',
