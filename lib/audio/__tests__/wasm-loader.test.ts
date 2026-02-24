@@ -1105,8 +1105,10 @@ describe('edge case fixes', () => {
     }
     __test__.transpileLetBindings(body);
     expect(warnSpy).toHaveBeenCalled();
-    const warnMsg = warnSpy.mock.calls.find((call) =>
-      typeof call[0] === 'string' && call[0].includes('transpileLetBindings approaching iteration limit'),
+    const warnMsg = warnSpy.mock.calls.find(
+      (call) =>
+        typeof call[0] === 'string' &&
+        call[0].includes('transpileLetBindings approaching iteration limit'),
     );
     expect(warnMsg).toBeDefined();
     warnSpy.mockRestore();
@@ -1121,8 +1123,10 @@ describe('edge case fixes', () => {
     }
     __test__.transpileIfElse(body);
     expect(warnSpy).toHaveBeenCalled();
-    const warnMsg = warnSpy.mock.calls.find((call) =>
-      typeof call[0] === 'string' && call[0].includes('transpileIfElse approaching iteration limit'),
+    const warnMsg = warnSpy.mock.calls.find(
+      (call) =>
+        typeof call[0] === 'string' &&
+        call[0].includes('transpileIfElse approaching iteration limit'),
     );
     expect(warnMsg).toBeDefined();
     warnSpy.mockRestore();
@@ -1220,9 +1224,7 @@ describe('edge case fixes', () => {
   });
 
   it('transpile preserves nested call structure in output', () => {
-    const result = __test__.transpile(
-      'lowpass(delay(sinwave(440.0, 0.0), 100), 1000.0, 1.0)',
-    );
+    const result = __test__.transpile('lowpass(delay(sinwave(440.0, 0.0), 100), 1000.0, 1.0)');
     // The transpiled output should contain the nested calls
     expect(result).toContain('lowpass');
     expect(result).toContain('delay');

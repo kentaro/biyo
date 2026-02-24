@@ -453,7 +453,9 @@ describe('ProjectStore', () => {
         name: 'XSS attempt',
         bpm: 120,
         tracks: [
-          makeMockTrack({ workspaceXml: '<xml><block type="biyo_test"><script>alert(1)</script></block></xml>' }),
+          makeMockTrack({
+            workspaceXml: '<xml><block type="biyo_test"><script>alert(1)</script></block></xml>',
+          }),
         ],
         savedAt: Date.now(),
       };
@@ -472,7 +474,9 @@ describe('ProjectStore', () => {
         name: 'Event handler XSS',
         bpm: 120,
         tracks: [
-          makeMockTrack({ workspaceXml: '<xml><block type="biyo_x" onerror="alert(1)"></block></xml>' }),
+          makeMockTrack({
+            workspaceXml: '<xml><block type="biyo_x" onerror="alert(1)"></block></xml>',
+          }),
         ],
         savedAt: Date.now(),
       };
@@ -553,9 +557,27 @@ describe('ProjectStore', () => {
       const project = getStore().projects[0];
 
       expect(project.tracks).toHaveLength(3);
-      expect(project.tracks[0]).toMatchObject({ id: 't1', name: 'Lead', volume: 100, muted: false, solo: true });
-      expect(project.tracks[1]).toMatchObject({ id: 't2', name: 'Bass', volume: 60, muted: true, solo: false });
-      expect(project.tracks[2]).toMatchObject({ id: 't3', name: 'Drums', volume: 80, muted: false, solo: false });
+      expect(project.tracks[0]).toMatchObject({
+        id: 't1',
+        name: 'Lead',
+        volume: 100,
+        muted: false,
+        solo: true,
+      });
+      expect(project.tracks[1]).toMatchObject({
+        id: 't2',
+        name: 'Bass',
+        volume: 60,
+        muted: true,
+        solo: false,
+      });
+      expect(project.tracks[2]).toMatchObject({
+        id: 't3',
+        name: 'Drums',
+        volume: 80,
+        muted: false,
+        solo: false,
+      });
     });
   });
 

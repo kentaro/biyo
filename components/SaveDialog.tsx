@@ -19,8 +19,15 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  const { projects, saveError, loadProjectList, saveProject, deleteProject, exportAsFile, importFromFile } =
-    useProjectStore();
+  const {
+    projects,
+    saveError,
+    loadProjectList,
+    saveProject,
+    deleteProject,
+    exportAsFile,
+    importFromFile,
+  } = useProjectStore();
   const tracks = useTrackStore((s) => s.tracks);
   const bpm = usePlaybackStore((s) => s.bpm);
 
@@ -276,7 +283,14 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
           </p>
 
           {/* Export / Import buttons */}
-          <div style={{ display: 'flex', gap: 'var(--sp-2)', marginTop: 'var(--sp-3)', flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 'var(--sp-2)',
+              marginTop: 'var(--sp-3)',
+              flexWrap: 'wrap',
+            }}
+          >
             <button
               type="button"
               onClick={handleExport}

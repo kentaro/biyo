@@ -391,12 +391,14 @@ describe('XSS/injection prevention in decodeWorkspace', () => {
   });
 
   it('rejects XML with javascript: URI', () => {
-    const xml = '<xml><block type="biyo_note"><field name="URL">javascript:alert(1)</field></block></xml>';
+    const xml =
+      '<xml><block type="biyo_note"><field name="URL">javascript:alert(1)</field></block></xml>';
     expect(decodeWorkspace(makeShareHash(xml))).toBeNull();
   });
 
   it('rejects XML with data:text/html URI', () => {
-    const xml = '<xml><block type="biyo_note"><field name="URL">data:text/html,<script>alert(1)</script></field></block></xml>';
+    const xml =
+      '<xml><block type="biyo_note"><field name="URL">data:text/html,<script>alert(1)</script></field></block></xml>';
     expect(decodeWorkspace(makeShareHash(xml))).toBeNull();
   });
 
@@ -426,7 +428,8 @@ describe('XSS/injection prevention in decodeWorkspace', () => {
   });
 
   it('rejects XML with <meta> tag', () => {
-    const xml = '<xml><meta http-equiv="refresh" content="0;url=evil"/><block type="biyo_note"/></xml>';
+    const xml =
+      '<xml><meta http-equiv="refresh" content="0;url=evil"/><block type="biyo_note"/></xml>';
     expect(decodeWorkspace(makeShareHash(xml))).toBeNull();
   });
 
@@ -461,7 +464,8 @@ describe('XSS/injection prevention in decodeWorkspace', () => {
   });
 
   it('accepts valid XML with shadow blocks using biyo_ types', () => {
-    const xml = '<xml><block type="biyo_lowpass"><shadow type="biyo_number"></shadow></block></xml>';
+    const xml =
+      '<xml><block type="biyo_lowpass"><shadow type="biyo_number"></shadow></block></xml>';
     const result = decodeWorkspace(makeShareHash(xml));
     expect(result).not.toBeNull();
   });
@@ -497,8 +501,7 @@ describe('minification preserves content integrity', () => {
   });
 
   it('preserves multiple spaces inside field text content', () => {
-    const xml =
-      '<xml><block type="biyo_note"><field name="LYRIC">do  re  mi</field></block></xml>';
+    const xml = '<xml><block type="biyo_note"><field name="LYRIC">do  re  mi</field></block></xml>';
     const hash = encodeWorkspace(xml, 120)!;
     expect(hash).not.toBeNull();
     const decoded = decodeWorkspace(hash);
@@ -508,8 +511,7 @@ describe('minification preserves content integrity', () => {
 
   it('collapses only inter-tag whitespace, not intra-tag whitespace', () => {
     // Mix of inter-tag whitespace (should be removed) and intra-tag content (should be kept)
-    const xml =
-      '<xml>  <block type="biyo_note">  text  content  </block>  </xml>';
+    const xml = '<xml>  <block type="biyo_note">  text  content  </block>  </xml>';
     const hash = encodeWorkspace(xml, 120)!;
     const decoded = decodeWorkspace(hash);
     expect(decoded).not.toBeNull();
@@ -526,8 +528,7 @@ describe('minification preserves content integrity', () => {
 
 describe('exact round-trip for already-minified XML', () => {
   it('returns byte-identical xml when input has no inter-tag whitespace', () => {
-    const xml =
-      '<xml><block type="biyo_note"><field name="NOTE">C4</field></block></xml>';
+    const xml = '<xml><block type="biyo_note"><field name="NOTE">C4</field></block></xml>';
     const hash = encodeWorkspace(xml, 120)!;
     const decoded = decodeWorkspace(hash);
     expect(decoded).not.toBeNull();

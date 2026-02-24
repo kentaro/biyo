@@ -265,22 +265,24 @@ body {
 .blocklyTrash {
   scale: 1.5;
   transform-origin: bottom right;
-  opacity: 0.85 !important;
-  transition: scale 0.2s ease, opacity 0.2s ease;
+  opacity: 0.85;
+  transition:
+    scale 0.2s ease,
+    opacity 0.2s ease;
 }
 
 /* Trashcan hover: slightly enlarge and full opacity */
 .blocklyTrash:hover {
   scale: 1.7;
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 /* When trashcan lid is open (block dragged over it), make it even bigger.
  * The .blocklyTrashLidOpen class is added by our BlockEditor code
  * via monkey-patching Trashcan.setLidOpen. */
 .blocklyTrash.blocklyTrashLidOpen {
-  scale: 2.0;
-  opacity: 1 !important;
+  scale: 2;
+  opacity: 1;
 }
 
 /* ============================================
@@ -812,8 +814,11 @@ input:focus-visible,
 @media (display-mode: standalone) {
   .drawer-toggle {
     bottom: calc(
-      var(--bottom-h) + 72px + var(--statusbar-h) + var(--sp-3) +
-        env(safe-area-inset-bottom)
+      var(--bottom-h) +
+      72px +
+      var(--statusbar-h) +
+      var(--sp-3) +
+      env(safe-area-inset-bottom)
     );
   }
 }

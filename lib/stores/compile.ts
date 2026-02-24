@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { mergeTracks } from '@/lib/blockly/generator/code-merger';
 import type { TrackCode } from '@/lib/blockly/generator/code-merger';
+import { mergeTracks } from '@/lib/blockly/generator/code-merger';
 import { useTrackStore } from './tracks';
 
 export type CompileStatus = 'ready' | 'compiling' | 'error';

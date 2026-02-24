@@ -1,5 +1,5 @@
-import { validateWorkspaceXml } from '@/lib/sharing/validate-xml';
 import { create } from 'zustand';
+import { validateWorkspaceXml } from '@/lib/sharing/validate-xml';
 import type { Track } from './tracks';
 
 export interface SavedProject {
@@ -155,11 +155,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       reader.onload = () => {
         try {
           const data = JSON.parse(reader.result as string) as BiyoFile;
-          if (
-            !data.version ||
-            !Array.isArray(data.tracks) ||
-            typeof data.bpm !== 'number'
-          ) {
+          if (!data.version || !Array.isArray(data.tracks) || typeof data.bpm !== 'number') {
             reject(new Error('このファイルはひらけないみたい。べつのファイルをえらんでみてね！'));
             return;
           }
@@ -167,9 +163,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
           // Validate each track has the required shape
           for (const track of data.tracks) {
             if (!isValidTrack(track)) {
-              reject(
-                new Error('このファイルはひらけないみたい。べつのファイルをえらんでみてね！'),
-              );
+              reject(new Error('このファイルはひらけないみたい。べつのファイルをえらんでみてね！'));
               return;
             }
           }

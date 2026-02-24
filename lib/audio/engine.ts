@@ -144,7 +144,9 @@ class AudioEngine {
         // build blocks even if audio is temporarily unavailable).
         console.warn('[AudioEngine] Failed to resume AudioContext. Audio may be unavailable.');
         useCompileStore.getState().setStatus('error');
-        useCompileStore.getState().setError('おとがならないみたい。がめんをタッチしてからもういちどためしてね！');
+        useCompileStore
+          .getState()
+          .setError('おとがならないみたい。がめんをタッチしてからもういちどためしてね！');
       }
     }
     // Audio context is now resumed and playing
@@ -188,12 +190,36 @@ class AudioEngine {
     }
 
     // Disconnect all nodes to release resources
-    try { this.scriptNode?.disconnect(); } catch { /* already disconnected */ }
-    try { this.analyser?.disconnect(); } catch { /* already disconnected */ }
-    try { this.masterGain?.disconnect(); } catch { /* already disconnected */ }
-    try { this.safetyLimiter?.disconnect(); } catch { /* already disconnected */ }
-    try { this.compressor?.disconnect(); } catch { /* already disconnected */ }
-    try { this.micSafetyGain?.disconnect(); } catch { /* already disconnected */ }
+    try {
+      this.scriptNode?.disconnect();
+    } catch {
+      /* already disconnected */
+    }
+    try {
+      this.analyser?.disconnect();
+    } catch {
+      /* already disconnected */
+    }
+    try {
+      this.masterGain?.disconnect();
+    } catch {
+      /* already disconnected */
+    }
+    try {
+      this.safetyLimiter?.disconnect();
+    } catch {
+      /* already disconnected */
+    }
+    try {
+      this.compressor?.disconnect();
+    } catch {
+      /* already disconnected */
+    }
+    try {
+      this.micSafetyGain?.disconnect();
+    } catch {
+      /* already disconnected */
+    }
 
     // Close the AudioContext to release system audio resources
     if (this.ctx && this.ctx.state !== 'closed') {

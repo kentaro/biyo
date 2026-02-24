@@ -126,9 +126,7 @@ describe('code-merger', () => {
     });
 
     it('handles code that is just a raw expression (no dsp wrapper)', () => {
-      const tracks: TrackCode[] = [
-        { code: 'noise()', volume: 100, muted: false, solo: false },
-      ];
+      const tracks: TrackCode[] = [{ code: 'noise()', volume: 100, muted: false, solo: false }];
       const result = mergeTracks(tracks);
       const trackFns = extractTrackFunctions(result);
       expect(trackFns).toHaveLength(1);
@@ -344,9 +342,7 @@ describe('code-merger', () => {
     });
 
     it('handles empty string code (fallback to trimmed empty)', () => {
-      const tracks: TrackCode[] = [
-        { code: '', volume: 100, muted: false, solo: false },
-      ];
+      const tracks: TrackCode[] = [{ code: '', volume: 100, muted: false, solo: false }];
       const result = mergeTracks(tracks);
       const trackFns = extractTrackFunctions(result);
       expect(trackFns[0].body).toBe('');
@@ -368,9 +364,7 @@ describe('code-merger', () => {
 
     it('strips preamble when extracting body', () => {
       const fullCode = `${PREAMBLE}\n\nfn dsp() -> float {\n  saw(110.0, 0.0)\n}`;
-      const tracks: TrackCode[] = [
-        { code: fullCode, volume: 100, muted: false, solo: false },
-      ];
+      const tracks: TrackCode[] = [{ code: fullCode, volume: 100, muted: false, solo: false }];
       const result = mergeTracks(tracks);
       const trackFns = extractTrackFunctions(result);
       expect(trackFns[0].body).toBe('saw(110.0, 0.0)');
@@ -789,9 +783,7 @@ describe('code-merger', () => {
     });
 
     it('handles whitespace-only code in fallback path', () => {
-      const tracks: TrackCode[] = [
-        { code: '   \n  \t  ', volume: 100, muted: false, solo: false },
-      ];
+      const tracks: TrackCode[] = [{ code: '   \n  \t  ', volume: 100, muted: false, solo: false }];
       const result = mergeTracks(tracks);
       const trackFns = extractTrackFunctions(result);
       expect(trackFns).toHaveLength(1);
