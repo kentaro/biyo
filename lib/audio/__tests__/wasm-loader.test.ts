@@ -150,10 +150,11 @@ describe('compileMimium / transpilation', () => {
   });
 
   it('rejects code that exceeds 100KB after transpilation', () => {
-    // Generate a very large expression
-    const bigExpr = `sinwave(${'sinwave('.repeat(5000)}440.0, 0.0${', 0.0)'.repeat(5000)}, 0.0)`;
-    // This alone may not exceed 100KB, but wrapping with enough repetition should
-    const code = dsp(bigExpr);
+    // Generate a very large but flat expression to exceed 100KB without deep nesting
+    // (deep nesting causes call stack overflow on CI before size check triggers)
+    const lines = Array.from({ length: 2000 }, (_, i) => `let v${i} = sinwave(${440 + i}.0, 0.0)`);
+    lines.push(`v0 ${' + v0'.repeat(200)}`);
+    const code = dsp(lines.join('\n'));
     // compileMimium may throw for oversized code, and
     // TranspilerContext.compile() throws for syntax errors.
     safeCompile(ctx, code);
