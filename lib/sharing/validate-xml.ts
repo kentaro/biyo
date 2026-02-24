@@ -18,7 +18,7 @@ export const MAX_XML_SIZE = 500 * 1024;
  */
 const DANGEROUS_PATTERNS: RegExp[] = [
   // Script tags (including variants with whitespace/attributes)
-  /<script[\s>\/]/i,
+  /<script[\s>/]/i,
   /<\/script\s*>/i,
 
   // Inline event handlers: on* attributes (e.g. onclick, onerror, onload, ...)
@@ -31,17 +31,17 @@ const DANGEROUS_PATTERNS: RegExp[] = [
   /data\s*:\s*text\/html/i,
 
   // Dangerous embedding tags
-  /<iframe[\s>\/]/i,
-  /<object[\s>\/]/i,
-  /<embed[\s>\/]/i,
-  /<link[\s>\/]/i,
-  /<style[\s>\/]/i,
+  /<iframe[\s>/]/i,
+  /<object[\s>/]/i,
+  /<embed[\s>/]/i,
+  /<link[\s>/]/i,
+  /<style[\s>/]/i,
   /<\/style\s*>/i,
-  /<meta[\s>\/]/i,
-  /<base[\s>\/]/i,
-  /<form[\s>\/]/i,
-  /<svg[\s>\/]/i,
-  /<math[\s>\/]/i,
+  /<meta[\s>/]/i,
+  /<base[\s>/]/i,
+  /<form[\s>/]/i,
+  /<svg[\s>/]/i,
+  /<math[\s>/]/i,
 ];
 
 /**
@@ -56,9 +56,10 @@ const KNOWN_BLOCK_TYPE_PREFIXES = ['biyo_'];
 function extractBlockTypes(xml: string): string[] {
   const regex = /<(?:block|shadow)\s[^>]*type\s*=\s*["']([^"']+)["']/gi;
   const types: string[] = [];
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(xml)) !== null) {
+  let match: RegExpExecArray | null = regex.exec(xml);
+  while (match !== null) {
     types.push(match[1]);
+    match = regex.exec(xml);
   }
   return types;
 }
@@ -117,9 +118,7 @@ export function validateWorkspaceXml(xml: string): ValidationResult {
   // 5. Validate block types use known prefixes
   const blockTypes = extractBlockTypes(xml);
   for (const blockType of blockTypes) {
-    const hasKnownPrefix = KNOWN_BLOCK_TYPE_PREFIXES.some((prefix) =>
-      blockType.startsWith(prefix),
-    );
+    const hasKnownPrefix = KNOWN_BLOCK_TYPE_PREFIXES.some((prefix) => blockType.startsWith(prefix));
     if (!hasKnownPrefix) {
       return {
         valid: false,

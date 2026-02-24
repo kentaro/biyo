@@ -70,14 +70,6 @@ const GENERATIVE_TYPES = new Set([
   'biyo_probability',
 ]);
 
-const UTILITY_TYPES = new Set([
-  'biyo_mix',
-  'biyo_multiply',
-  'biyo_number',
-  'biyo_invert',
-  'biyo_passthrough',
-]);
-
 const PRESET_TYPES = new Set([
   'biyo_robot_voice',
   'biyo_space',

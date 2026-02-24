@@ -98,7 +98,7 @@ export default function StatusBar() {
           </span>
         )}
         {/* BPM display */}
-        <span className="font-bold shrink-0" aria-label={`テンポ ${bpm} BPM`}>
+        <span className="font-bold shrink-0" title={`テンポ ${bpm} BPM`}>
           <span aria-hidden="true" style={{ marginRight: 2 }}>
             ♩
           </span>

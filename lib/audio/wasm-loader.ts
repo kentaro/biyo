@@ -332,7 +332,7 @@ function transpileLetBindings(s: string): string {
     if (iterations >= MAX_ITERATIONS - 10) {
       console.warn(
         `[wasm-loader] transpileLetBindings approaching iteration limit (${iterations}/${MAX_ITERATIONS}). ` +
-        'Code may contain too many or malformed let-bindings.',
+          'Code may contain too many or malformed let-bindings.',
       );
     }
 
@@ -444,7 +444,7 @@ function transpileIfElse(s: string): string {
     if (iterations >= MAX_ITERATIONS - 10) {
       console.warn(
         `[wasm-loader] transpileIfElse approaching iteration limit (${iterations}/${MAX_ITERATIONS}). ` +
-        'Code may contain too many or malformed if-else expressions.',
+          'Code may contain too many or malformed if-else expressions.',
       );
     }
 
@@ -606,7 +606,7 @@ function transpileFmod(s: string): string {
     if (iterations >= MAX_ITERATIONS - 10) {
       console.warn(
         `[wasm-loader] transpileFmod approaching iteration limit (${iterations}/${MAX_ITERATIONS}). ` +
-        'Code may contain too many or malformed fmod calls.',
+          'Code may contain too many or malformed fmod calls.',
       );
     }
 
@@ -723,7 +723,10 @@ function compileMimium(
   }
 
   try {
-    const fn = new Function(...paramNames, `"use strict"; var window=void 0,document=void 0,fetch=void 0,XMLHttpRequest=void 0,importScripts=void 0,globalThis=void 0,self=void 0; return ${jsBody};`);
+    const fn = new Function(
+      ...paramNames,
+      `"use strict"; var window=void 0,document=void 0,fetch=void 0,XMLHttpRequest=void 0,importScripts=void 0,globalThis=void 0,self=void 0; return ${jsBody};`,
+    );
     return (st: DSPState, b: ReturnType<typeof makeBuiltins>) => {
       return fn(
         st,
@@ -789,11 +792,13 @@ class TranspilerContext implements MimiumContext {
       this.state.now = prevNow;
       this.builtins = makeBuiltins(this.state);
       this.dspFn = newFn;
-    } else if (code && code.trim()) {
+    } else if (code?.trim()) {
       // Non-empty code returned null => compilation failed (syntax error).
       // Throw so AudioEngine.compile() can surface it to the user.
       // The old DSP function is preserved (assignment above was skipped).
-      throw new Error('ブロックのくみあわせがうまくいかないみたい。べつのつなげかたをためしてみてね！');
+      throw new Error(
+        'ブロックのくみあわせがうまくいかないみたい。べつのつなげかたをためしてみてね！',
+      );
     }
     // If compilation returns null for empty code, keep old DSP function running
   }

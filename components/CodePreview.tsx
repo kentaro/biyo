@@ -13,14 +13,13 @@ function highlightCode(code: string): React.ReactNode[] {
   //   match[1] = keyword
   //   match[2] = number literal
   //   match[3] = comment
-  const combined =
-    /\b(fn|let|if|else|return|self|include)\b|(\b\d+\.?\d*\b)|(\/\/[^\n]*)/g;
+  const combined = /\b(fn|let|if|else|return|self|include)\b|(\b\d+\.?\d*\b)|(\/\/[^\n]*)/g;
 
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
-  let match: RegExpExecArray | null;
+  let match: RegExpExecArray | null = combined.exec(code);
 
-  while ((match = combined.exec(code)) !== null) {
+  while (match !== null) {
     // Push plain text before the match
     if (match.index > lastIndex) {
       parts.push(code.slice(lastIndex, match.index));
@@ -50,6 +49,7 @@ function highlightCode(code: string): React.ReactNode[] {
     }
 
     lastIndex = match.index + match[0].length;
+    match = combined.exec(code);
   }
 
   // Push remaining text
@@ -147,7 +147,10 @@ export default function CodePreview() {
       </div>
 
       {isOpen && (
-        <div className="flex-1 min-h-0 overflow-auto" style={{ backgroundColor: 'var(--c-surface-blockly)' }}>
+        <div
+          className="flex-1 min-h-0 overflow-auto"
+          style={{ backgroundColor: 'var(--c-surface-blockly)' }}
+        >
           {compileError && (
             <div
               style={{
@@ -157,7 +160,10 @@ export default function CodePreview() {
               }}
               role="alert"
             >
-              <p className="font-bold" style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-error)' }}>
+              <p
+                className="font-bold"
+                style={{ fontSize: 'var(--fs-xs)', color: 'var(--c-error)' }}
+              >
                 ブロックがたりないかも？ メニューからえらんでつなげてみてね
               </p>
             </div>

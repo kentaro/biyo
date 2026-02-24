@@ -835,13 +835,13 @@ function BlockEditorInner() {
 
     // Set Japanese locale for Blockly context menu (child-friendly hiragana)
     // Only override Msg keys for items we keep visible in the context menu.
-    Blockly.Msg['DELETE_BLOCK'] = 'ブロックをけす';
-    Blockly.Msg['DELETE_X_BLOCKS'] = '%1このブロックをけす';
-    Blockly.Msg['DELETE_ALL_BLOCKS'] = 'ぜんぶのブロックをけす (%1こ)';
-    Blockly.Msg['DUPLICATE_BLOCK'] = 'ブロックをコピーする';
-    Blockly.Msg['UNDO'] = 'もどす';
-    Blockly.Msg['REDO'] = 'やりなおす';
-    Blockly.Msg['CLEAN_UP'] = 'ブロックをせいりする';
+    Blockly.Msg.DELETE_BLOCK = 'ブロックをけす';
+    Blockly.Msg.DELETE_X_BLOCKS = '%1このブロックをけす';
+    Blockly.Msg.DELETE_ALL_BLOCKS = 'ぜんぶのブロックをけす (%1こ)';
+    Blockly.Msg.DUPLICATE_BLOCK = 'ブロックをコピーする';
+    Blockly.Msg.UNDO = 'もどす';
+    Blockly.Msg.REDO = 'やりなおす';
+    Blockly.Msg.CLEAN_UP = 'ブロックをせいりする';
 
     // Remove confusing context menu items for children.
     // Using ContextMenuRegistry.unregister() removes items globally from BOTH
@@ -951,7 +951,7 @@ function BlockEditorInner() {
       workspaceRef.current = null;
       globalWorkspace = null;
     };
-  }, [onWorkspaceChange, onExperienceTrack]);
+  }, [onWorkspaceChange, onExperienceTrack, setStatus]);
 
   useEffect(() => {
     const workspace = workspaceRef.current;

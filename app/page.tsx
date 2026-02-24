@@ -5,9 +5,9 @@ import { useCallback, useEffect, useState } from 'react';
 import Achievements from '@/components/Achievements';
 import { getWorkspace } from '@/components/BlockEditor';
 import CodePreview from '@/components/CodePreview';
-import ErrorBoundary from '@/components/ErrorBoundary';
 import DrawerToggle from '@/components/DrawerToggle';
 import EmojiReaction from '@/components/EmojiReaction';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
 import ResizeHandle from '@/components/ResizeHandle';
 import SampleBrowser from '@/components/SampleBrowser';
@@ -285,7 +285,6 @@ export default function Home() {
   }, [
     isPlaying,
     setIsPlaying,
-    generatedCode,
     isMobile,
     drawerOpen,
     closeDrawer,
@@ -295,169 +294,172 @@ export default function Home() {
 
   return (
     <ErrorBoundary>
-    <div
-      className="h-[100dvh] flex flex-col bg-[var(--c-bg)]"
-      style={{ height: '100dvh', position: 'relative' }}
-      role="application"
-      aria-label="biyo おんがくをつくるアプリ"
-    >
-      {/* Skip nav target */}
-      <div id="main-content" tabIndex={-1} style={{ outline: 'none' }} />
-      {/* Toolbar */}
-      <div className="shrink-0" style={{ height: 'var(--toolbar-h)' }}>
-        <Toolbar onOpenSamples={() => setSampleBrowserOpen(true)} />
-      </div>
-
-      {/* Smart Suggestion pills - context-aware compositional guidance */}
-      <SmartSuggestion />
-
-      {/* Main: Editor + Sidebar */}
-      <div className="flex-1 min-h-0 flex">
-        <div className="flex-1 min-w-0 p-[var(--sp-2)]">
-          <ErrorBoundary fallbackMessage="エディタでエラーがおきちゃった！">
-            <BlockEditor />
-          </ErrorBoundary>
-        </div>
-
-        {/* Desktop: vertical resize handle + sidebar */}
-        {!isMobile && (
-          <>
-            <ResizeHandle
-              direction="horizontal"
-              onResize={resizeSidebar}
-              onResizeEnd={persistSizes}
-              onDoubleClick={resetSidebar}
-            />
-            <div className="shrink-0" style={{ width: sidebarWidth }}>
-              <TrackPanel />
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Desktop: horizontal resize handle between main and bottom */}
-      {!isMobile && (
-        <ResizeHandle
-          direction="vertical"
-          onResize={resizeBottom}
-          onResizeEnd={persistSizes}
-          onDoubleClick={resetBottom}
-        />
-      )}
-
-      {/* Bottom: Waveform + Code */}
       <div
-        className="shrink-0 flex border-t border-[var(--c-border)]"
-        style={{ height: isMobile ? 'var(--bottom-h)' : bottomHeight }}
+        className="h-[100dvh] flex flex-col bg-[var(--c-bg)]"
+        style={{ height: '100dvh', position: 'relative' }}
+        role="application"
+        aria-label="biyo おんがくをつくるアプリ"
       >
-        <div className="flex-1 min-w-0 p-[var(--sp-2)]">
-          <WaveformMonitor />
+        {/* Skip nav target */}
+        <div id="main-content" tabIndex={-1} style={{ outline: 'none' }} />
+        {/* Toolbar */}
+        <div className="shrink-0" style={{ height: 'var(--toolbar-h)' }}>
+          <Toolbar onOpenSamples={() => setSampleBrowserOpen(true)} />
         </div>
+
+        {/* Smart Suggestion pills - context-aware compositional guidance */}
+        <SmartSuggestion />
+
+        {/* Main: Editor + Sidebar */}
+        <div className="flex-1 min-h-0 flex">
+          <div className="flex-1 min-w-0 p-[var(--sp-2)]">
+            <ErrorBoundary fallbackMessage="エディタでエラーがおきちゃった！">
+              <BlockEditor />
+            </ErrorBoundary>
+          </div>
+
+          {/* Desktop: vertical resize handle + sidebar */}
+          {!isMobile && (
+            <>
+              <ResizeHandle
+                direction="horizontal"
+                onResize={resizeSidebar}
+                onResizeEnd={persistSizes}
+                onDoubleClick={resetSidebar}
+              />
+              <div className="shrink-0" style={{ width: sidebarWidth }}>
+                <TrackPanel />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Desktop: horizontal resize handle between main and bottom */}
         {!isMobile && (
-          <div className="shrink-0 p-[var(--sp-2)]" style={{ width: sidebarWidth }}>
+          <ResizeHandle
+            direction="vertical"
+            onResize={resizeBottom}
+            onResizeEnd={persistSizes}
+            onDoubleClick={resetBottom}
+          />
+        )}
+
+        {/* Bottom: Waveform + Code */}
+        <div
+          className="shrink-0 flex border-t border-[var(--c-border)]"
+          style={{ height: isMobile ? 'var(--bottom-h)' : bottomHeight }}
+        >
+          <div className="flex-1 min-w-0 p-[var(--sp-2)]">
+            <WaveformMonitor />
+          </div>
+          {!isMobile && (
+            <div className="shrink-0 p-[var(--sp-2)]" style={{ width: sidebarWidth }}>
+              <CodePreview />
+            </div>
+          )}
+        </div>
+
+        {/* Mobile bottom: Code inline under waveform */}
+        {isMobile && (
+          <div
+            className="shrink-0 border-t border-[var(--c-border)] p-[var(--sp-1)]"
+            style={{ maxHeight: '72px', overflowY: 'auto', overflowX: 'hidden' }}
+          >
             <CodePreview />
           </div>
         )}
-      </div>
 
-      {/* Mobile bottom: Code inline under waveform */}
-      {isMobile && (
-        <div
-          className="shrink-0 border-t border-[var(--c-border)] p-[var(--sp-1)]"
-          style={{ maxHeight: '72px', overflowY: 'auto', overflowX: 'hidden' }}
-        >
-          <CodePreview />
+        {/* Status Bar */}
+        <div className="shrink-0" style={{ height: 'var(--statusbar-h)' }}>
+          <StatusBar />
         </div>
-      )}
 
-      {/* Status Bar */}
-      <div className="shrink-0" style={{ height: 'var(--statusbar-h)' }}>
-        <StatusBar />
-      </div>
+        {/* Mobile: Drawer overlay + panel */}
+        {isMobile && (
+          <>
+            {/* Overlay is decorative; click closes drawer */}
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: decorative overlay, not interactive content */}
+            <div
+              className={`drawer-overlay ${drawerOpen ? 'open' : ''}`}
+              onClick={closeDrawer}
+              role="presentation"
+            />
+            <aside
+              id="drawer-panel"
+              className={`drawer-panel ${drawerOpen ? 'open' : ''}`}
+              aria-label="トラックパネル"
+            >
+              <TrackPanel />
+            </aside>
+            <DrawerToggle isOpen={drawerOpen} onToggle={toggleDrawer} />
+          </>
+        )}
 
-      {/* Mobile: Drawer overlay + panel */}
-      {isMobile && (
-        <>
-          {/* Overlay is decorative; click closes drawer */}
-          <div
-            className={`drawer-overlay ${drawerOpen ? 'open' : ''}`}
-            onClick={closeDrawer}
-            role="presentation"
+        {/* Welcome overlay for first-time visitors */}
+        {showWelcome && (
+          <WelcomeOverlay
+            onDismiss={handleWelcomeDismiss}
+            onLoadSample={handleLoadSample}
+            onTutorial={handleTutorialStart}
           />
-          <aside
-            id="drawer-panel"
-            className={`drawer-panel ${drawerOpen ? 'open' : ''}`}
-            role="complementary"
-            aria-label="トラックパネル"
-          >
-            <TrackPanel />
-          </aside>
-          <DrawerToggle isOpen={drawerOpen} onToggle={toggleDrawer} />
-        </>
-      )}
+        )}
 
-      {/* Welcome overlay for first-time visitors */}
-      {showWelcome && (
-        <WelcomeOverlay
-          onDismiss={handleWelcomeDismiss}
+        {/* Tutorial overlay */}
+        {showTutorial && (
+          <TutorialOverlay
+            onDismiss={handleTutorialDismiss}
+            onOpenSamples={() => {
+              setShowTutorial(false);
+              setSampleBrowserOpen(true);
+            }}
+          />
+        )}
+
+        {/* Sample browser */}
+        <SampleBrowser
+          open={sampleBrowserOpen}
+          onClose={() => setSampleBrowserOpen(false)}
           onLoadSample={handleLoadSample}
-          onTutorial={handleTutorialStart}
         />
-      )}
 
-      {/* Tutorial overlay */}
-      {showTutorial && (
-        <TutorialOverlay
-          onDismiss={handleTutorialDismiss}
-          onOpenSamples={() => {
-            setShowTutorial(false);
-            setSampleBrowserOpen(true);
-          }}
+        {/* Emoji reactions on play */}
+        <EmojiReaction />
+
+        {/* Achievements system */}
+        <Achievements />
+
+        {/* Keyboard shortcuts help popup */}
+        <KeyboardShortcutsHelp
+          open={shortcutsHelpOpen}
+          onClose={() => setShortcutsHelpOpen(false)}
         />
-      )}
 
-      {/* Sample browser */}
-      <SampleBrowser
-        open={sampleBrowserOpen}
-        onClose={() => setSampleBrowserOpen(false)}
-        onLoadSample={handleLoadSample}
-      />
-
-      {/* Emoji reactions on play */}
-      <EmojiReaction />
-
-      {/* Achievements system */}
-      <Achievements />
-
-      {/* Keyboard shortcuts help popup */}
-      <KeyboardShortcutsHelp open={shortcutsHelpOpen} onClose={() => setShortcutsHelpOpen(false)} />
-
-      {/* Share load notification */}
-      {shareMessage && (
-        <output
-          style={{
-            position: 'fixed',
-            top: 'var(--sp-4)',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 10000,
-            background: 'linear-gradient(135deg, var(--c-preset), var(--c-source))',
-            color: 'var(--c-text-inverse)',
-            borderRadius: 'var(--r-lg)',
-            padding: 'var(--sp-3) var(--sp-6)',
-            fontSize: 'var(--fs-md)',
-            fontWeight: 700,
-            fontFamily: 'var(--font-main)',
-            boxShadow: 'var(--shadow-lg)',
-            animation: 'pop-in 0.3s ease-out',
-            pointerEvents: 'none',
-          }}
-          aria-live="polite"
-        >
-          {shareMessage}
-        </output>
-      )}
-    </div>
+        {/* Share load notification */}
+        {shareMessage && (
+          <output
+            style={{
+              position: 'fixed',
+              top: 'var(--sp-4)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 10000,
+              background: 'linear-gradient(135deg, var(--c-preset), var(--c-source))',
+              color: 'var(--c-text-inverse)',
+              borderRadius: 'var(--r-lg)',
+              padding: 'var(--sp-3) var(--sp-6)',
+              fontSize: 'var(--fs-md)',
+              fontWeight: 700,
+              fontFamily: 'var(--font-main)',
+              boxShadow: 'var(--shadow-lg)',
+              animation: 'pop-in 0.3s ease-out',
+              pointerEvents: 'none',
+            }}
+            aria-live="polite"
+          >
+            {shareMessage}
+          </output>
+        )}
+      </div>
     </ErrorBoundary>
   );
 }

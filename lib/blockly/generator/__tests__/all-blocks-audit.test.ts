@@ -74,8 +74,8 @@ vi.mock('@/lib/audio/microphone', () => ({
 // Import modules under test (after mocks are in place)
 // ---------------------------------------------------------------------------
 
-import { generateMimiumCode } from '../mimium-generator';
 import { __test__ } from '@/lib/audio/wasm-loader';
+import { generateMimiumCode } from '../mimium-generator';
 
 const { transpile, extractDSPBody, compileMimium } = __test__;
 
@@ -361,6 +361,7 @@ const ALL_BLOCKS: BlockSpec[] = [
 describe('block registry completeness', () => {
   it('ALL_BLOCKS covers every block type registered in the generator', () => {
     // biome-ignore lint/suspicious/noExplicitAny: test helper
+    // biome-ignore lint/complexity/noBannedTypes: Blockly generator function registry
     const registry: Record<string, Function> = (globalThis as any).__blockRegistry;
     const registeredTypes = Object.keys(registry).sort();
     const testedTypes = ALL_BLOCKS.map((b) => b.type).sort();
@@ -515,7 +516,8 @@ describe('all-blocks-audit: compileMimium returns a callable function', () => {
 
 describe('all-blocks-audit: effect blocks with no input still produce valid code', () => {
   const effectBlocks = ALL_BLOCKS.filter(
-    (b) => b.category === 'effect' || (b.connectedInputs && Object.keys(b.connectedInputs).length > 0),
+    (b) =>
+      b.category === 'effect' || (b.connectedInputs && Object.keys(b.connectedInputs).length > 0),
   );
 
   for (const spec of effectBlocks) {
@@ -578,9 +580,7 @@ describe('all-blocks-audit: blocks with all-null fields still produce valid code
 
 describe('all-blocks-audit: mixing multiple block types produces valid code', () => {
   it('all source blocks mixed together compile successfully', () => {
-    const sourceBlocks = ALL_BLOCKS.filter(
-      (b) => b.category === 'source' && !b.connectedInputs,
-    );
+    const sourceBlocks = ALL_BLOCKS.filter((b) => b.category === 'source' && !b.connectedInputs);
     const workspace = createMockWorkspace(
       sourceBlocks.map((spec) => ({
         type: spec.type,
@@ -663,9 +663,7 @@ describe('all-blocks-audit: mixing multiple block types produces valid code', ()
       if (dspFn !== null) {
         passCount++;
       } else {
-        throw new Error(
-          `Block ${spec.type} failed to compile. Generated code:\n${fullCode}`,
-        );
+        throw new Error(`Block ${spec.type} failed to compile. Generated code:\n${fullCode}`);
       }
     }
     expect(passCount).toBe(ALL_BLOCKS.length);

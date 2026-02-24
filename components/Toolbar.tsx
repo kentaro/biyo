@@ -36,7 +36,11 @@ interface ToolbarProps {
 /** Animated mini equalizer bars shown next to play button when playing */
 function MiniEqualizer() {
   return (
-    <div className="flex items-end" style={{ gap: 'var(--sp-half)', height: 18, width: 16 }} aria-hidden="true">
+    <div
+      className="flex items-end"
+      style={{ gap: 'var(--sp-half)', height: 18, width: 16 }}
+      aria-hidden="true"
+    >
       {[0, 1, 2].map((i) => (
         <span
           key={i}
@@ -60,7 +64,7 @@ function MiniEqualizer() {
 
 export default function Toolbar({ onOpenSamples }: ToolbarProps) {
   const { isPlaying, setIsPlaying } = usePlaybackStore();
-  const { generatedCode, status } = useCompileStore();
+  const { status } = useCompileStore();
   const [saveOpen, setSaveOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
