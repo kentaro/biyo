@@ -1,0 +1,1034 @@
+@import "tailwindcss";
+
+/* ============================================
+   biyo Design System
+   ============================================ */
+
+:root {
+  /* --- Colors: Brand --- */
+  --c-source: #ff6680;
+  --c-effect: #4c97ff;
+  --c-rhythm: #59c059;
+  --c-utility: #ffab19;
+  --c-preset: #cf63cf;
+  --c-note: #5ba58c;
+
+  /* --- Colors: Surface --- */
+  --c-bg: #fff8f0;
+  --c-surface: #ffffff;
+  --c-surface-alt: #fff0e6;
+  --c-surface-blockly: #fafbff;
+
+  /* --- Colors: Text --- */
+  --c-text: #333344;
+  --c-text-sub: #666688;
+  --c-text-muted: #999aaa;
+  --c-text-inverse: #fff;
+
+  /* --- Colors: Overlay --- */
+  --c-overlay-bg: rgba(51, 51, 68, 0.5);
+
+  /* --- Colors: Gradient --- */
+  --c-gradient-green: #3daf3d;
+  --c-gradient-blue: #3a7fe6;
+
+  /* --- Colors: Border --- */
+  --c-border: #e8ddd4;
+  --c-border-light: #f0e8e0;
+
+  /* --- Colors: Status --- */
+  --c-ok: #59c059;
+  --c-warn: #ffab19;
+  --c-error: #ff6680;
+
+  /* --- Spacing (4px base) --- */
+  --sp-1: 4px; /* 極小 */
+  --sp-2: 8px; /* 小 */
+  --sp-3: 12px; /* 中 */
+  --sp-4: 16px; /* 大 */
+  --sp-5: 20px; /* XL */
+  --sp-6: 24px; /* XXL */
+
+  /* --- Radii --- */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-full: 9999px;
+
+  /* --- Fixed Sizes --- */
+  --toolbar-h: 56px;
+  --statusbar-h: 28px;
+  --sidebar-w: 220px;
+  --bottom-h: 100px;
+  --btn-sm: 28px;
+  --btn-md: 40px;
+  --btn-lg: 48px;
+
+  /* --- Typography --- */
+  --font-main: "M PLUS Rounded 1c", "Rounded Mplus 1c", system-ui, sans-serif;
+  --font-mono: "SF Mono", "Menlo", "Consolas", monospace;
+  --fs-xs: 11px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-lg: 20px;
+  --fs-xl: 28px;
+
+  /* --- Shadows --- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.18);
+  --shadow-btn: 0 2px 6px rgba(0, 0, 0, 0.12);
+  --shadow-drawer: -4px 0 16px rgba(0, 0, 0, 0.1);
+  --shadow-preset-glow: 0 4px 12px rgba(207, 99, 207, 0.4);
+  --shadow-ok-glow: 0 3px 12px rgba(89, 192, 89, 0.35);
+  --shadow-effect-glow: 0 3px 12px rgba(76, 151, 255, 0.35);
+  --shadow-source-glow: 0 3px 12px rgba(255, 102, 128, 0.35);
+  --shadow-suggestion: 0 2px 8px rgba(207, 99, 207, 0.3), 0 1px 3px rgba(76, 151, 255, 0.2);
+  --shadow-suggestion-hover: 0 4px 14px rgba(207, 99, 207, 0.45), 0 2px 6px rgba(76, 151, 255, 0.3);
+
+  /* --- Colors: Blockly UI --- */
+  --c-blockly-toolbox: #f5f0ff;
+  --c-blockly-toolbox-hover: #ede8ff;
+  --c-blockly-flyout: #f0eaff;
+  --c-blockly-grid: #e8e4f0;
+
+  /* --- Colors: Waveform backgrounds --- */
+  --c-waveform-bg-1: #fff8f0;
+  --c-waveform-bg-2: #f8f0ff;
+  --c-waveform-bg-3: #f0f6ff;
+  --c-spectrogram-bg: #000020;
+
+  /* --- Colors: Scrollbar --- */
+  --c-scrollbar-thumb: #ccc;
+
+  /* --- Colors: Track palette --- */
+  --c-track-0-bg: #fff0f3;
+  --c-track-1-bg: #f0f5ff;
+  --c-track-2-bg: #fdf0fd;
+  --c-track-3-bg: #fff8f0;
+  --c-track-4-bg: #f0fff0;
+}
+
+/* ============================================
+   Skip Navigation (CSS-only, a11y)
+   ============================================ */
+
+.skip-nav {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 99999;
+  text-decoration: none;
+}
+
+.skip-nav:focus {
+  position: fixed;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%);
+  width: auto;
+  height: auto;
+  overflow: visible;
+  padding: 12px 24px;
+  background: var(--c-preset);
+  color: var(--c-text-inverse);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   Screen Reader Only (fallback for Tailwind)
+   ============================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================
+   Global Reset & Base
+   ============================================ */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-main);
+  font-size: var(--fs-sm);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+/* PWA standalone safe areas */
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* ============================================
+   Blockly Overrides
+   ============================================ */
+
+.blocklySvg {
+  background-color: var(--c-surface-blockly);
+}
+.blocklyMainBackground {
+  fill: var(--c-surface-blockly);
+}
+.blocklyToolboxDiv {
+  background-color: var(--c-blockly-toolbox);
+  padding: var(--sp-1) 0;
+}
+.blocklyTreeRow:not(.blocklyTreeSelected):hover {
+  background-color: var(--c-blockly-toolbox-hover);
+}
+
+/* Hide scrollbars by default, show on hover */
+.blocklyScrollbarHorizontal,
+.blocklyScrollbarVertical {
+  opacity: 0;
+}
+.blocklyScrollbarHandle {
+  rx: 4;
+  ry: 4;
+}
+
+/* Category color left bar */
+.blocklyTreeRow {
+  border-left: 3px solid transparent;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+.blocklyTreeSelected {
+  font-weight: 700;
+  filter: brightness(1.1);
+}
+
+/* Flyout styling */
+.blocklyFlyoutBackground {
+  fill: var(--c-blockly-flyout);
+  fill-opacity: 0.97;
+}
+
+/* ============================================
+   Scrollbar (non-Blockly)
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--c-scrollbar-thumb);
+  border-radius: 3px;
+}
+
+/* ============================================
+   Form Controls
+   ============================================ */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--c-border);
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c-preset);
+  cursor: pointer;
+  box-shadow: var(--shadow-btn);
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ============================================
+   Keyframe Animations
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  70% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 4px rgba(89, 192, 89, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(89, 192, 89, 0.6);
+  }
+}
+
+@keyframes rainbow-shift {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.3);
+  }
+}
+
+@keyframes border-flash-green {
+  0% {
+    border-color: var(--c-ok);
+    box-shadow: 0 0 8px rgba(89, 192, 89, 0.4);
+  }
+  100% {
+    border-color: var(--c-border);
+    box-shadow: none;
+  }
+}
+
+@keyframes border-flash-red {
+  0% {
+    border-color: var(--c-error);
+    box-shadow: 0 0 8px rgba(255, 102, 128, 0.4);
+  }
+  100% {
+    border-color: var(--c-border);
+    box-shadow: none;
+  }
+}
+
+@keyframes helpBubbleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes hintPulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes subtle-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1.5px);
+  }
+  75% {
+    transform: translateX(1.5px);
+  }
+}
+
+@keyframes play-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 6px rgba(89, 192, 89, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(89, 192, 89, 0.7),
+      0 0 30px rgba(89, 192, 89, 0.3);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes invite-bounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes eq-bounce {
+  0% {
+    height: 20%;
+  }
+  100% {
+    height: 100%;
+  }
+}
+
+@keyframes beat-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.35);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+}
+
+/* ============================================
+   Smart Suggestion Pills
+   ============================================ */
+
+@keyframes suggestion-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.85);
+  }
+  70% {
+    transform: translateY(1px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes suggestion-exit {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.9);
+  }
+}
+
+/* ============================================
+   Animation Utility Classes
+   ============================================ */
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out both;
+}
+
+.animate-pop-in {
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.3s ease-out both;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-rainbow {
+  animation: rainbow-shift 12s linear infinite;
+}
+
+.animate-status-pulse {
+  animation: status-pulse 1.2s ease-in-out infinite;
+}
+
+.animate-border-flash-green {
+  animation: border-flash-green 0.6s ease-out both;
+}
+
+.animate-border-flash-red {
+  animation: border-flash-red 0.6s ease-out both;
+}
+
+.animate-play-glow {
+  animation: play-glow 1.5s ease-in-out infinite;
+}
+
+.animate-invite-bounce {
+  animation: invite-bounce 2s ease-in-out infinite;
+}
+
+/* ============================================
+   General Polish
+   ============================================ */
+
+/* Keyboard shortcut hints in status bar */
+kbd {
+  font-family: var(--font-main);
+  font-size: inherit;
+  font-weight: 700;
+  padding: 0 3px;
+  margin-right: 2px;
+  border: 1px solid var(--c-border);
+  border-radius: 3px;
+  background: var(--c-surface-alt);
+  color: var(--c-text-sub);
+  line-height: 1.4;
+}
+
+/* Smooth global transitions for interactive properties */
+button,
+a,
+input,
+[role="button"] {
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease,
+    opacity 0.15s ease;
+}
+
+/* Accessible focus ring */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[role="button"]:focus-visible,
+[role="separator"]:focus-visible {
+  outline: 2px solid var(--c-preset);
+  outline-offset: 2px;
+}
+
+/* Blockly scrollbar smooth transitions */
+.blocklyScrollbarHorizontal,
+.blocklyScrollbarVertical {
+  transition: opacity 0.2s ease;
+}
+.blocklyScrollbarHorizontal:hover,
+.blocklyScrollbarVertical:hover {
+  opacity: 0.6;
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+    scroll-behavior: auto;
+  }
+}
+
+/* ============================================
+   Responsive: Tablet & Mobile (< 1024px)
+   ============================================ */
+
+@media (max-width: 1023px) {
+  :root {
+    --toolbar-h: 52px;
+    --sidebar-w: 260px;
+    --bottom-h: 80px;
+    --statusbar-h: 28px;
+    --btn-sm: 44px;
+    --btn-md: 44px;
+    --btn-lg: 52px;
+
+    /* Slightly larger base font for mobile readability */
+    --fs-xs: 12px;
+    --fs-sm: 14px;
+  }
+
+  /* Ensure touch targets are at least 44x44 */
+  button,
+  [role="button"],
+  input[type="range"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Range slider thumb bigger for touch */
+  input[type="range"]::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Blockly toolbox wider for easier touch on small screens */
+  .blocklyToolboxDiv {
+    min-width: 56px;
+  }
+
+  /* Blockly flyout scrollbar always visible for touch */
+  .blocklyScrollbarHorizontal,
+  .blocklyScrollbarVertical {
+    opacity: 0.4;
+  }
+}
+
+/* Extra small phones (320px-374px) */
+@media (max-width: 374px) {
+  :root {
+    --toolbar-h: 48px;
+    --bottom-h: 72px;
+    --sp-2: 6px;
+    --sp-3: 10px;
+    --sp-4: 14px;
+    --fs-xl: 24px;
+    --fs-lg: 18px;
+  }
+}
+
+/* Small phones (375px-413px) */
+@media (min-width: 375px) and (max-width: 413px) {
+  :root {
+    --toolbar-h: 50px;
+    --bottom-h: 76px;
+  }
+}
+
+/* ============================================
+   Drawer (TrackPanel slide-out on mobile)
+   ============================================ */
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.drawer-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  max-width: 80vw;
+  z-index: 50;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  box-shadow: var(--shadow-drawer);
+}
+
+.drawer-panel.open {
+  transform: translateX(0);
+}
+
+/* ============================================
+   Drawer toggle button
+   ============================================ */
+
+.drawer-toggle {
+  position: fixed;
+  /* Account for bottom panel + code preview (80px) + statusbar */
+  bottom: calc(var(--bottom-h) + 80px + var(--statusbar-h) + var(--sp-3));
+  right: var(--sp-3);
+  z-index: 30;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-full);
+  background: var(--c-preset);
+  color: var(--c-text-inverse);
+  border: none;
+  font-size: var(--fs-lg);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-preset-glow);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.drawer-toggle:active {
+  transform: scale(0.9);
+}
+
+@media (max-width: 1023px) {
+  .drawer-toggle {
+    display: flex;
+  }
+}
+
+/* ============================================
+   Surprise Button
+   ============================================ */
+
+.surprise-btn {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+}
+
+.surprise-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-preset-glow);
+}
+
+.surprise-btn:active {
+  transform: scale(0.95);
+}
+
+.surprise-btn-spin {
+  animation: surprise-sparkle 0.6s ease-out;
+}
+
+@keyframes surprise-sparkle {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  30% {
+    transform: scale(1.15) rotate(-8deg);
+  }
+  60% {
+    transform: scale(0.95) rotate(4deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ============================================
+   Emoji Reactions
+   ============================================ */
+
+.emoji-reaction-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.emoji-float {
+  position: absolute;
+  bottom: -40px;
+  animation: emoji-rise 1.8s ease-out forwards;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes emoji-rise {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.5) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-30vh) scale(1.1) rotate(-10deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80vh) scale(0.8) rotate(15deg);
+  }
+}
+
+/* ============================================
+   Achievements
+   ============================================ */
+
+.achievement-badge-btn {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.achievement-badge-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.achievement-badge-btn:active {
+  transform: scale(0.95);
+}
+
+/* Toast notification */
+.achievement-toast {
+  position: fixed;
+  top: calc(var(--toolbar-h) + var(--sp-3));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  background: var(--c-surface);
+  border: 2px solid var(--c-preset);
+  border-radius: var(--r-md);
+  padding: var(--sp-3) var(--sp-4);
+  box-shadow: var(--shadow-preset-glow);
+  font-family: var(--font-main);
+}
+
+.achievement-toast-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.achievement-toast-title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.achievement-toast-desc {
+  font-size: var(--fs-xs);
+  color: var(--c-text-sub);
+  margin-top: 2px;
+}
+
+/* Overlay */
+.achievement-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 150;
+}
+
+/* Panel */
+.achievement-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 160;
+  background: var(--c-surface);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+  width: min(360px, 90vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  font-family: var(--font-main);
+}
+
+.achievement-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-4);
+}
+
+.achievement-panel-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 0;
+}
+
+.achievement-panel-close {
+  background: none;
+  border: none;
+  font-size: var(--fs-lg);
+  color: var(--c-text-muted);
+  cursor: pointer;
+  padding: var(--sp-1);
+  line-height: 1;
+  border-radius: var(--r-sm);
+}
+
+.achievement-panel-close:hover {
+  color: var(--c-text);
+  background: var(--c-surface-alt);
+}
+
+.achievement-panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  transition: background-color 0.15s ease;
+}
+
+.achievement-unlocked {
+  background: var(--c-surface-alt);
+}
+
+.achievement-locked {
+  background: var(--c-surface);
+  opacity: 0.5;
+}
+
+.achievement-item-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.achievement-item-name {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.achievement-item-desc {
+  font-size: var(--fs-xs);
+  color: var(--c-text-sub);
+  margin-top: 2px;
+}
+
+/* ============================================
+   High Contrast Mode (forced-colors)
+   ============================================ */
+
+@media (forced-colors: active) {
+  button,
+  [role="button"],
+  input,
+  select {
+    border: 2px solid ButtonText;
+    forced-color-adjust: none;
+  }
+
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  button:hover,
+  [role="button"]:hover {
+    border-color: Highlight;
+  }
+
+  [role="separator"] {
+    border: 1px solid ButtonText;
+  }
+
+  .blocklyToolboxDiv {
+    border-right: 2px solid ButtonText;
+  }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+  /* Hide non-essential UI */
+  .drawer-toggle,
+  .drawer-overlay,
+  .drawer-panel,
+  .surprise-btn,
+  .emoji-reaction-container,
+  .achievement-toast,
+  .achievement-overlay,
+  .achievement-panel,
+  [role="toolbar"],
+  [role="separator"],
+  button,
+  input[type="range"] {
+    display: none;
+  }
+
+  body {
+    overflow: visible;
+    background: #fff;
+  }
+
+  /* Show code preview for printing */
+  pre,
+  code {
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 10pt;
+  }
+}
