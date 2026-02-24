@@ -569,6 +569,7 @@ function BlockEditorInner() {
   const clearPendingAppend = useTrackStore((s) => s.clearPendingAppend);
   const getTrack = useTrackStore((s) => s.getTrack);
   const setGeneratedCode = useCompileStore((s) => s.setGeneratedCode);
+  const setTrackCode = useCompileStore((s) => s.setTrackCode);
   const setStatus = useCompileStore((s) => s.setStatus);
 
   // Experience system
@@ -686,6 +687,9 @@ function BlockEditorInner() {
       try {
         const code = generateMimiumCode(workspace);
         setGeneratedCode(code);
+        if (activeTrackId) {
+          setTrackCode(activeTrackId, code);
+        }
         setStatus('ready');
         setFlashClass('animate-border-flash-green');
         setTimeout(() => setFlashClass(''), 600);
@@ -701,7 +705,7 @@ function BlockEditorInner() {
         updateTrackWorkspace(activeTrackId, xmlText);
       }
     }, 300);
-  }, [activeTrackId, updateTrackWorkspace, setGeneratedCode, setStatus]);
+  }, [activeTrackId, updateTrackWorkspace, setGeneratedCode, setTrackCode, setStatus]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -711,6 +715,24 @@ function BlockEditorInner() {
     // Use experience-level-aware toolbox
     const currentLevel = useExperienceStore.getState().level;
     const initialToolbox = getToolboxForLevel(currentLevel);
+
+    // Set Japanese locale for Blockly context menu (child-friendly hiragana)
+    Blockly.Msg['DELETE_BLOCK'] = 'ブロックをけす';
+    Blockly.Msg['DELETE_X_BLOCKS'] = '%1このブロックをけす';
+    Blockly.Msg['DELETE_ALL_BLOCKS'] = 'ぜんぶのブロックをけす (%1こ)';
+    Blockly.Msg['DUPLICATE_BLOCK'] = 'ブロックをコピーする';
+    Blockly.Msg['ADD_COMMENT'] = 'メモをつける';
+    Blockly.Msg['REMOVE_COMMENT'] = 'メモをけす';
+    Blockly.Msg['EXTERNAL_INPUTS'] = 'そとがわにいれる';
+    Blockly.Msg['INLINE_INPUTS'] = 'よこにならべる';
+    Blockly.Msg['COLLAPSE_BLOCK'] = 'ブロックをたたむ';
+    Blockly.Msg['EXPAND_BLOCK'] = 'ブロックをひらく';
+    Blockly.Msg['DISABLE_BLOCK'] = 'ブロックをおやすみ';
+    Blockly.Msg['ENABLE_BLOCK'] = 'ブロックをおこす';
+    Blockly.Msg['HELP'] = 'ヘルプ';
+    Blockly.Msg['UNDO'] = 'もどす';
+    Blockly.Msg['REDO'] = 'やりなおす';
+    Blockly.Msg['CLEAN_UP'] = 'ブロックをせいりする';
 
     const workspace = Blockly.inject(containerRef.current, {
       toolbox: initialToolbox,
@@ -735,6 +757,28 @@ function BlockEditorInner() {
       renderer: 'zelos',
       sounds: false,
     });
+
+    // Simplify context menu for children: remove confusing options
+    workspace.configureContextMenu = (menuOptions, _e) => {
+      const removeTexts = new Set([
+        Blockly.Msg['COLLAPSE_BLOCK'],
+        Blockly.Msg['EXPAND_BLOCK'],
+        Blockly.Msg['DISABLE_BLOCK'],
+        Blockly.Msg['ENABLE_BLOCK'],
+        Blockly.Msg['EXTERNAL_INPUTS'],
+        Blockly.Msg['INLINE_INPUTS'],
+        Blockly.Msg['ADD_COMMENT'],
+        Blockly.Msg['REMOVE_COMMENT'],
+        Blockly.Msg['HELP'],
+      ]);
+      // configureContextMenu mutates the array in-place
+      for (let i = menuOptions.length - 1; i >= 0; i--) {
+        const item = menuOptions[i];
+        if ('text' in item && typeof item.text === 'string' && removeTexts.has(item.text)) {
+          menuOptions.splice(i, 1);
+        }
+      }
+    };
 
     // On touch devices, increase block text size for easier reading
     if (isTouchDevice) {
@@ -791,6 +835,9 @@ function BlockEditorInner() {
         try {
           const code = generateMimiumCode(workspace);
           setGeneratedCode(code);
+          if (activeTrackId) {
+            setTrackCode(activeTrackId, code);
+          }
           setStatus('ready');
         } catch {
           setStatus('error');
@@ -832,6 +879,9 @@ function BlockEditorInner() {
     try {
       const code = generateMimiumCode(workspace);
       setGeneratedCode(code);
+      if (activeTrackId) {
+        setTrackCode(activeTrackId, code);
+      }
       setStatus('ready');
     } catch {
       setStatus('error');
@@ -842,6 +892,7 @@ function BlockEditorInner() {
     getTrack,
     onWorkspaceChange,
     setGeneratedCode,
+    setTrackCode,
     setStatus,
     pendingAppendXml,
     clearPendingAppend,

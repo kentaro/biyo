@@ -153,7 +153,8 @@ export default function Home() {
   // Live coding: auto-recompile when code changes during playback
   useEffect(() => {
     if (!isPlaying || !generatedCode) return;
-    audioEngine.compile(generatedCode).catch(() => {
+    const mergedCode = useCompileStore.getState().getMergedCode();
+    audioEngine.compile(mergedCode).catch(() => {
       // compile error handled by store
     });
   }, [generatedCode, isPlaying]);
@@ -205,8 +206,9 @@ export default function Home() {
             audioEngine.stop();
             setIsPlaying(false);
           } else {
+            const mergedCode = useCompileStore.getState().getMergedCode();
             audioEngine
-              .compile(generatedCode)
+              .compile(mergedCode)
               .then(() => {
                 audioEngine.play();
                 setIsPlaying(true);

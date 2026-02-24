@@ -242,6 +242,21 @@ body {
   fill-opacity: 0.97;
 }
 
+/* Make Blockly trashcan bigger and kid-friendly */
+.blocklyTrash {
+  transform: scale(1.5);
+  transform-origin: bottom right;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Enlarge trashcan when block is being dragged */
+.blocklyDragging .blocklyTrash,
+.blocklyTrash:hover {
+  opacity: 1;
+  transform: scale(1.8);
+}
+
 /* ============================================
    Scrollbar (non-Blockly)
    ============================================ */

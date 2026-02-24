@@ -1,5 +1,6 @@
 import { validateWorkspaceXml } from '@/lib/sharing/validate-xml';
 import { create } from 'zustand';
+import { useCompileStore } from './compile';
 
 export interface Track {
   id: string;
@@ -72,13 +73,17 @@ export const useTrackStore = create<TrackStore>((set, get) => ({
       return { tracks: [...s.tracks, track], activeTrackId: track.id };
     }),
 
-  removeTrack: (id) =>
-    set((s) => {
+  removeTrack: (id) => {
+    const result = set((s) => {
       if (s.tracks.length <= 1) return s;
       const tracks = s.tracks.filter((t) => t.id !== id);
       const activeTrackId = s.activeTrackId === id ? tracks[0].id : s.activeTrackId;
       return { tracks, activeTrackId };
-    }),
+    });
+    // Clean up the removed track's code from compile store
+    useCompileStore.getState().removeTrackCode(id);
+    return result;
+  },
 
   setActiveTrack: (id) => set({ activeTrackId: id }),
 

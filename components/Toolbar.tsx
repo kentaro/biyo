@@ -97,7 +97,8 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
   const handlePlay = async () => {
     if (isPlaying) return;
     try {
-      await audioEngine.compile(generatedCode);
+      const mergedCode = useCompileStore.getState().getMergedCode();
+      await audioEngine.compile(mergedCode);
       audioEngine.play();
       setIsPlaying(true);
     } catch {
