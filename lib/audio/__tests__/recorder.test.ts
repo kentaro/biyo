@@ -222,7 +222,7 @@ describe('recordFromNode', () => {
     await vi.advanceTimersByTimeAsync(0);
     await vi.advanceTimersByTimeAsync(0);
 
-    const progressCalls = onProgress.mock.calls.filter((c: [RecordingState]) => c[0].isRecording);
+    const progressCalls = onProgress.mock.calls.filter((c: unknown[]) => (c[0] as RecordingState).isRecording);
     expect(progressCalls.length).toBeGreaterThanOrEqual(2);
 
     expect(mockMediaRecorderInstance.stop).toHaveBeenCalled();
