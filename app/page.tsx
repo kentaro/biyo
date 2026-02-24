@@ -318,7 +318,7 @@ export default function Home() {
       {isMobile && (
         <div
           className="shrink-0 border-t border-[var(--c-border)] p-[var(--sp-1)]"
-          style={{ maxHeight: '72px', overflow: 'auto' }}
+          style={{ maxHeight: '72px', overflowY: 'auto', overflowX: 'hidden' }}
         >
           <CodePreview />
         </div>
@@ -396,7 +396,7 @@ export default function Home() {
             fontSize: 'var(--fs-md)',
             fontWeight: 700,
             fontFamily: 'var(--font-main)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+            boxShadow: 'var(--shadow-lg)',
             animation: 'pop-in 0.3s ease-out',
             pointerEvents: 'none',
           }}

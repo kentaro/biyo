@@ -152,6 +152,8 @@ export default function ExportDialog({ open, onClose, projectName }: ExportDialo
           padding: 'var(--sp-6)',
           maxWidth: 400,
           width: '90vw',
+          maxHeight: '85vh',
+          overflowY: 'auto',
           boxShadow: 'var(--shadow-lg)',
         }}
       >
@@ -179,8 +181,13 @@ export default function ExportDialog({ open, onClose, projectName }: ExportDialo
                 fontSize: 'var(--fs-lg)',
                 cursor: 'pointer',
                 color: 'var(--c-text-muted)',
-                padding: 'var(--sp-1)',
+                padding: 'var(--sp-2)',
                 lineHeight: 1,
+                minWidth: 44,
+                minHeight: 44,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
               aria-label="とじる"
             >
@@ -413,6 +420,7 @@ export default function ExportDialog({ open, onClose, projectName }: ExportDialo
                   padding: 'var(--sp-3) var(--sp-4)',
                   cursor: 'pointer',
                   boxShadow: 'var(--shadow-btn)',
+                  minHeight: 44,
                 }}
               >
                 ろくおんスタート
@@ -431,6 +439,7 @@ export default function ExportDialog({ open, onClose, projectName }: ExportDialo
                   borderRadius: 'var(--r-md)',
                   padding: 'var(--sp-3) var(--sp-4)',
                   cursor: 'pointer',
+                  minHeight: 44,
                 }}
               >
                 とじる
@@ -453,6 +462,7 @@ export default function ExportDialog({ open, onClose, projectName }: ExportDialo
                 padding: 'var(--sp-3) var(--sp-4)',
                 cursor: 'pointer',
                 boxShadow: 'var(--shadow-btn)',
+                minHeight: 44,
               }}
             >
               ストップ

@@ -8,7 +8,7 @@ export const toolbox = {
     {
       kind: 'category',
       name: '\uD83C\uDFB5 \u304A\u3068\u306E\u3082\u3068',
-      colour: '#FF6680',
+      colour: '#C44D62',
       contents: [
         { kind: 'block', type: 'biyo_sine' },
         { kind: 'block', type: 'biyo_saw' },
@@ -26,7 +26,7 @@ export const toolbox = {
     {
       kind: 'category',
       name: '\uD83C\uDFB9 \u304A\u3093\u304C\u304F',
-      colour: '#5BA58C',
+      colour: '#468070',
       contents: [
         { kind: 'block', type: 'biyo_piano_note' },
         { kind: 'block', type: 'biyo_note' },
@@ -38,7 +38,7 @@ export const toolbox = {
     {
       kind: 'category',
       name: '\uD83E\uDD41 \u30EA\u30BA\u30E0',
-      colour: '#59C059',
+      colour: '#3C843C',
       contents: [
         { kind: 'block', type: 'biyo_bpm' },
         { kind: 'block', type: 'biyo_metro' },
@@ -51,7 +51,7 @@ export const toolbox = {
     {
       kind: 'category',
       name: '\u2728 \u3078\u3093\u3057\u3093',
-      colour: '#4C97FF',
+      colour: '#3976C6',
       contents: [
         { kind: 'block', type: 'biyo_lowpass' },
         { kind: 'block', type: 'biyo_highpass' },
@@ -71,7 +71,7 @@ export const toolbox = {
     {
       kind: 'category',
       name: '\uD83C\uDFAA \u304A\u305F\u306E\u3057\u307F',
-      colour: '#CF63CF',
+      colour: '#B050B0',
       contents: [
         { kind: 'block', type: 'biyo_robot_voice' },
         { kind: 'block', type: 'biyo_space' },
@@ -90,7 +90,7 @@ export const toolbox = {
     {
       kind: 'category',
       name: '\uD83C\uDFB2 \u305D\u3046\u305E\u3046',
-      colour: '#7B68EE',
+      colour: '#7060E0',
       contents: [
         { kind: 'block', type: 'biyo_random_melody' },
         { kind: 'block', type: 'biyo_euclidean' },
@@ -101,7 +101,7 @@ export const toolbox = {
     {
       kind: 'category',
       name: '\uD83D\uDD27 \u3079\u3093\u308A',
-      colour: '#FFAB19',
+      colour: '#9F6A08',
       contents: [
         { kind: 'block', type: 'biyo_mix' },
         { kind: 'block', type: 'biyo_multiply' },
@@ -121,7 +121,7 @@ const beginnerToolbox = {
     {
       kind: 'category',
       name: '\uD83C\uDFB5 \u304A\u3068',
-      colour: '#FF6680',
+      colour: '#C44D62',
       contents: [
         { kind: 'block', type: 'biyo_sine' },
         { kind: 'block', type: 'biyo_square' },
@@ -131,7 +131,7 @@ const beginnerToolbox = {
     {
       kind: 'category',
       name: '\u2728 \u3078\u3093\u3057\u3093',
-      colour: '#4C97FF',
+      colour: '#3976C6',
       contents: [
         { kind: 'block', type: 'biyo_reverb' },
         { kind: 'block', type: 'biyo_delay' },
@@ -149,7 +149,7 @@ const intermediateToolbox = {
     {
       kind: 'category',
       name: '\uD83C\uDFB5 \u304A\u3068\u306E\u3082\u3068',
-      colour: '#FF6680',
+      colour: '#C44D62',
       contents: [
         { kind: 'block', type: 'biyo_sine' },
         { kind: 'block', type: 'biyo_saw' },
@@ -167,7 +167,7 @@ const intermediateToolbox = {
     {
       kind: 'category',
       name: '\uD83C\uDFB9 \u304A\u3093\u304C\u304F',
-      colour: '#5BA58C',
+      colour: '#468070',
       contents: [
         { kind: 'block', type: 'biyo_piano_note' },
         { kind: 'block', type: 'biyo_note' },
@@ -177,7 +177,7 @@ const intermediateToolbox = {
     {
       kind: 'category',
       name: '\uD83E\uDD41 \u30EA\u30BA\u30E0',
-      colour: '#59C059',
+      colour: '#3C843C',
       contents: [
         { kind: 'block', type: 'biyo_bpm' },
         { kind: 'block', type: 'biyo_metro' },
@@ -189,7 +189,7 @@ const intermediateToolbox = {
     {
       kind: 'category',
       name: '\u2728 \u3078\u3093\u3057\u3093',
-      colour: '#4C97FF',
+      colour: '#3976C6',
       contents: [
         { kind: 'block', type: 'biyo_lowpass' },
         { kind: 'block', type: 'biyo_highpass' },
@@ -209,7 +209,7 @@ const intermediateToolbox = {
     {
       kind: 'category',
       name: '\uD83C\uDFAA \u304A\u305F\u306E\u3057\u307F',
-      colour: '#CF63CF',
+      colour: '#B050B0',
       contents: [
         { kind: 'block', type: 'biyo_robot_voice' },
         { kind: 'block', type: 'biyo_space' },
@@ -228,7 +228,7 @@ const intermediateToolbox = {
     {
       kind: 'category',
       name: '\uD83C\uDFB2 \u305D\u3046\u305E\u3046',
-      colour: '#7B68EE',
+      colour: '#7060E0',
       contents: [
         { kind: 'block', type: 'biyo_random_melody' },
         { kind: 'block', type: 'biyo_euclidean' },
@@ -239,7 +239,7 @@ const intermediateToolbox = {
     {
       kind: 'category',
       name: '\uD83D\uDD27 \u3079\u3093\u308A',
-      colour: '#FFAB19',
+      colour: '#9F6A08',
       contents: [
         { kind: 'block', type: 'biyo_mix' },
         { kind: 'block', type: 'biyo_multiply' },

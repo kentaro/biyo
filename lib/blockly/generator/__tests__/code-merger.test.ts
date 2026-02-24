@@ -42,11 +42,12 @@ describe('code-merger', () => {
 
     it('returns silent dsp when all tracks are muted', () => {
       const tracks: TrackCode[] = [
-        { code: 'fn dsp() -> float {\n  noise()\n}', volume: 1, muted: true },
+        { code: 'fn dsp() -> float {\n  noise()\n}', volume: 100, muted: true, solo: false },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
-          volume: 0.8,
+          volume: 80,
           muted: true,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -55,11 +56,12 @@ describe('code-merger', () => {
 
     it('returns silent dsp when all tracks have volume 0', () => {
       const tracks: TrackCode[] = [
-        { code: 'fn dsp() -> float {\n  noise()\n}', volume: 0, muted: false },
+        { code: 'fn dsp() -> float {\n  noise()\n}', volume: 0, muted: false, solo: false },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
           volume: 0,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -68,7 +70,7 @@ describe('code-merger', () => {
 
     it('returns silent dsp when tracks are both muted and volume 0', () => {
       const tracks: TrackCode[] = [
-        { code: 'fn dsp() -> float {\n  noise()\n}', volume: 0, muted: true },
+        { code: 'fn dsp() -> float {\n  noise()\n}', volume: 0, muted: true, solo: false },
       ];
       const result = mergeTracks(tracks);
       expect(extractDspBody(result)).toBe('0.0');
@@ -79,12 +81,13 @@ describe('code-merger', () => {
   // mergeTracks — single active track
   // -----------------------------------------------------------------------
   describe('mergeTracks with single active track', () => {
-    it('generates a single track function with volume 1.0 (no multiplier)', () => {
+    it('generates a single track function with volume 100 (no multiplier)', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -97,8 +100,9 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 0.5,
+          volume: 50,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -110,8 +114,9 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: `${PREAMBLE}\n\nfn dsp() -> float {\n  sinwave(440.0, 0.0)\n}`,
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -121,7 +126,9 @@ describe('code-merger', () => {
     });
 
     it('handles code that is just a raw expression (no dsp wrapper)', () => {
-      const tracks: TrackCode[] = [{ code: 'noise()', volume: 1.0, muted: false }];
+      const tracks: TrackCode[] = [
+        { code: 'noise()', volume: 100, muted: false, solo: false },
+      ];
       const result = mergeTracks(tracks);
       const trackFns = extractTrackFunctions(result);
       expect(trackFns).toHaveLength(1);
@@ -133,17 +140,19 @@ describe('code-merger', () => {
   // mergeTracks — multiple active tracks
   // -----------------------------------------------------------------------
   describe('mergeTracks with multiple active tracks', () => {
-    it('merges two tracks with volume 1.0 using addition', () => {
+    it('merges two tracks with volume 100 using addition', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -156,30 +165,34 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 0.8,
+          volume: 80,
           muted: false,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
-          volume: 0.3,
+          volume: 30,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
       expect(extractDspBody(result)).toBe('track1() * 0.800 + track2() * 0.300');
     });
 
-    it('merges tracks with mixed volume 1.0 and fractional volumes', () => {
+    it('merges tracks with mixed volume 100 and fractional volumes', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
-          volume: 0.5,
+          volume: 50,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -190,18 +203,21 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  saw(220.0, 0.0)\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -217,13 +233,15 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: true,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -239,11 +257,13 @@ describe('code-merger', () => {
           code: 'fn dsp() -> float {\n  noise()\n}',
           volume: 0,
           muted: false,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -256,18 +276,21 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: true,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
           volume: 0,
           muted: false,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  saw(220.0, 0.0)\n}',
-          volume: 0.7,
+          volume: 70,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -287,8 +310,9 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -300,8 +324,9 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp()  ->  float  {   noise()   }',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -310,14 +335,18 @@ describe('code-merger', () => {
     });
 
     it('uses code as-is when no dsp wrapper is present (fallback)', () => {
-      const tracks: TrackCode[] = [{ code: '  some_expression()  ', volume: 1.0, muted: false }];
+      const tracks: TrackCode[] = [
+        { code: '  some_expression()  ', volume: 100, muted: false, solo: false },
+      ];
       const result = mergeTracks(tracks);
       const trackFns = extractTrackFunctions(result);
       expect(trackFns[0].body).toBe('some_expression()');
     });
 
     it('handles empty string code (fallback to trimmed empty)', () => {
-      const tracks: TrackCode[] = [{ code: '', volume: 1.0, muted: false }];
+      const tracks: TrackCode[] = [
+        { code: '', volume: 100, muted: false, solo: false },
+      ];
       const result = mergeTracks(tracks);
       const trackFns = extractTrackFunctions(result);
       expect(trackFns[0].body).toBe('');
@@ -327,8 +356,9 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  let x = noise();\n  x * 0.5\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -338,7 +368,9 @@ describe('code-merger', () => {
 
     it('strips preamble when extracting body', () => {
       const fullCode = `${PREAMBLE}\n\nfn dsp() -> float {\n  saw(110.0, 0.0)\n}`;
-      const tracks: TrackCode[] = [{ code: fullCode, volume: 1.0, muted: false }];
+      const tracks: TrackCode[] = [
+        { code: fullCode, volume: 100, muted: false, solo: false },
+      ];
       const result = mergeTracks(tracks);
       const trackFns = extractTrackFunctions(result);
       expect(trackFns[0].body).toBe('saw(110.0, 0.0)');
@@ -353,8 +385,9 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -365,13 +398,15 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
-          volume: 0.5,
+          volume: 50,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -389,13 +424,15 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
         {
           code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -410,39 +447,133 @@ describe('code-merger', () => {
   });
 
   // -----------------------------------------------------------------------
+  // Volume normalization (0-100 → 0.0-1.0)
+  // -----------------------------------------------------------------------
+  describe('volume normalization', () => {
+    it('normalizes volume 80 to 0.800 multiplier', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 80,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(extractDspBody(result)).toBe('track1() * 0.800');
+    });
+
+    it('normalizes volume 100 to no multiplier (1.0)', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 100,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(extractDspBody(result)).toBe('track1()');
+      expect(extractDspBody(result)).not.toContain('*');
+    });
+
+    it('normalizes volume 50 to 0.500 multiplier', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 50,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(extractDspBody(result)).toBe('track1() * 0.500');
+    });
+
+    it('normalizes volume 1 to 0.010 multiplier', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 1,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(extractDspBody(result)).toBe('track1() * 0.010');
+    });
+
+    it('normalizes volume 25 to 0.250 multiplier', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 25,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(extractDspBody(result)).toBe('track1() * 0.250');
+    });
+
+    it('mixes two tracks with volumes in 0-100 range', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 80,
+          muted: false,
+          solo: false,
+        },
+        {
+          code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
+          volume: 60,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(extractDspBody(result)).toBe('track1() * 0.800 + track2() * 0.600');
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // Volume formatting
   // -----------------------------------------------------------------------
   describe('volume formatting', () => {
     it('formats volume with 3 decimal places via toFixed(3)', () => {
+      // 12.3456 / 100 = 0.123456 → toFixed(3) = 0.123
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 0.123456,
+          volume: 12.3456,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
       expect(extractDspBody(result)).toBe('track1() * 0.123');
     });
 
-    it('formats volume 0.1 as 0.100', () => {
+    it('formats volume 10 as 0.100', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 0.1,
+          volume: 10,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
       expect(extractDspBody(result)).toBe('track1() * 0.100');
     });
 
-    it('omits multiplier for exactly 1.0 volume', () => {
+    it('omits multiplier for exactly volume 100', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -451,12 +582,13 @@ describe('code-merger', () => {
       expect(dsp).not.toContain('*');
     });
 
-    it('adds multiplier for volume very close to but not exactly 1.0', () => {
+    it('adds multiplier for volume very close to but not exactly 100', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 0.999,
+          volume: 99.9,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -465,28 +597,180 @@ describe('code-merger', () => {
   });
 
   // -----------------------------------------------------------------------
-  // Edge cases
+  // Solo mode
   // -----------------------------------------------------------------------
-  describe('edge cases', () => {
-    it('handles a track with volume exactly at boundary (just above 0)', () => {
+  describe('solo mode', () => {
+    it('only plays solo tracks when any track has solo=true', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: 0.001,
+          volume: 100,
           muted: false,
+          solo: true,
+        },
+        {
+          code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
+          volume: 100,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      // Only track1 (the soloed track) should play
+      expect(result).toContain('fn track1()');
+      expect(result).not.toContain('fn track2()');
+      expect(extractDspBody(result)).toBe('track1()');
+    });
+
+    it('plays multiple solo tracks when several have solo=true', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 100,
+          muted: false,
+          solo: true,
+        },
+        {
+          code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
+          volume: 100,
+          muted: false,
+          solo: false,
+        },
+        {
+          code: 'fn dsp() -> float {\n  saw(220.0, 0.0)\n}',
+          volume: 100,
+          muted: false,
+          solo: true,
         },
       ];
       const result = mergeTracks(tracks);
       expect(result).toContain('fn track1()');
-      expect(extractDspBody(result)).toBe('track1() * 0.001');
+      expect(result).not.toContain('fn track2()');
+      expect(result).toContain('fn track3()');
+      expect(extractDspBody(result)).toBe('track1() + track3()');
+    });
+
+    it('solo overrides mute (soloed+muted track still plays)', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 100,
+          muted: true,
+          solo: true,
+        },
+        {
+          code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
+          volume: 100,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      // Solo overrides mute: track1 should play even though it's muted
+      expect(result).toContain('fn track1()');
+      expect(result).not.toContain('fn track2()');
+      expect(extractDspBody(result)).toBe('track1()');
+    });
+
+    it('solo track with volume 0 is excluded', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 0,
+          muted: false,
+          solo: true,
+        },
+        {
+          code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
+          volume: 100,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      // Solo track has volume 0, non-solo track is excluded by solo mode
+      expect(extractDspBody(result)).toBe('0.0');
+    });
+
+    it('respects volume on solo tracks', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 60,
+          muted: false,
+          solo: true,
+        },
+        {
+          code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
+          volume: 100,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(extractDspBody(result)).toBe('track1() * 0.600');
+    });
+
+    it('plays all non-muted tracks when no track has solo', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 100,
+          muted: false,
+          solo: false,
+        },
+        {
+          code: 'fn dsp() -> float {\n  sinwave(440.0, 0.0)\n}',
+          volume: 100,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(result).toContain('fn track1()');
+      expect(result).toContain('fn track2()');
+      expect(extractDspBody(result)).toBe('track1() + track2()');
+    });
+
+    it('returns silence when only solo track has volume 0 and others are non-solo', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 0,
+          muted: false,
+          solo: true,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(extractDspBody(result)).toBe('0.0');
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // Edge cases
+  // -----------------------------------------------------------------------
+  describe('edge cases', () => {
+    it('handles a track with volume just above 0', () => {
+      const tracks: TrackCode[] = [
+        {
+          code: 'fn dsp() -> float {\n  noise()\n}',
+          volume: 1,
+          muted: false,
+          solo: false,
+        },
+      ];
+      const result = mergeTracks(tracks);
+      expect(result).toContain('fn track1()');
+      expect(extractDspBody(result)).toBe('track1() * 0.010');
     });
 
     it('handles negative volume (treated as not active since <= 0)', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp() -> float {\n  noise()\n}',
-          volume: -0.5,
+          volume: -50,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);
@@ -496,15 +780,18 @@ describe('code-merger', () => {
     it('handles many tracks correctly', () => {
       const tracks: TrackCode[] = Array.from({ length: 5 }, (_, i) => ({
         code: `fn dsp() -> float {\n  sinwave(${440 + i * 10}.0, 0.0)\n}`,
-        volume: 1.0,
+        volume: 100,
         muted: false,
+        solo: false,
       }));
       const result = mergeTracks(tracks);
       expect(extractDspBody(result)).toBe('track1() + track2() + track3() + track4() + track5()');
     });
 
     it('handles whitespace-only code in fallback path', () => {
-      const tracks: TrackCode[] = [{ code: '   \n  \t  ', volume: 1.0, muted: false }];
+      const tracks: TrackCode[] = [
+        { code: '   \n  \t  ', volume: 100, muted: false, solo: false },
+      ];
       const result = mergeTracks(tracks);
       const trackFns = extractTrackFunctions(result);
       expect(trackFns).toHaveLength(1);
@@ -518,8 +805,9 @@ describe('code-merger', () => {
       const tracks: TrackCode[] = [
         {
           code: 'fn dsp(x) -> float {\n  noise()\n}',
-          volume: 1.0,
+          volume: 100,
           muted: false,
+          solo: false,
         },
       ];
       const result = mergeTracks(tracks);

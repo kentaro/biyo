@@ -127,7 +127,7 @@ export default function TrackItem({ track, canDelete }: TrackItemProps) {
   return (
     <li
       onClick={() => setActiveTrack(track.id)}
-      className="cursor-pointer transition-all animate-pop-in"
+      className="cursor-pointer transition-all animate-pop-in overflow-hidden"
       aria-current={isActive ? 'true' : undefined}
       aria-label={`${track.name}${isActive ? ' (せんたくちゅう)' : ''}`}
       onKeyDown={(e) => {
@@ -146,8 +146,8 @@ export default function TrackItem({ track, canDelete }: TrackItemProps) {
     >
       {/* Name row */}
       <div
-        className="flex items-center justify-between"
-        style={{ marginBottom: 'var(--sp-1)', gap: 'var(--sp-1)' }}
+        className="flex items-center"
+        style={{ marginBottom: 'var(--sp-1)', gap: 'var(--sp-1)', minWidth: 0 }}
       >
         {isEditing ? (
           <input
@@ -171,7 +171,7 @@ export default function TrackItem({ track, canDelete }: TrackItemProps) {
         ) : (
           // biome-ignore lint/a11y/noStaticElementInteractions: double-click to rename pattern
           <span
-            className="font-bold text-[var(--c-text)] truncate cursor-text select-none"
+            className="font-bold text-[var(--c-text)] truncate cursor-text select-none min-w-0 flex-1"
             style={{ fontSize: 'var(--fs-sm)' }}
             onDoubleClick={handleNameDoubleClick}
             title="ダブルクリックでなまえをかえる"
@@ -190,21 +190,25 @@ export default function TrackItem({ track, canDelete }: TrackItemProps) {
             ×
           </button>
         )}
-        {canDelete && confirmingDelete && (
-          <div
-            className="flex items-center animate-fade-in"
-            style={{ gap: 'var(--sp-1)', fontSize: 'var(--fs-xs)' }}
-          >
-            <span className="text-[var(--c-error)] font-bold whitespace-nowrap">
-              ほんとうにけす？
-            </span>
+      </div>
+
+      {/* Delete confirmation row - separate from name row to prevent overflow */}
+      {canDelete && confirmingDelete && (
+        <div
+          className="flex items-center flex-wrap animate-fade-in"
+          style={{ gap: 'var(--sp-1)', fontSize: 'var(--fs-xs)', marginBottom: 'var(--sp-1)' }}
+        >
+          <span className="text-[var(--c-error)] font-bold whitespace-nowrap">
+            ほんとうにけす？
+          </span>
+          <div className="flex items-center" style={{ gap: 'var(--sp-1)' }}>
             <button
               type="button"
               onClick={confirmDelete}
               className="shrink-0 font-bold text-white rounded-[var(--r-sm)] transition-colors"
               style={{
                 background: 'var(--c-error)',
-                padding: '0 var(--sp-1)',
+                padding: '0 var(--sp-2)',
                 height: 'var(--btn-sm)',
                 fontSize: 'var(--fs-xs)',
               }}
@@ -218,7 +222,7 @@ export default function TrackItem({ track, canDelete }: TrackItemProps) {
               className="shrink-0 font-bold text-[var(--c-text-muted)] rounded-[var(--r-sm)] transition-colors hover:bg-[var(--c-surface-alt)]"
               style={{
                 background: 'var(--c-surface)',
-                padding: '0 var(--sp-1)',
+                padding: '0 var(--sp-2)',
                 height: 'var(--btn-sm)',
                 fontSize: 'var(--fs-xs)',
                 border: '1px solid var(--c-border)',
@@ -228,18 +232,18 @@ export default function TrackItem({ track, canDelete }: TrackItemProps) {
               やめる
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Controls row */}
-      <div className="flex items-center" style={{ gap: 'var(--sp-1)' }}>
+      <div className="flex items-center" style={{ gap: 'var(--sp-1)', minWidth: 0 }}>
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             toggleMute(track.id);
           }}
-          className="font-black flex items-center justify-center transition-all"
+          className="shrink-0 font-black flex items-center justify-center transition-all"
           style={{
             width: 'var(--btn-sm)',
             height: 'var(--btn-sm)',
@@ -261,7 +265,7 @@ export default function TrackItem({ track, canDelete }: TrackItemProps) {
             e.stopPropagation();
             toggleSolo(track.id);
           }}
-          className="font-black flex items-center justify-center transition-all"
+          className="shrink-0 font-black flex items-center justify-center transition-all"
           style={{
             width: 'var(--btn-sm)',
             height: 'var(--btn-sm)',
@@ -277,7 +281,7 @@ export default function TrackItem({ track, canDelete }: TrackItemProps) {
         >
           {track.solo ? '⭐' : '☆'}
         </button>
-        <div className="flex-1 relative">
+        <div className="flex-1 min-w-0 relative">
           <input
             type="range"
             min={0}

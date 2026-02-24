@@ -1,7 +1,7 @@
 import * as Blockly from 'blockly';
 
-const COLOUR = '#FFAB19';
-const NOTES_COLOUR = '#5BA58C';
+const COLOUR = '#9F6A08';
+const NOTES_COLOUR = '#468070';
 
 const ROOT_OPTIONS: [string, string][] = [
   ['ド', 'C'],

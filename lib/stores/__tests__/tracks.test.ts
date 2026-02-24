@@ -322,7 +322,7 @@ describe('TrackStore', () => {
   // ----------------------------------------------------------------
   describe('appendWorkspaceXml', () => {
     it('sets pendingAppendXml', () => {
-      const xml = '<block type="rest"></block>';
+      const xml = '<block type="biyo_note"></block>';
       getStore().appendWorkspaceXml(xml);
       expect(getStore().pendingAppendXml).toBe(xml);
     });
@@ -331,6 +331,14 @@ describe('TrackStore', () => {
       const before = getStore().workspaceVersion;
       getStore().appendWorkspaceXml('<block/>');
       expect(getStore().workspaceVersion).toBe(before + 1);
+    });
+
+    it('increments workspaceVersion correctly on rapid successive calls', () => {
+      const before = getStore().workspaceVersion;
+      getStore().appendWorkspaceXml('<block1/>');
+      getStore().appendWorkspaceXml('<block2/>');
+      getStore().appendWorkspaceXml('<block3/>');
+      expect(getStore().workspaceVersion).toBe(before + 3);
     });
   });
 

@@ -5,6 +5,29 @@ import { audioEngine } from '@/lib/audio/engine';
 import { usePlaybackStore } from '@/lib/stores/playback';
 import HelpTooltip from './HelpTooltip';
 
+// Polyfill for ctx.roundRect — not supported in Chrome <99, Firefox <112, Safari <15.4.
+// Draws a rounded rectangle using manual arc commands for full cross-browser compatibility.
+function drawRoundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + w - radius, y);
+  ctx.arcTo(x + w, y, x + w, y + radius, radius);
+  ctx.lineTo(x + w, y + h - radius);
+  ctx.arcTo(x + w, y + h, x + w - radius, y + h, radius);
+  ctx.lineTo(x + radius, y + h);
+  ctx.arcTo(x, y + h, x, y + h - radius, radius);
+  ctx.lineTo(x, y + radius);
+  ctx.arcTo(x, y, x + radius, y, radius);
+  ctx.closePath();
+}
+
 // Resolve CSS custom properties for canvas usage (Canvas 2D API needs resolved strings)
 function getCssVar(name: string): string {
   if (typeof document === 'undefined') return '';
@@ -16,13 +39,17 @@ let _colors: Record<string, string> | null = null;
 function getColors() {
   if (!_colors) {
     _colors = {
-      source: getCssVar('--c-source') || '#ff6680',
-      effect: getCssVar('--c-effect') || '#4c97ff',
-      rhythm: getCssVar('--c-rhythm') || '#59c059',
-      preset: getCssVar('--c-preset') || '#cf63cf',
-      utility: getCssVar('--c-utility') || '#ffab19',
-      note: getCssVar('--c-note') || '#5ba58c',
+      source: getCssVar('--c-source') || '#c44d62',
+      effect: getCssVar('--c-effect') || '#3976c6',
+      rhythm: getCssVar('--c-rhythm') || '#3c843c',
+      preset: getCssVar('--c-preset') || '#b050b0',
+      utility: getCssVar('--c-utility') || '#9f6a08',
+      note: getCssVar('--c-note') || '#468070',
       bg: getCssVar('--c-bg') || '#fff8f0',
+      waveformBg2: getCssVar('--c-waveform-bg-2') || '#f8f0ff',
+      waveformBg3: getCssVar('--c-waveform-bg-3') || '#f0f6ff',
+      spectrogramBg: getCssVar('--c-spectrogram-bg') || '#000020',
+      textInverse: getCssVar('--c-text-inverse') || '#ffffff',
     };
   }
   return _colors;
@@ -280,7 +307,7 @@ function drawSpectrum(
       ctx.fillStyle = barGrad;
       ctx.globalAlpha = 0.6 + value * 0.4;
       ctx.beginPath();
-      ctx.roundRect(x, barBottom - barH, barWidth, barH, 3);
+      drawRoundRect(ctx, x, barBottom - barH, barWidth, barH, 3);
       ctx.fill();
 
       // Glow effect on loud bars
@@ -291,7 +318,7 @@ function drawSpectrum(
         ctx.fillStyle = color;
         ctx.globalAlpha = 0.3 * value;
         ctx.beginPath();
-        ctx.roundRect(x, barBottom - barH, barWidth, barH, 3);
+        drawRoundRect(ctx, x, barBottom - barH, barWidth, barH, 3);
         ctx.fill();
         ctx.restore();
       }
@@ -309,7 +336,7 @@ function drawSpectrum(
       ctx.fillStyle = specColors[i % specColors.length];
       ctx.globalAlpha = 0.25;
       ctx.beginPath();
-      ctx.roundRect(x, barBottom - barH, barWidth, barH, 3);
+      drawRoundRect(ctx, x, barBottom - barH, barWidth, barH, 3);
       ctx.fill();
     }
     ctx.globalAlpha = 1.0;
@@ -330,6 +357,10 @@ function drawSpectrogram(
 ) {
   const specW = Math.floor(width);
   const specH = Math.floor(height);
+
+  // Guard: need at least 2px height for frequency mapping (avoids division by zero)
+  if (specW < 1 || specH < 2) return;
+
   ensureSpectrogramBuffer(specW, specH);
 
   const offCanvas = spectrogramCanvasRef.current;
@@ -382,7 +413,7 @@ function drawSpectrogram(
   // Frequency labels overlay
   ctx.save();
   ctx.font = '10px monospace';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.fillStyle = hexWithAlpha(COLORS.textInverse, 0.7);
   ctx.textBaseline = 'middle';
 
   const sampleRate = analyser ? analyser.context.sampleRate : 44100;
@@ -455,6 +486,15 @@ function drawSmoothCurve(ctx: CanvasRenderingContext2D, points: { x: number; y: 
   ctx.quadraticCurveTo(secondLast.x, secondLast.y, last.x, last.y);
 }
 
+// --- Convert hex color + alpha (0..1) to rgba string for canvas ---
+function hexWithAlpha(hex: string, alpha: number): string {
+  const h = hex.replace('#', '');
+  const r = Number.parseInt(h.length === 3 ? h[0] + h[0] : h.slice(0, 2), 16);
+  const g = Number.parseInt(h.length === 3 ? h[1] + h[1] : h.slice(2, 4), 16);
+  const b = Number.parseInt(h.length === 3 ? h[2] + h[2] : h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 // --- Lighten a hex color by a fraction (0..1) ---
 function lightenColor(hex: string, fraction: number): string {
   const r = Number.parseInt(hex.slice(1, 3), 16);
@@ -505,15 +545,14 @@ export default function WaveformMonitor() {
     offscreen.width = w;
     offscreen.height = h;
     const offCtx = offscreen.getContext('2d');
-    if (offCtx) {
-      // If we had old data, copy it over (resize-aware)
-      if (spectrogramCanvasRef.current) {
-        offCtx.drawImage(spectrogramCanvasRef.current, 0, 0, w, h);
-      } else {
-        // Fill with dark blue initially
-        offCtx.fillStyle = '#000020';
-        offCtx.fillRect(0, 0, w, h);
-      }
+    if (!offCtx) return; // Cannot create context — bail without updating refs
+    // If we had old data, copy it over (resize-aware)
+    if (spectrogramCanvasRef.current) {
+      offCtx.drawImage(spectrogramCanvasRef.current, 0, 0, w, h);
+    } else {
+      // Fill with dark blue initially
+      offCtx.fillStyle = COLORS.spectrogramBg;
+      offCtx.fillRect(0, 0, w, h);
     }
     spectrogramCanvasRef.current = offscreen;
     spectrogramCtxRef.current = offCtx;
@@ -555,6 +594,9 @@ export default function WaveformMonitor() {
       const currentMode = modeRef.current;
       const { width, height } = ensureCanvasSize(canvas, ctx);
 
+      // Skip drawing if canvas has no meaningful size
+      if (width < 1 || height < 1) return;
+
       // Advance hue for rainbow shift
       if (playing) {
         hueRef.current = (hueRef.current + 0.5) % 360;
@@ -578,9 +620,9 @@ export default function WaveformMonitor() {
 
       // --- Background gradient (shared by waveform and spectrum) ---
       const bg = ctx.createLinearGradient(0, 0, width, height);
-      bg.addColorStop(0, COLORS.bg || '#fff8f0');
-      bg.addColorStop(0.5, '#F8F0FF');
-      bg.addColorStop(1, '#F0F6FF');
+      bg.addColorStop(0, COLORS.bg);
+      bg.addColorStop(0.5, COLORS.waveformBg2);
+      bg.addColorStop(1, COLORS.waveformBg3);
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, width, height);
 
@@ -655,7 +697,13 @@ export default function WaveformMonitor() {
     };
 
     loop();
-    return () => cancelAnimationFrame(animationRef.current);
+    return () => {
+      cancelAnimationFrame(animationRef.current);
+      // Clean up spectrogram offscreen canvas to avoid memory leaks
+      spectrogramCanvasRef.current = null;
+      spectrogramCtxRef.current = null;
+      spectrogramSizeRef.current = { w: 0, h: 0 };
+    };
   }, [isPlaying, draw]);
 
   const nextIdx = (VIS_MODES.indexOf(mode) + 1) % VIS_MODES.length;

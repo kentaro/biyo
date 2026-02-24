@@ -312,9 +312,14 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
               onClick={() => setMenuOpen((prev) => !prev)}
               style={{
                 ...toolBtnStyle,
-                padding: 'var(--sp-1) var(--sp-2)',
+                padding: 'var(--sp-2)',
                 fontSize: 'var(--fs-md)',
                 lineHeight: 1,
+                minWidth: 44,
+                minHeight: 44,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
               aria-label="メニューをひらく"
               aria-expanded={menuOpen}
@@ -334,8 +339,10 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
                   border: '1px solid var(--c-border)',
                   borderRadius: 'var(--r-sm)',
                   boxShadow: 'var(--shadow-md)',
-                  zIndex: 100,
-                  minWidth: 140,
+                  zIndex: 200,
+                  minWidth: 180,
+                  maxHeight: '80vh',
+                  overflowY: 'auto',
                   padding: 'var(--sp-1) 0',
                   display: 'flex',
                   flexDirection: 'column',
@@ -363,6 +370,8 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
                       fontSize: 'var(--fs-md)',
                       flex: 1,
                       textAlign: 'center',
+                      minWidth: 44,
+                      minHeight: 44,
                     }}
                     role="menuitem"
                     aria-label="もどす"
@@ -381,6 +390,8 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
                       fontSize: 'var(--fs-md)',
                       flex: 1,
                       textAlign: 'center',
+                      minWidth: 44,
+                      minHeight: 44,
                     }}
                     role="menuitem"
                     aria-label="やりなおす"
@@ -402,6 +413,8 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
                       fontSize: 'var(--fs-md)',
                       flex: 1,
                       textAlign: 'center',
+                      minWidth: 44,
+                      minHeight: 44,
                     }}
                     role="menuitem"
                     aria-label="ぜんぶけす"
@@ -426,8 +439,9 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
                       boxShadow: 'none',
                       width: '100%',
                       textAlign: 'left',
-                      padding: 'var(--sp-2) var(--sp-3)',
+                      padding: 'var(--sp-3)',
                       background: 'transparent',
+                      minHeight: 44,
                     }}
                     role="menuitem"
                   >
@@ -450,8 +464,9 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
                     boxShadow: 'none',
                     width: '100%',
                     textAlign: 'left',
-                    padding: 'var(--sp-2) var(--sp-3)',
+                    padding: 'var(--sp-3)',
                     background: 'transparent',
+                    minHeight: 44,
                   }}
                   role="menuitem"
                 >
@@ -470,8 +485,9 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
                     boxShadow: 'none',
                     width: '100%',
                     textAlign: 'left',
-                    padding: 'var(--sp-2) var(--sp-3)',
+                    padding: 'var(--sp-3)',
                     background: 'transparent',
+                    minHeight: 44,
                   }}
                   role="menuitem"
                 >

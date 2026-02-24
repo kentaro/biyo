@@ -49,6 +49,20 @@ describe('CompileStore', () => {
       getStore().setGeneratedCode(code);
       expect(getStore().generatedCode).toBe(code);
     });
+
+    it('clears compileError when new code is set', () => {
+      getStore().setError('Previous error');
+      expect(getStore().compileError).toBe('Previous error');
+      getStore().setGeneratedCode('new code');
+      expect(getStore().compileError).toBeNull();
+    });
+
+    it('resets status to ready when new code is set', () => {
+      getStore().setStatus('error');
+      expect(getStore().status).toBe('error');
+      getStore().setGeneratedCode('new code');
+      expect(getStore().status).toBe('ready');
+    });
   });
 
   // ----------------------------------------------------------------

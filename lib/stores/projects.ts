@@ -1,3 +1,4 @@
+import { validateWorkspaceXml } from '@/lib/sharing/validate-xml';
 import { create } from 'zustand';
 import type { Track } from './tracks';
 
@@ -102,10 +103,26 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       reader.onload = () => {
         try {
           const data = JSON.parse(reader.result as string) as BiyoFile;
-          if (!data.version || !data.tracks) {
+          if (!data.version || !data.tracks || typeof data.bpm !== 'number') {
             reject(new Error('このファイルはひらけないみたい。べつのファイルをえらんでみてね！'));
             return;
           }
+
+          // Validate workspace XML in each track to prevent XSS/injection
+          for (const track of data.tracks) {
+            if (track.workspaceXml && track.workspaceXml.trim() !== '') {
+              const validation = validateWorkspaceXml(track.workspaceXml);
+              if (!validation.valid) {
+                reject(
+                  new Error(
+                    'このファイルにはあやしいデータがはいっているみたい。べつのファイルをえらんでみてね！',
+                  ),
+                );
+                return;
+              }
+            }
+          }
+
           resolve(data);
         } catch {
           reject(new Error('ファイルがよめなかったよ。もういちどためしてみてね！'));

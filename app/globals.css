@@ -5,13 +5,13 @@
    ============================================ */
 
 :root {
-  /* --- Colors: Brand --- */
-  --c-source: #ff6680;
-  --c-effect: #4c97ff;
-  --c-rhythm: #59c059;
-  --c-utility: #ffab19;
-  --c-preset: #cf63cf;
-  --c-note: #5ba58c;
+  /* --- Colors: Brand (WCAG AA >= 4.5:1 with white) --- */
+  --c-source: #c44d62;
+  --c-effect: #3976c6;
+  --c-rhythm: #3c843c;
+  --c-utility: #9f6a08;
+  --c-preset: #b050b0;
+  --c-note: #468070;
 
   /* --- Colors: Surface --- */
   --c-bg: #fff8f0;
@@ -22,24 +22,34 @@
   /* --- Colors: Text --- */
   --c-text: #333344;
   --c-text-sub: #666688;
-  --c-text-muted: #999aaa;
+  --c-text-muted: #6e6e7a;
   --c-text-inverse: #fff;
 
   /* --- Colors: Overlay --- */
   --c-overlay-bg: rgba(51, 51, 68, 0.5);
+  --c-overlay-dim: color-mix(in srgb, #000 30%, transparent);
+
+  /* --- Colors: Glow (semi-transparent for box-shadow / animations) --- */
+  --c-ok-glow-30: color-mix(in srgb, var(--c-ok) 30%, transparent);
+  --c-ok-glow-35: color-mix(in srgb, var(--c-ok) 35%, transparent);
+  --c-ok-glow-40: color-mix(in srgb, var(--c-ok) 40%, transparent);
+  --c-ok-glow-60: color-mix(in srgb, var(--c-ok) 60%, transparent);
+  --c-ok-glow-70: color-mix(in srgb, var(--c-ok) 70%, transparent);
+  --c-error-glow-40: color-mix(in srgb, var(--c-error) 40%, transparent);
+  --c-shadow-20: color-mix(in srgb, #000 20%, transparent);
 
   /* --- Colors: Gradient --- */
-  --c-gradient-green: #3daf3d;
-  --c-gradient-blue: #3a7fe6;
+  --c-gradient-green: #318231;
+  --c-gradient-blue: #3570cc;
 
   /* --- Colors: Border --- */
   --c-border: #e8ddd4;
   --c-border-light: #f0e8e0;
 
   /* --- Colors: Status --- */
-  --c-ok: #59c059;
-  --c-warn: #ffab19;
-  --c-error: #ff6680;
+  --c-ok: #3c843c;
+  --c-warn: #9f6a08;
+  --c-error: #c44d62;
 
   /* --- Spacing (4px base) --- */
   --sp-1: 4px; /* 極小 */
@@ -79,12 +89,12 @@
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.18);
   --shadow-btn: 0 2px 6px rgba(0, 0, 0, 0.12);
   --shadow-drawer: -4px 0 16px rgba(0, 0, 0, 0.1);
-  --shadow-preset-glow: 0 4px 12px rgba(207, 99, 207, 0.4);
-  --shadow-ok-glow: 0 3px 12px rgba(89, 192, 89, 0.35);
-  --shadow-effect-glow: 0 3px 12px rgba(76, 151, 255, 0.35);
-  --shadow-source-glow: 0 3px 12px rgba(255, 102, 128, 0.35);
-  --shadow-suggestion: 0 2px 8px rgba(207, 99, 207, 0.3), 0 1px 3px rgba(76, 151, 255, 0.2);
-  --shadow-suggestion-hover: 0 4px 14px rgba(207, 99, 207, 0.45), 0 2px 6px rgba(76, 151, 255, 0.3);
+  --shadow-preset-glow: 0 4px 12px rgba(176, 80, 176, 0.4);
+  --shadow-ok-glow: 0 3px 12px rgba(60, 132, 60, 0.35);
+  --shadow-effect-glow: 0 3px 12px rgba(57, 118, 198, 0.35);
+  --shadow-source-glow: 0 3px 12px rgba(196, 77, 98, 0.35);
+  --shadow-suggestion: 0 2px 8px rgba(176, 80, 176, 0.3), 0 1px 3px rgba(57, 118, 198, 0.2);
+  --shadow-suggestion-hover: 0 4px 14px rgba(176, 80, 176, 0.45), 0 2px 6px rgba(57, 118, 198, 0.3);
 
   /* --- Colors: Blockly UI --- */
   --c-blockly-toolbox: #f5f0ff;
@@ -138,7 +148,7 @@
   border-radius: var(--r-md);
   font-size: var(--fs-sm);
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px var(--c-shadow-20);
 }
 
 /* ============================================
@@ -322,10 +332,10 @@ input[type="number"]::-webkit-outer-spin-button {
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 4px rgba(89, 192, 89, 0.3);
+    box-shadow: 0 0 4px var(--c-ok-glow-30);
   }
   50% {
-    box-shadow: 0 0 12px rgba(89, 192, 89, 0.6);
+    box-shadow: 0 0 12px var(--c-ok-glow-60);
   }
 }
 
@@ -353,7 +363,7 @@ input[type="number"]::-webkit-outer-spin-button {
 @keyframes border-flash-green {
   0% {
     border-color: var(--c-ok);
-    box-shadow: 0 0 8px rgba(89, 192, 89, 0.4);
+    box-shadow: 0 0 8px var(--c-ok-glow-40);
   }
   100% {
     border-color: var(--c-border);
@@ -364,7 +374,7 @@ input[type="number"]::-webkit-outer-spin-button {
 @keyframes border-flash-red {
   0% {
     border-color: var(--c-error);
-    box-shadow: 0 0 8px rgba(255, 102, 128, 0.4);
+    box-shadow: 0 0 8px var(--c-error-glow-40);
   }
   100% {
     border-color: var(--c-border);
@@ -409,13 +419,13 @@ input[type="number"]::-webkit-outer-spin-button {
 @keyframes play-glow {
   0%,
   100% {
-    box-shadow: 0 0 6px rgba(89, 192, 89, 0.4);
+    box-shadow: 0 0 6px var(--c-ok-glow-40);
     transform: scale(1);
   }
   50% {
     box-shadow:
-      0 0 18px rgba(89, 192, 89, 0.7),
-      0 0 30px rgba(89, 192, 89, 0.3);
+      0 0 18px var(--c-ok-glow-70),
+      0 0 30px var(--c-ok-glow-30);
     transform: scale(1.05);
   }
 }
@@ -666,7 +676,7 @@ input:focus-visible,
 .drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--c-overlay-dim);
   z-index: 40;
   opacity: 0;
   pointer-events: none;
@@ -689,6 +699,8 @@ input:focus-visible,
   transform: translateX(100%);
   transition: transform 0.25s ease;
   box-shadow: var(--shadow-drawer);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .drawer-panel.open {
@@ -701,8 +713,8 @@ input:focus-visible,
 
 .drawer-toggle {
   position: fixed;
-  /* Account for bottom panel + code preview (80px) + statusbar */
-  bottom: calc(var(--bottom-h) + 80px + var(--statusbar-h) + var(--sp-3));
+  /* Account for bottom panel + code preview (72px) + statusbar */
+  bottom: calc(var(--bottom-h) + 72px + var(--statusbar-h) + var(--sp-3));
   right: var(--sp-3);
   z-index: 30;
   width: 52px;
@@ -866,7 +878,7 @@ input:focus-visible,
 .achievement-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--c-overlay-dim);
   z-index: 150;
 }
 
@@ -1021,7 +1033,7 @@ input:focus-visible,
 
   body {
     overflow: visible;
-    background: #fff;
+    background: var(--c-surface);
   }
 
   /* Show code preview for printing */

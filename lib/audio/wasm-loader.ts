@@ -324,6 +324,13 @@ function transpileLetBindings(s: string): string {
     changed = false;
     iterations++;
 
+    if (iterations >= MAX_ITERATIONS - 10) {
+      console.warn(
+        `[wasm-loader] transpileLetBindings approaching iteration limit (${iterations}/${MAX_ITERATIONS}). ` +
+        'Code may contain too many or malformed let-bindings.',
+      );
+    }
+
     // Find `( let VAR = ...` pattern
     const letIdx = result.indexOf('let ');
     if (letIdx === -1) break;
@@ -428,6 +435,13 @@ function transpileIfElse(s: string): string {
   while (changed && iterations < MAX_ITERATIONS) {
     changed = false;
     iterations++;
+
+    if (iterations >= MAX_ITERATIONS - 10) {
+      console.warn(
+        `[wasm-loader] transpileIfElse approaching iteration limit (${iterations}/${MAX_ITERATIONS}). ` +
+        'Code may contain too many or malformed if-else expressions.',
+      );
+    }
 
     // Find innermost `if ... { ... } else { ... }` first
     const ifIdx = findInnermostIf(result);
@@ -584,6 +598,13 @@ function transpileFmod(s: string): string {
     changed = false;
     iterations++;
 
+    if (iterations >= MAX_ITERATIONS - 10) {
+      console.warn(
+        `[wasm-loader] transpileFmod approaching iteration limit (${iterations}/${MAX_ITERATIONS}). ` +
+        'Code may contain too many or malformed fmod calls.',
+      );
+    }
+
     const fmodIdx = result.indexOf('fmod(');
     if (fmodIdx === -1) break;
 
@@ -697,7 +718,7 @@ function compileMimium(
   }
 
   try {
-    const fn = new Function(...paramNames, `"use strict"; return ${jsBody};`);
+    const fn = new Function(...paramNames, `"use strict"; var window=void 0,document=void 0,fetch=void 0,XMLHttpRequest=void 0,importScripts=void 0,globalThis=void 0,self=void 0; return ${jsBody};`);
     return (st: DSPState, b: ReturnType<typeof makeBuiltins>) => {
       return fn(
         st,
@@ -750,10 +771,14 @@ class TranspilerContext implements MimiumContext {
   }
 
   compile(code: string): void {
-    // Atomic swap: only update state if compilation succeeds
+    // Atomic swap: only update DSP function if compilation succeeds.
+    // Preserve time counter (now) across recompiles for seamless hot-reload:
+    // resetting `now` would cause oscillator phase jumps and audio pops.
     const newFn = compileMimium(code);
     if (newFn !== null) {
+      const prevNow = this.state.now;
       this.state = createState(this.sampleRate);
+      this.state.now = prevNow;
       this.builtins = makeBuiltins(this.state);
       this.dspFn = newFn;
     }
@@ -821,4 +846,7 @@ export const __test__ = {
   extractDSPBody,
   extractTrackFunctions,
   splitArgs,
+  compileMimium,
+  makeBuiltins,
+  createState,
 };

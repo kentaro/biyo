@@ -168,6 +168,7 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
             justifyContent: 'space-between',
             alignItems: 'center',
             marginBottom: 'var(--sp-4)',
+            flexShrink: 0,
           }}
         >
           <h2
@@ -186,6 +187,11 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
               color: 'var(--c-text-muted)',
               padding: 'var(--sp-1)',
               lineHeight: 1,
+              minWidth: 44,
+              minHeight: 44,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
             aria-label="とじる"
           >
@@ -200,6 +206,7 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
             borderRadius: 'var(--r-md)',
             padding: 'var(--sp-4)',
             marginBottom: 'var(--sp-4)',
+            flexShrink: 0,
           }}
         >
           <label
@@ -250,6 +257,7 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 boxShadow: 'var(--shadow-btn)',
+                minHeight: 44,
               }}
             >
               {saved ? 'ほぞんした!' : 'ほぞん'}
@@ -267,7 +275,7 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
           </p>
 
           {/* Export / Import buttons */}
-          <div style={{ display: 'flex', gap: 'var(--sp-2)', marginTop: 'var(--sp-3)' }}>
+          <div style={{ display: 'flex', gap: 'var(--sp-2)', marginTop: 'var(--sp-3)', flexWrap: 'wrap' }}>
             <button
               type="button"
               onClick={handleExport}
@@ -283,6 +291,8 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
                 borderRadius: 'var(--r-sm)',
                 padding: 'var(--sp-2)',
                 cursor: 'pointer',
+                minHeight: 44,
+                minWidth: 120,
               }}
             >
               ファイルにほぞん (.biyo)
@@ -302,6 +312,8 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
                 borderRadius: 'var(--r-sm)',
                 padding: 'var(--sp-2)',
                 cursor: 'pointer',
+                minHeight: 44,
+                minWidth: 120,
               }}
             >
               ファイルをよみこむ
@@ -336,6 +348,7 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
             fontWeight: 700,
             color: 'var(--c-text-sub)',
             marginBottom: 'var(--sp-2)',
+            flexShrink: 0,
           }}
         >
           ほぞんしたつくったおんがく
@@ -408,10 +421,13 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
                   background: 'var(--c-effect)',
                   border: 'none',
                   borderRadius: 'var(--r-sm)',
-                  padding: 'var(--sp-1) var(--sp-3)',
+                  padding: 'var(--sp-2) var(--sp-3)',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
                   boxShadow: 'var(--shadow-btn)',
+                  minHeight: 44,
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
                 ひらく
@@ -428,9 +444,12 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
                   background: 'none',
                   border: '1px solid var(--c-error)',
                   borderRadius: 'var(--r-sm)',
-                  padding: 'var(--sp-1) var(--sp-2)',
+                  padding: 'var(--sp-2) var(--sp-3)',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
+                  minHeight: 44,
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
                 けす

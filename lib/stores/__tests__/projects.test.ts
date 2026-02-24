@@ -333,6 +333,17 @@ describe('ProjectStore', () => {
       );
     });
 
+    it('rejects when bpm is missing', async () => {
+      const data = { version: 1, name: 'No BPM', tracks: [], savedAt: 0 };
+      const file = new File([JSON.stringify(data)], 'no-bpm.biyo', {
+        type: 'application/json',
+      });
+
+      await expect(getStore().importFromFile(file)).rejects.toThrow(
+        'このファイルはひらけないみたい。べつのファイルをえらんでみてね！',
+      );
+    });
+
     it('rejects when FileReader triggers onerror', async () => {
       const OriginalFileReader = globalThis.FileReader;
       // Mock FileReader so that readAsText triggers onerror

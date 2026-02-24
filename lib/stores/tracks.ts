@@ -1,3 +1,4 @@
+import { validateWorkspaceXml } from '@/lib/sharing/validate-xml';
 import { create } from 'zustand';
 
 export interface Track {
@@ -86,14 +87,32 @@ export const useTrackStore = create<TrackStore>((set, get) => ({
       tracks: s.tracks.map((t) => (t.id === id ? { ...t, workspaceXml: xml } : t)),
     })),
 
-  loadWorkspaceXml: (xml) =>
+  loadWorkspaceXml: (xml) => {
+    // Validate XML before loading into workspace (skip validation for empty xml which resets)
+    if (xml && xml.trim() !== '') {
+      const validation = validateWorkspaceXml(xml);
+      if (!validation.valid) {
+        console.warn('[biyo] loadWorkspaceXml rejected:', validation.reason);
+        return;
+      }
+    }
     set((s) => ({
       tracks: s.tracks.map((t) => (t.id === s.activeTrackId ? { ...t, workspaceXml: xml } : t)),
       workspaceVersion: s.workspaceVersion + 1,
-    })),
+    }));
+  },
 
-  appendWorkspaceXml: (xml) =>
-    set({ pendingAppendXml: xml, workspaceVersion: get().workspaceVersion + 1 }),
+  appendWorkspaceXml: (xml) => {
+    // Validate XML before appending to workspace
+    if (xml && xml.trim() !== '') {
+      const validation = validateWorkspaceXml(xml);
+      if (!validation.valid) {
+        console.warn('[biyo] appendWorkspaceXml rejected:', validation.reason);
+        return;
+      }
+    }
+    set((s) => ({ pendingAppendXml: xml, workspaceVersion: s.workspaceVersion + 1 }));
+  },
 
   clearPendingAppend: () => set({ pendingAppendXml: null }),
 

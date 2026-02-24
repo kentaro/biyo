@@ -1,6 +1,6 @@
 import * as Blockly from 'blockly';
 
-const COLOUR = '#4C97FF';
+const COLOUR = '#3976C6';
 
 const biyo_lowpass = {
   type: 'biyo_lowpass',

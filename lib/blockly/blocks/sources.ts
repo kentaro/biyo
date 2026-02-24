@@ -1,6 +1,6 @@
 import * as Blockly from 'blockly';
 
-const COLOUR = '#FF6680';
+const COLOUR = '#C44D62';
 
 const NOTE_NAMES: [string, string][] = [
   ['ド', 'C'],

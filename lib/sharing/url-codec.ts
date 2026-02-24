@@ -1,4 +1,5 @@
 import LZString from 'lz-string';
+import { validateWorkspaceXml } from './validate-xml';
 
 /** Maximum URL length considered safe for sharing (most browsers support ~2000+) */
 const MAX_URL_LENGTH = 8000;
@@ -96,8 +97,9 @@ export function decodeWorkspace(hash: string): WorkspaceData | null {
       return null;
     }
 
-    // Basic XML sanity check
-    if (!xml.includes('<xml') && !xml.includes('<block')) {
+    // Validate XML for safety (XSS, injection, structure)
+    const validation = validateWorkspaceXml(xml);
+    if (!validation.valid) {
       return null;
     }
 

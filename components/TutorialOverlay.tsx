@@ -78,13 +78,8 @@ export default function TutorialOverlay({ onDismiss, onOpenSamples }: TutorialOv
     onOpenSamples();
   }, [onDismiss, onOpenSamples]);
 
-  // Close when clicking outside the card, Escape key, and focus trap
+  // Escape key and focus trap
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
-        handleFinish();
-      }
-    };
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         handleFinish();
@@ -106,16 +101,16 @@ export default function TutorialOverlay({ onDismiss, onOpenSamples }: TutorialOv
         }
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
     setTimeout(() => cardRef.current?.querySelector<HTMLElement>('button')?.focus(), 50);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [handleFinish]);
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss pattern
+    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop dismiss pattern
     <div
       style={{
         position: 'fixed',
@@ -127,6 +122,9 @@ export default function TutorialOverlay({ onDismiss, onOpenSamples }: TutorialOv
         background: 'var(--c-overlay-bg)',
         backdropFilter: 'blur(4px)',
         animation: 'tutFadeIn 0.35s ease-out',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleFinish();
       }}
     >
       <style>{`
@@ -211,10 +209,11 @@ export default function TutorialOverlay({ onDismiss, onOpenSamples }: TutorialOv
           padding: 'var(--sp-6)',
           maxWidth: 420,
           width: '90vw',
+          maxHeight: '85vh',
+          overflowY: 'auto',
           textAlign: 'center',
           boxShadow: 'var(--shadow-lg)',
           position: 'relative',
-          overflow: 'hidden',
         }}
       >
         {/* Confetti for last step */}

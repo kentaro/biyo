@@ -362,7 +362,8 @@ mimiumGenerator.forBlock.biyo_telephone = (
 mimiumGenerator.forBlock.biyo_metro = (block: Blockly.Block, _generator: Blockly.CodeGenerator) => {
   const bpm = parseFloat(String(block.getFieldValue('BPM') ?? '120'));
   const interval = (60.0 / bpm).toFixed(6);
-  return [`metro(${interval})`, Order.FUNCTION_CALL];
+  const code = `sinwave(800.0, 0.0) * envelope(metro(${interval}), 0.001, 0.05)`;
+  return [code, Order.MULTIPLY];
 };
 
 mimiumGenerator.forBlock.biyo_sequencer = (
@@ -608,7 +609,9 @@ mimiumGenerator.forBlock.biyo_robot_voice = (
   _block: Blockly.Block,
   _generator: Blockly.CodeGenerator,
 ) => {
-  const code = `(square(150.0, 0.0) * 0.5 + square(153.0, 0.0) * 0.3) * (0.5 + 0.5 * sinwave(6.0, 0.0))`;
+  // Vowel formant synthesis: bandpass-filtered saw wave at formant frequencies
+  // Cycles between "ah" (730/1090/2440) and "ee" (270/2290/3010) formants
+  const code = `(let _rv_src = saw(120.0, 0.0); let _rv_lfo = 0.5 + 0.5 * sinwave(2.0, 0.0); bandpass(_rv_src, 730.0 * _rv_lfo + 270.0 * (1.0 - _rv_lfo), 5.0) * 0.4 + bandpass(_rv_src, 1090.0 * _rv_lfo + 2290.0 * (1.0 - _rv_lfo), 5.0) * 0.3 + bandpass(_rv_src, 2440.0 * _rv_lfo + 3010.0 * (1.0 - _rv_lfo), 5.0) * 0.2)`;
   return [code, Order.MULTIPLY];
 };
 
@@ -677,7 +680,9 @@ mimiumGenerator.forBlock.biyo_famicom = (
   _block: Blockly.Block,
   _generator: Blockly.CodeGenerator,
 ) => {
-  const code = `(square(440.0, 0.0) * 0.3 + square(554.0, 0.0) * 0.2 + square(659.0, 0.0) * 0.2) * envelope(metro(0.3), 0.01, 0.15)`;
+  // 8-bit arpeggio: rapidly cycles through C-E-G-C chord tones (square wave)
+  // Speed = 0.08s per step (12.5 Hz arpeggio rate, classic NES style)
+  const code = `(let _fc_idx = floor(fmod(now / samplerate / 0.08, 4.0)); let _fc_freq = if _fc_idx == 0.0 { 523.0 } else { if _fc_idx == 1.0 { 659.0 } else { if _fc_idx == 2.0 { 784.0 } else { 1047.0 } } }; square(_fc_freq, 0.0) * 0.4)`;
   return [code, Order.MULTIPLY];
 };
 
@@ -713,7 +718,8 @@ mimiumGenerator.forBlock.biyo_piano_note = (
 mimiumGenerator.forBlock.biyo_bpm = (block: Blockly.Block, _generator: Blockly.CodeGenerator) => {
   const bpm = parseFloat(String(block.getFieldValue('BPM') ?? '120'));
   const beatInterval = (60.0 / bpm).toFixed(6);
-  return [`metro(${beatInterval})`, Order.FUNCTION_CALL];
+  const code = `sinwave(800.0, 0.0) * envelope(metro(${beatInterval}), 0.001, 0.05)`;
+  return [code, Order.MULTIPLY];
 };
 
 mimiumGenerator.forBlock.biyo_pingpong = (
@@ -833,9 +839,11 @@ mimiumGenerator.forBlock.biyo_euclidean = (
 
   const code = `(
     let _eu_idx = floor(fmod(now / samplerate / ${stepDuration}, ${steps}.0));
-    ${pattern
+    let _eu_trig = ${pattern
       .map((hit: boolean, i: number) => `if _eu_idx == ${i}.0 { ${hit ? '1.0' : '0.0'} } else {`)
-      .join(' ')} 0.0 ${pattern.map(() => '}').join(' ')}
+      .join(' ')} 0.0 ${pattern.map(() => '}').join(' ')};
+    let _eu_env = envelope(metro(${stepDuration}), 0.001, ${(parseFloat(stepDuration) * 0.5).toFixed(4)});
+    _eu_trig * (sinwave(60.0, 0.0) * _eu_env * 0.7 + noise() * _eu_env * _eu_env * 0.3)
   )`;
   return [code, Order.ATOMIC];
 };
@@ -848,9 +856,9 @@ mimiumGenerator.forBlock.biyo_lfo_random = (
   const range = parseFloat(String(block.getFieldValue('RANGE') ?? '0.5'));
 
   // Smooth random walk using summed sine waves at incommensurate (irrational ratio)
-  // frequencies. The use of sqrt(3), sqrt(5), and 1/sqrt(3) ensures the combined
-  // signal never repeats exactly, creating an organic, evolving modulation source.
-  const code = `(${range} * (0.5 + 0.5 * (sin(2.0 * 3.14159265 * ${speed} * (now / samplerate) * 1.0) * 0.3 + sin(2.0 * 3.14159265 * ${speed} * (now / samplerate) * 1.7321) * 0.25 + sin(2.0 * 3.14159265 * ${speed} * (now / samplerate) * 2.2361) * 0.2 + sin(2.0 * 3.14159265 * ${speed} * (now / samplerate) * 0.5774) * 0.25)))`;
+  // frequencies, multiplied with a triangle wave to produce audible sound.
+  // The modulation signal (0-range) shapes the amplitude of a 220Hz triangle wave.
+  const code = `triangle(220.0, 0.0) * (${range} * (0.5 + 0.5 * (sin(2.0 * 3.14159265 * ${speed} * (now / samplerate) * 1.0) * 0.3 + sin(2.0 * 3.14159265 * ${speed} * (now / samplerate) * 1.7321) * 0.25 + sin(2.0 * 3.14159265 * ${speed} * (now / samplerate) * 2.2361) * 0.2 + sin(2.0 * 3.14159265 * ${speed} * (now / samplerate) * 0.5774) * 0.25)))`;
   return [code, Order.MULTIPLY];
 };
 

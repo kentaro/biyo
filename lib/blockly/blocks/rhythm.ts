@@ -1,6 +1,6 @@
 import * as Blockly from 'blockly';
 
-const COLOUR = '#59C059';
+const COLOUR = '#3C843C';
 
 const BPM_OPTIONS: [string, string][] = [
   ['\u3086\u3063\u304F\u308A', '80'],

@@ -7,7 +7,7 @@
  * 3. Safety limits: caps on buffers, filters, and iteration counts
  * 4. Edge cases: deep nesting, division by zero, NaN propagation
  */
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { __test__, createMimiumContext, type MimiumContext } from '../wasm-loader';
 
 // ---------------------------------------------------------------
@@ -1065,5 +1065,186 @@ describe('internal helpers via __test__', () => {
   it('findMatchingParen handles ( as open character', () => {
     const result = __test__.findMatchingParen('(hello)', 0);
     expect(result).toBe(6);
+  });
+});
+
+// =================================================================
+// 8. Edge case fixes — iteration limits, ==, freeverb, deep nesting, empty input
+// =================================================================
+describe('edge case fixes', () => {
+  let ctx: MimiumContext;
+
+  beforeEach(() => {
+    ctx = createMimiumContext();
+    ctx.set_samplerate(48000);
+  });
+
+  // --- Fix 1: Let-binding depth validation warns near limit ---
+  it('transpileLetBindings warns when iterations approach the limit', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // Create a chain of 210 let bindings (over the 200 limit)
+    let body = 'x0';
+    for (let i = 0; i < 210; i++) {
+      body = `(let x${i} = ${i === 0 ? '1.0' : `x${i - 1}`}; ${body})`;
+    }
+    __test__.transpileLetBindings(body);
+    expect(warnSpy).toHaveBeenCalled();
+    const warnMsg = warnSpy.mock.calls.find((call) =>
+      typeof call[0] === 'string' && call[0].includes('transpileLetBindings approaching iteration limit'),
+    );
+    expect(warnMsg).toBeDefined();
+    warnSpy.mockRestore();
+  });
+
+  it('transpileIfElse warns when iterations approach the limit', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // Create deeply nested if-else to push towards 500 iterations
+    let body = '1.0';
+    for (let i = 0; i < 510; i++) {
+      body = `if 1.0 > 0.0 { ${body} } else { 0.0 }`;
+    }
+    __test__.transpileIfElse(body);
+    expect(warnSpy).toHaveBeenCalled();
+    const warnMsg = warnSpy.mock.calls.find((call) =>
+      typeof call[0] === 'string' && call[0].includes('transpileIfElse approaching iteration limit'),
+    );
+    expect(warnMsg).toBeDefined();
+    warnSpy.mockRestore();
+  });
+
+  // --- Fix 2: == comparison operators in if-else conditions ---
+  it('if-else with == comparison operator transpiles correctly', () => {
+    const result = __test__.transpileIfElse('if _mel_idx == 0.0 { 440.0 } else { 880.0 }');
+    expect(result).toContain('_mel_idx == 0.0');
+    expect(result).toContain('?');
+    expect(result).toContain('440.0');
+    expect(result).toContain('880.0');
+  });
+
+  it('if-else with == works at runtime (equal case)', () => {
+    // Use a constant that equals 0.0
+    const code = dsp('if 0.0 == 0.0 { 1.0 } else { -1.0 }');
+    ctx.compile(code);
+    const out = processSamples(ctx, 1);
+    // 0.0 == 0.0 is true, so result is 1.0
+    // DC blocker first sample: 1.0 - 0 + 0 = 1.0, tanh(1.0) ~ 0.7616
+    expect(out[0]).toBeCloseTo(Math.tanh(1.0), 2);
+  });
+
+  it('if-else with == works at runtime (not-equal case)', () => {
+    const code = dsp('if 1.0 == 0.0 { 1.0 } else { -1.0 }');
+    ctx.compile(code);
+    const out = processSamples(ctx, 1);
+    // 1.0 == 0.0 is false, so result is -1.0
+    // DC blocker first sample: -1.0 - 0 + 0 = -1.0, tanh(-1.0) ~ -0.7616
+    expect(out[0]).toBeCloseTo(Math.tanh(-1.0), 2);
+  });
+
+  it('if-else with != comparison operator transpiles correctly', () => {
+    const result = __test__.transpileIfElse('if x != 0.0 { 1.0 } else { 0.0 }');
+    expect(result).toContain('x != 0.0');
+    expect(result).toContain('?');
+  });
+
+  it('if-else with <= and >= comparison operators transpile correctly', () => {
+    const result1 = __test__.transpileIfElse('if x <= 1.0 { 1.0 } else { 0.0 }');
+    expect(result1).toContain('x <= 1.0');
+    const result2 = __test__.transpileIfElse('if x >= 1.0 { 1.0 } else { 0.0 }');
+    expect(result2).toContain('x >= 1.0');
+  });
+
+  // --- Fix 3: freeverb_mono is not a builtin ---
+  it('code referencing undefined function freeverb_mono fails gracefully', () => {
+    // freeverb_mono is not defined in builtins, so compilation should fail
+    // but the context should handle it gracefully (no crash)
+    const code = dsp('freeverb_mono(sinwave(440.0, 0.0), 0.5, 0.3)');
+    ctx.compile(code);
+    const out = processSamples(ctx, 16);
+    // Should produce zeros since freeverb_mono is undefined (compilation fails)
+    expect(out.length).toBe(16);
+    for (const v of out) {
+      expect(Number.isFinite(v)).toBe(true);
+    }
+  });
+
+  it('code referencing undefined function reverb fails gracefully', () => {
+    const code = dsp('reverb(sinwave(440.0, 0.0), 0.5, 0.3)');
+    ctx.compile(code);
+    const out = processSamples(ctx, 16);
+    expect(out.length).toBe(16);
+    for (const v of out) {
+      expect(Number.isFinite(v)).toBe(true);
+    }
+  });
+
+  // --- Fix 4: Deeply nested function calls ---
+  it('deeply nested multi-function calls transpile correctly', () => {
+    // lowpass(delay(sinwave(440, 0), 100), 1000, 1) - all builtins
+    const code = dsp('lowpass(delay(sinwave(440.0, 0.0), 100), 1000.0, 1.0)');
+    ctx.compile(code);
+    const out = processSamples(ctx, 256);
+    expect(out.length).toBe(256);
+    for (const v of out) {
+      expect(Number.isFinite(v)).toBe(true);
+    }
+  });
+
+  it('four-level nested function calls transpile correctly', () => {
+    // lowpass(lowpass(delay(sinwave(440, 0), 100), 2000, 1), 1000, 1)
+    const code = dsp('lowpass(lowpass(delay(sinwave(440.0, 0.0), 100), 2000.0, 1.0), 1000.0, 1.0)');
+    ctx.compile(code);
+    const out = processSamples(ctx, 256);
+    expect(out.length).toBe(256);
+    for (const v of out) {
+      expect(Number.isFinite(v)).toBe(true);
+    }
+    // Should produce non-zero output after delay fills
+    const lateSignal = Array.from(out.slice(120)).some((v) => Math.abs(v) > 1e-6);
+    expect(lateSignal).toBe(true);
+  });
+
+  it('transpile preserves nested call structure in output', () => {
+    const result = __test__.transpile(
+      'lowpass(delay(sinwave(440.0, 0.0), 100), 1000.0, 1.0)',
+    );
+    // The transpiled output should contain the nested calls
+    expect(result).toContain('lowpass');
+    expect(result).toContain('delay');
+    expect(result).toContain('sinwave');
+    // Should not contain any if/let artifacts
+    expect(result).not.toContain('function()');
+    expect(result).not.toContain('var ');
+  });
+
+  // --- Fix 5: Empty code handling ---
+  it('compileMimium returns null for empty string', () => {
+    const fn = __test__.compileMimium('');
+    expect(fn).toBeNull();
+  });
+
+  it('compileMimium returns null for whitespace-only string', () => {
+    const fn = __test__.compileMimium('   \n\t  \n  ');
+    expect(fn).toBeNull();
+  });
+
+  it('compileMimium returns null for null-like input', () => {
+    // TypeScript would normally prevent this, but at runtime it could happen
+    const fn = __test__.compileMimium(null as unknown as string);
+    expect(fn).toBeNull();
+  });
+
+  it('compileMimium returns null for undefined input', () => {
+    const fn = __test__.compileMimium(undefined as unknown as string);
+    expect(fn).toBeNull();
+  });
+
+  it('compileMimium returns () => 0 for dsp body that is just "0.0"', () => {
+    const fn = __test__.compileMimium('fn dsp() -> float {\n  0.0\n}');
+    expect(fn).not.toBeNull();
+    if (fn) {
+      const state = __test__.createState(48000);
+      const builtins = __test__.makeBuiltins(state);
+      expect(fn(state, builtins)).toBe(0);
+    }
   });
 });

@@ -680,13 +680,13 @@ describe('mimium-generator', () => {
   // =======================================================================
   describe('rhythm blocks', () => {
     describe('biyo_metro', () => {
-      it('generates metro with interval from BPM', () => {
+      it('generates audible click with sinwave and envelope from BPM', () => {
         const [code, order] = generateBlock({
           type: 'biyo_metro',
           fields: { BPM: '120' },
         });
-        expect(code).toBe('metro(0.500000)');
-        expect(order).toBe(Order.FUNCTION_CALL);
+        expect(code).toBe('sinwave(800.0, 0.0) * envelope(metro(0.500000), 0.001, 0.05)');
+        expect(order).toBe(Order.MULTIPLY);
       });
 
       it('uses default BPM 120 when field is null', () => {
@@ -694,7 +694,7 @@ describe('mimium-generator', () => {
           type: 'biyo_metro',
           fields: {},
         });
-        expect(code).toBe('metro(0.500000)');
+        expect(code).toBe('sinwave(800.0, 0.0) * envelope(metro(0.500000), 0.001, 0.05)');
       });
 
       it('computes correct interval for 60 BPM', () => {
@@ -702,7 +702,7 @@ describe('mimium-generator', () => {
           type: 'biyo_metro',
           fields: { BPM: '60' },
         });
-        expect(code).toBe('metro(1.000000)');
+        expect(code).toBe('sinwave(800.0, 0.0) * envelope(metro(1.000000), 0.001, 0.05)');
       });
     });
 
@@ -1150,11 +1150,14 @@ describe('mimium-generator', () => {
       });
     }
 
-    it('biyo_robot_voice contains two square oscillators', () => {
+    it('biyo_robot_voice uses vowel formant synthesis with bandpass filters', () => {
       const [code] = generateBlock({ type: 'biyo_robot_voice', fields: {} });
-      expect(code).toContain('square(150.0, 0.0)');
-      expect(code).toContain('square(153.0, 0.0)');
-      expect(code).toContain('sinwave(6.0, 0.0)');
+      expect(code).toContain('saw(120.0, 0.0)');
+      expect(code).toContain('bandpass(_rv_src,');
+      expect(code).toContain('sinwave(2.0, 0.0)');
+      // Formant frequencies for "ah" and "ee" vowels
+      expect(code).toContain('730.0');
+      expect(code).toContain('270.0');
     });
 
     it('biyo_space contains delay and noise', () => {
@@ -1162,6 +1165,16 @@ describe('mimium-generator', () => {
       expect(code).toContain('sinwave(200.0');
       expect(code).toContain('_delay(');
       expect(code).toContain('noise()');
+    });
+
+    it('biyo_famicom produces 8-bit arpeggio with square wave', () => {
+      const [code] = generateBlock({ type: 'biyo_famicom', fields: {} });
+      expect(code).toContain('square(');
+      expect(code).toContain('_fc_idx');
+      expect(code).toContain('523.0');
+      expect(code).toContain('659.0');
+      expect(code).toContain('784.0');
+      expect(code).toContain('1047.0');
     });
 
     it('biyo_snare combines sinwave and highpass noise', () => {
@@ -1190,14 +1203,14 @@ describe('mimium-generator', () => {
     });
 
     describe('biyo_bpm', () => {
-      it('generates metro from BPM', () => {
+      it('generates audible tick with sinwave and envelope from BPM', () => {
         const [code, order] = generateBlock({
           type: 'biyo_bpm',
           fields: { BPM: '140' },
         });
         const interval = (60.0 / 140).toFixed(6);
-        expect(code).toBe(`metro(${interval})`);
-        expect(order).toBe(Order.FUNCTION_CALL);
+        expect(code).toBe(`sinwave(800.0, 0.0) * envelope(metro(${interval}), 0.001, 0.05)`);
+        expect(order).toBe(Order.MULTIPLY);
       });
     });
   });
@@ -1309,6 +1322,226 @@ describe('mimium-generator', () => {
       ]);
       const code = generateMimiumCode(workspace);
       expect(code).toContain('/ 3.0');
+    });
+  });
+
+  // =======================================================================
+  // GENERATIVE BLOCKS
+  // =======================================================================
+  describe('generative blocks', () => {
+    describe('biyo_random_melody', () => {
+      it('generates audible tones with sinwave and envelope (major scale, default)', () => {
+        const [code, order] = generateBlock({
+          type: 'biyo_random_melody',
+          fields: { SCALE: 'major', BPM: '120', OCTAVE: '4' },
+        });
+        // Should produce actual audible tones, not just frequencies
+        expect(code).toContain('sinwave(midi_to_hz(');
+        expect(code).toContain('envelope(metro(');
+        // Uses pseudo-random hash to select scale degree
+        expect(code).toContain('_rm_beat');
+        expect(code).toContain('_rm_idx');
+        expect(code).toContain('sin(_rm_beat * 12.9898 + 78.233) * 43758.5453');
+        // Major scale has 7 notes
+        expect(code).toContain('7.0)');
+        // C4 major scale MIDI notes
+        expect(code).toContain('midi_to_hz(60.0)');
+        expect(code).toContain('midi_to_hz(62.0)');
+        expect(code).toContain('midi_to_hz(64.0)');
+        expect(code).toContain('midi_to_hz(65.0)');
+        expect(code).toContain('midi_to_hz(67.0)');
+        expect(code).toContain('midi_to_hz(69.0)');
+        expect(code).toContain('midi_to_hz(71.0)');
+        expect(order).toBe(Order.ATOMIC);
+      });
+
+      it('generates minor scale', () => {
+        const [code] = generateBlock({
+          type: 'biyo_random_melody',
+          fields: { SCALE: 'minor', BPM: '120', OCTAVE: '4' },
+        });
+        expect(code).toContain('7.0)');
+        expect(code).toContain('midi_to_hz(60.0)');
+        expect(code).toContain('midi_to_hz(63.0)'); // minor 3rd
+        expect(code).toContain('midi_to_hz(65.0)');
+      });
+
+      it('generates pentatonic scale (5 notes)', () => {
+        const [code] = generateBlock({
+          type: 'biyo_random_melody',
+          fields: { SCALE: 'pentatonic', BPM: '120', OCTAVE: '4' },
+        });
+        expect(code).toContain('5.0)');
+        expect(code).toContain('midi_to_hz(60.0)');
+        expect(code).toContain('midi_to_hz(64.0)');
+        expect(code).toContain('midi_to_hz(67.0)');
+      });
+
+      it('computes speed from BPM', () => {
+        const [code] = generateBlock({
+          type: 'biyo_random_melody',
+          fields: { SCALE: 'major', BPM: '60', OCTAVE: '4' },
+        });
+        expect(code).toContain('/ 1.000000');
+      });
+
+      it('uses default values when fields are null', () => {
+        const [code] = generateBlock({
+          type: 'biyo_random_melody',
+          fields: {},
+        });
+        // Defaults: major scale, BPM 120, octave 4
+        expect(code).toContain('sinwave(midi_to_hz(');
+        expect(code).toContain('envelope(metro(');
+        expect(code).toContain('7.0)');
+      });
+    });
+
+    describe('biyo_euclidean', () => {
+      it('generates drum sound with Euclidean rhythm pattern (3 hits in 8 steps)', () => {
+        const [code, order] = generateBlock({
+          type: 'biyo_euclidean',
+          fields: { HITS: '3', STEPS: '8', BPM: '120' },
+        });
+        // Should produce audible drum sound, not just 0/1 triggers
+        expect(code).toContain('sinwave(60.0, 0.0)');
+        expect(code).toContain('noise()');
+        expect(code).toContain('_eu_env');
+        expect(code).toContain('* 0.7');
+        expect(code).toContain('* 0.3');
+        // Euclidean pattern variables
+        expect(code).toContain('_eu_idx');
+        expect(code).toContain('_eu_trig');
+        expect(code).toContain('fmod(now / samplerate /');
+        expect(code).toContain('8.0)');
+        // Bjorklund(3,8) = [1,0,0,1,0,0,1,0]
+        expect(code).toContain('_eu_idx == 0.0 { 1.0 }');
+        expect(code).toContain('_eu_idx == 1.0 { 0.0 }');
+        expect(code).toContain('_eu_idx == 2.0 { 0.0 }');
+        expect(code).toContain('_eu_idx == 3.0 { 1.0 }');
+        expect(order).toBe(Order.ATOMIC);
+      });
+
+      it('handles all hits (hits >= steps)', () => {
+        const [code] = generateBlock({
+          type: 'biyo_euclidean',
+          fields: { HITS: '8', STEPS: '8', BPM: '120' },
+        });
+        // All steps should trigger (every index maps to 1.0)
+        expect(code).toContain('_eu_idx == 0.0 { 1.0 }');
+        expect(code).toContain('_eu_idx == 7.0 { 1.0 }');
+        // No step should map to 0.0 (but the else-chain fallback 0.0 is still present)
+        expect(code).not.toMatch(/_eu_idx == \d+\.0 \{ 0\.0 \}/);
+      });
+
+      it('handles zero hits', () => {
+        const [code] = generateBlock({
+          type: 'biyo_euclidean',
+          fields: { HITS: '0', STEPS: '8', BPM: '120' },
+        });
+        // No steps should trigger
+        expect(code).toContain('_eu_idx == 0.0 { 0.0 }');
+        expect(code).not.toContain('{ 1.0 }');
+      });
+
+      it('computes step duration from BPM', () => {
+        const [code] = generateBlock({
+          type: 'biyo_euclidean',
+          fields: { HITS: '3', STEPS: '8', BPM: '60' },
+        });
+        // 60 BPM / 2 = 0.5 sec per eighth note
+        expect(code).toContain('0.500000');
+      });
+
+      it('uses default values when fields are null', () => {
+        const [code] = generateBlock({
+          type: 'biyo_euclidean',
+          fields: {},
+        });
+        // Defaults: 3 hits, 8 steps, 120 BPM
+        expect(code).toContain('8.0)');
+        expect(code).toContain('sinwave(60.0, 0.0)');
+        expect(code).toContain('noise()');
+      });
+    });
+
+    describe('biyo_lfo_random', () => {
+      it('generates audible modulated sound with triangle wave oscillator', () => {
+        const [code, order] = generateBlock({
+          type: 'biyo_lfo_random',
+          fields: { SPEED: '2', RANGE: '0.5' },
+        });
+        // Should produce audible sound: triangle wave * LFO modulation
+        expect(code).toContain('triangle(220.0, 0.0)');
+        // LFO uses summed sine waves at incommensurate frequencies
+        expect(code).toContain('sin(2.0 * 3.14159265 * 2');
+        expect(code).toContain('* 1.7321');
+        expect(code).toContain('* 2.2361');
+        expect(code).toContain('* 0.5774');
+        // Range parameter
+        expect(code).toContain('0.5 *');
+        expect(order).toBe(Order.MULTIPLY);
+      });
+
+      it('uses default values when fields are null', () => {
+        const [code] = generateBlock({
+          type: 'biyo_lfo_random',
+          fields: {},
+        });
+        expect(code).toContain('triangle(220.0, 0.0)');
+        // Default speed = 2, range = 0.5
+        expect(code).toContain('0.5 *');
+      });
+
+      it('respects custom speed and range', () => {
+        const [code] = generateBlock({
+          type: 'biyo_lfo_random',
+          fields: { SPEED: '5', RANGE: '0.8' },
+        });
+        expect(code).toContain('triangle(220.0, 0.0)');
+        expect(code).toContain('0.8 *');
+        expect(code).toContain('sin(2.0 * 3.14159265 * 5');
+      });
+    });
+
+    describe('biyo_probability', () => {
+      it('generates probabilistic gate with hash function', () => {
+        const [code, order] = generateBlock({
+          type: 'biyo_probability',
+          fields: { CHANCE: '50' },
+          connectedInputs: { SIGNAL: 'sig' },
+        });
+        expect(code).toContain('(sig) *');
+        expect(code).toContain('sin(floor(now / 1024.0) * 12.9898 + 78.233) * 43758.5453');
+        expect(code).toContain('0.5000');
+        expect(order).toBe(Order.MULTIPLY);
+      });
+
+      it('converts chance percentage to threshold', () => {
+        const [code] = generateBlock({
+          type: 'biyo_probability',
+          fields: { CHANCE: '75' },
+          connectedInputs: { SIGNAL: 'sig' },
+        });
+        expect(code).toContain('0.7500');
+      });
+
+      it('uses default 0.0 signal when nothing connected', () => {
+        const [code] = generateBlock({
+          type: 'biyo_probability',
+          fields: { CHANCE: '50' },
+        });
+        expect(code).toContain('(0.0) *');
+      });
+
+      it('uses default chance of 50 when field is null', () => {
+        const [code] = generateBlock({
+          type: 'biyo_probability',
+          fields: {},
+          connectedInputs: { SIGNAL: 'sig' },
+        });
+        expect(code).toContain('0.5000');
+      });
     });
   });
 

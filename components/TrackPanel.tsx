@@ -9,20 +9,23 @@ export default function TrackPanel() {
 
   return (
     <section
-      className="flex flex-col h-full bg-[var(--c-surface)] border-l border-[var(--c-border)]"
+      className="flex flex-col h-full bg-[var(--c-surface)] border-l border-[var(--c-border)] overflow-hidden"
       aria-label="おとのへやパネル"
     >
       {/* Header */}
       <div
-        className="flex items-center justify-between border-b border-[var(--c-border)]"
-        style={{ padding: 'var(--sp-2) var(--sp-3)' }}
+        className="shrink-0 flex items-center border-b border-[var(--c-border)]"
+        style={{ padding: 'var(--sp-2) var(--sp-3)', gap: 'var(--sp-2)' }}
       >
-        <div className="flex flex-col">
-          <h2 className="font-black text-[var(--c-text)]" style={{ fontSize: 'var(--fs-sm)' }}>
+        <div className="flex flex-col min-w-0 flex-1">
+          <h2
+            className="font-black text-[var(--c-text)] truncate"
+            style={{ fontSize: 'var(--fs-sm)' }}
+          >
             おとのへや
           </h2>
           <p
-            className="text-[var(--c-text-muted)]"
+            className="text-[var(--c-text-muted)] truncate"
             style={{ fontSize: 'var(--fs-xs)', marginTop: 'var(--sp-1)' }}
           >
             いろんなおとをべつべつにつくれるよ
@@ -31,7 +34,7 @@ export default function TrackPanel() {
         <button
           type="button"
           onClick={addTrack}
-          className="rounded-[var(--r-sm)] bg-[var(--c-preset)] hover:brightness-110 text-white font-bold flex items-center justify-center transition-colors active:scale-90"
+          className="shrink-0 rounded-[var(--r-sm)] bg-[var(--c-preset)] hover:brightness-110 text-white font-bold flex items-center justify-center transition-colors active:scale-90"
           style={{
             width: 'var(--btn-sm)',
             height: 'var(--btn-sm)',
@@ -46,7 +49,7 @@ export default function TrackPanel() {
 
       {/* Track list */}
       <ul
-        className="flex-1 overflow-y-auto"
+        className="flex-1 overflow-y-auto overflow-x-hidden"
         aria-label="おとのへやのいちらん"
         style={{
           padding: 'var(--sp-2)',

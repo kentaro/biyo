@@ -54,6 +54,11 @@ class FakeMediaRecorder implements MockMediaRecorder {
   onstop: MediaRecorderEventHandler = null;
   onerror: MediaRecorderEventHandler = null;
 
+  static isTypeSupported(mimeType: string): boolean {
+    // Default: support webm/opus (Chrome/Firefox behavior)
+    return mimeType === 'audio/webm;codecs=opus';
+  }
+
   start = vi.fn((_timeslice?: number) => {
     this.state = 'recording';
   });
@@ -307,7 +312,8 @@ describe('recordFromNode', () => {
     await finishRecording();
 
     const blob = await promise;
-    expect(blob.type).toBe('audio/webm');
+    // Falls back to the recorded blob with the detected mimeType
+    expect(blob.type).toBe('audio/webm;codecs=opus');
   });
 
   // -----------------------------------------------------------------------
@@ -864,5 +870,96 @@ describe('recordFromNode', () => {
 
     // clearInterval should have been called (by onstop and/or by the interval callback)
     expect(clearIntervalSpy).toHaveBeenCalled();
+  });
+
+  // -----------------------------------------------------------------------
+  // Safari compatibility – MIME type fallback
+  // -----------------------------------------------------------------------
+
+  it('falls back to audio/mp4 when webm is not supported (Safari)', async () => {
+    // Simulate Safari: webm not supported, mp4 supported
+    class SafariMediaRecorder extends FakeMediaRecorder {
+      static isTypeSupported(mimeType: string): boolean {
+        return mimeType === 'audio/mp4';
+      }
+    }
+    vi.stubGlobal('MediaRecorder', SafariMediaRecorder);
+
+    const ctx = createMockAudioContext();
+    const source = createMockSourceNode();
+
+    const { promise } = recordFromNode(ctx, source, 0.15);
+
+    mockMediaRecorderInstance.ondataavailable?.({
+      data: new Blob(['audio-data'], { type: 'audio/mp4' }),
+    } as unknown);
+
+    await finishRecording();
+
+    const blob = await promise;
+    // Should still convert to WAV successfully
+    expect(blob.type).toBe('audio/wav');
+  });
+
+  it('falls back to browser default when no MIME types are supported', async () => {
+    // Simulate a browser where neither webm nor mp4 is reported as supported
+    class UnknownMediaRecorder extends FakeMediaRecorder {
+      static isTypeSupported(_mimeType: string): boolean {
+        return false;
+      }
+    }
+    vi.stubGlobal('MediaRecorder', UnknownMediaRecorder);
+
+    const ctx = createMockAudioContext();
+    const source = createMockSourceNode();
+
+    const { promise } = recordFromNode(ctx, source, 0.15);
+
+    mockMediaRecorderInstance.ondataavailable?.({
+      data: new Blob(['audio-data']),
+    } as unknown);
+
+    await finishRecording();
+
+    const blob = await promise;
+    // Should still produce a valid blob
+    expect(blob).toBeInstanceOf(Blob);
+  });
+
+  it('uses audio/webm fallback type when convertToWav fails and no MIME supported', async () => {
+    // No MIME type supported -> mimeType is empty -> recordedType defaults to 'audio/webm'
+    class NoMimeMediaRecorder extends FakeMediaRecorder {
+      static isTypeSupported(_mimeType: string): boolean {
+        return false;
+      }
+    }
+    vi.stubGlobal('MediaRecorder', NoMimeMediaRecorder);
+
+    // Make convertToWav fail
+    vi.stubGlobal(
+      'OfflineAudioContext',
+      makeFakeOfflineAudioContextClass(() => {
+        const base = createFakeOfflineCtxResult();
+        base.decodeAudioData = vi.fn(async () => {
+          throw new Error('decode failed');
+        });
+        return base;
+      }),
+    );
+
+    const ctx = createMockAudioContext();
+    const source = createMockSourceNode();
+
+    const { promise } = recordFromNode(ctx, source, 0.15);
+
+    mockMediaRecorderInstance.ondataavailable?.({
+      data: new Blob(['audio-data']),
+    } as unknown);
+
+    await finishRecording();
+
+    const blob = await promise;
+    // Falls back to 'audio/webm' (the default recordedType when mimeType is empty)
+    expect(blob.type).toBe('audio/webm');
   });
 });

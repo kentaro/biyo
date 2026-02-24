@@ -1,6 +1,6 @@
 import * as Blockly from 'blockly';
 
-const COLOUR = '#CF63CF';
+const COLOUR = '#B050B0';
 
 const biyo_robot_voice = {
   type: 'biyo_robot_voice',

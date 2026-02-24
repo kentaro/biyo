@@ -1,6 +1,6 @@
 import * as Blockly from 'blockly';
 
-const COLOUR = '#7B68EE';
+const COLOUR = '#7060E0';
 
 const BPM_OPTIONS: [string, string][] = [
   ['ゆっくり', '80'],

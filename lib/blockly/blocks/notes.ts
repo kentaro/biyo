@@ -1,9 +1,9 @@
 import * as Blockly from 'blockly';
 
-const COLOUR = '#5BA58C';
-const RHYTHM_COLOUR = '#59C059';
-const EFFECTS_COLOUR = '#4C97FF';
-const UTILITY_COLOUR = '#FFAB19';
+const COLOUR = '#468070';
+const RHYTHM_COLOUR = '#3C843C';
+const EFFECTS_COLOUR = '#3976C6';
+const UTILITY_COLOUR = '#9F6A08';
 
 const biyo_piano_note = {
   type: 'biyo_piano_note',

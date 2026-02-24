@@ -42,36 +42,36 @@ describe('biyoTheme', () => {
       }
     > = {
       sources_blocks: {
-        colourPrimary: '#FF6680',
-        colourSecondary: '#FF8DA6',
-        colourTertiary: '#CC5266',
+        colourPrimary: '#C44D62',
+        colourSecondary: '#D4768A',
+        colourTertiary: '#9D3E4E',
         hat: 'cap',
       },
       effects_blocks: {
-        colourPrimary: '#4C97FF',
-        colourSecondary: '#7DB5FF',
-        colourTertiary: '#3A75CC',
+        colourPrimary: '#3976C6',
+        colourSecondary: '#6A9AD6',
+        colourTertiary: '#2E5E9E',
       },
       rhythm_blocks: {
-        colourPrimary: '#59C059',
-        colourSecondary: '#80D480',
-        colourTertiary: '#479947',
+        colourPrimary: '#3C843C',
+        colourSecondary: '#6AA66A',
+        colourTertiary: '#306A30',
       },
       utility_blocks: {
-        colourPrimary: '#FFAB19',
-        colourSecondary: '#FFC14D',
-        colourTertiary: '#CC8914',
+        colourPrimary: '#9F6A08',
+        colourSecondary: '#BF8E3A',
+        colourTertiary: '#7F5506',
       },
       presets_blocks: {
-        colourPrimary: '#CF63CF',
-        colourSecondary: '#DB8CDB',
-        colourTertiary: '#A64FA6',
+        colourPrimary: '#B050B0',
+        colourSecondary: '#C47CC4',
+        colourTertiary: '#8D408D',
         hat: 'cap',
       },
       notes_blocks: {
-        colourPrimary: '#5BA58C',
-        colourSecondary: '#7DBDAA',
-        colourTertiary: '#498470',
+        colourPrimary: '#468070',
+        colourSecondary: '#72A396',
+        colourTertiary: '#38665A',
       },
     };
 
@@ -130,12 +130,12 @@ describe('biyoTheme', () => {
   // -----------------------------------------------------------------------
   describe('category styles', () => {
     const expectedCategoryStyles: Record<string, { colour: string }> = {
-      sources_category: { colour: '#FF6680' },
-      effects_category: { colour: '#4C97FF' },
-      rhythm_category: { colour: '#59C059' },
-      utility_category: { colour: '#FFAB19' },
-      presets_category: { colour: '#CF63CF' },
-      notes_category: { colour: '#5BA58C' },
+      sources_category: { colour: '#C44D62' },
+      effects_category: { colour: '#3976C6' },
+      rhythm_category: { colour: '#3C843C' },
+      utility_category: { colour: '#9F6A08' },
+      presets_category: { colour: '#B050B0' },
+      notes_category: { colour: '#468070' },
     };
 
     for (const [categoryName, expected] of Object.entries(expectedCategoryStyles)) {
@@ -206,7 +206,7 @@ describe('biyoTheme', () => {
     });
 
     it('has insertion marker styled with theme accent colour', () => {
-      expect(biyoTheme.getComponentStyle('insertionMarkerColour')).toBe('#FF6680');
+      expect(biyoTheme.getComponentStyle('insertionMarkerColour')).toBe('#C44D62');
       expect(Number(biyoTheme.getComponentStyle('insertionMarkerOpacity'))).toBe(0.4);
     });
 

@@ -7,12 +7,12 @@ import { usePlaybackStore } from '@/lib/stores/playback';
  * Category colors from the design system, cycled through on each beat.
  */
 const CATEGORY_COLORS = [
-  'var(--c-source)', // #FF6680
-  'var(--c-effect)', // #4C97FF
-  'var(--c-rhythm)', // #59C059
-  'var(--c-utility)', // #FFAB19
-  'var(--c-preset)', // #CF63CF
-  'var(--c-note)', // #5BA58C
+  'var(--c-source)', // #c44d62
+  'var(--c-effect)', // #3976c6
+  'var(--c-rhythm)', // #3c843c
+  'var(--c-utility)', // #9f6a08
+  'var(--c-preset)', // #b050b0
+  'var(--c-note)', // #468070
 ];
 
 /**

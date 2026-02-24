@@ -67,8 +67,14 @@ export function recordFromNode(
   const dest = audioCtx.createMediaStreamDestination();
   sourceNode.connect(dest);
 
+  const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+    ? 'audio/webm;codecs=opus'
+    : MediaRecorder.isTypeSupported('audio/mp4')
+      ? 'audio/mp4'
+      : ''; // browser default
+
   const mediaRecorder = new MediaRecorder(dest.stream, {
-    mimeType: 'audio/webm;codecs=opus',
+    ...(mimeType ? { mimeType } : {}),
   });
 
   const chunks: Blob[] = [];
@@ -95,12 +101,13 @@ export function recordFromNode(
         return;
       }
 
-      const webmBlob = new Blob(chunks, { type: 'audio/webm' });
+      const recordedType = mimeType || 'audio/webm';
+      const recordedBlob = new Blob(chunks, { type: recordedType });
       try {
-        const wavBlob = await convertToWav(webmBlob, audioCtx.sampleRate);
+        const wavBlob = await convertToWav(recordedBlob, audioCtx.sampleRate);
         resolve(wavBlob);
       } catch {
-        resolve(webmBlob);
+        resolve(recordedBlob);
       }
     };
 
@@ -140,7 +147,7 @@ export function recordFromNode(
   return { promise, cancel };
 }
 
-/** Convert a webm/opus blob to a WAV blob using OfflineAudioContext */
+/** Convert a recorded audio blob to a WAV blob using OfflineAudioContext */
 async function convertToWav(webmBlob: Blob, targetSampleRate: number): Promise<Blob> {
   const arrayBuffer = await webmBlob.arrayBuffer();
   const tempCtx = new OfflineAudioContext(1, 1, targetSampleRate);

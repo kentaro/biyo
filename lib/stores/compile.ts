@@ -16,7 +16,7 @@ export const useCompileStore = create<CompileStore>((set) => ({
   compileError: null,
   status: 'ready',
 
-  setGeneratedCode: (code) => set({ generatedCode: code }),
+  setGeneratedCode: (code) => set({ generatedCode: code, compileError: null, status: 'ready' }),
   setError: (error) => set({ compileError: error }),
   setStatus: (status) => set({ status }),
 }));
