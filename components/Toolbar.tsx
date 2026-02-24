@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { audioEngine } from '@/lib/audio/engine';
+import '@/lib/blockly/blocks';
+import { generateCodeFromXml } from '@/lib/blockly/generator/mimium-generator';
 import { useCompileStore } from '@/lib/stores/compile';
 import { usePlaybackStore } from '@/lib/stores/playback';
 import type { SavedProject } from '@/lib/stores/projects';
@@ -34,13 +36,13 @@ interface ToolbarProps {
 /** Animated mini equalizer bars shown next to play button when playing */
 function MiniEqualizer() {
   return (
-    <div className="flex items-end" style={{ gap: 2, height: 18, width: 16 }} aria-hidden="true">
+    <div className="flex items-end" style={{ gap: 'var(--sp-half)', height: 18, width: 16 }} aria-hidden="true">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
           style={{
             width: 3,
-            borderRadius: 2,
+            borderRadius: 'var(--sp-half)',
             background: 'var(--c-text-inverse)',
             animationName: 'eq-bounce',
             animationDuration: `${0.4 + i * 0.15}s`,
@@ -75,7 +77,7 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
     return () => window.removeEventListener('biyo:save', handleSaveShortcut);
   }, []);
 
-  // Close overflow menu when clicking outside
+  // Close overflow menu when clicking outside or pressing Escape
   useEffect(() => {
     if (!menuOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -86,13 +88,31 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
         !menuBtnRef.current.contains(e.target as Node)
       ) {
         setMenuOpen(false);
+        menuBtnRef.current?.focus();
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+        menuBtnRef.current?.focus();
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    // Focus first menu item when menu opens
+    setTimeout(() => {
+      menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+    }, 50);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [menuOpen]);
 
-  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    menuBtnRef.current?.focus();
+  }, []);
 
   const handlePlay = async () => {
     if (isPlaying) return;
@@ -113,6 +133,7 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
 
   const handleLoadProject = (project: SavedProject) => {
     const store = useTrackStore.getState();
+    const compile = useCompileStore.getState();
     const playback = usePlaybackStore.getState();
 
     // Restore BPM
@@ -125,6 +146,26 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
       activeTrackId: loadedTracks.length > 0 ? loadedTracks[0].id : store.activeTrackId,
       workspaceVersion: store.workspaceVersion + 1,
     });
+
+    // Generate code for ALL tracks using headless workspaces so multitrack
+    // playback works immediately without visiting each track first.
+    for (const track of loadedTracks) {
+      if (track.workspaceXml) {
+        const code = generateCodeFromXml(track.workspaceXml);
+        compile.setTrackCode(track.id, code);
+      }
+    }
+
+    // Set the active track's code as the generatedCode for display
+    if (loadedTracks.length > 0) {
+      const activeTrack = loadedTracks[0];
+      if (activeTrack.workspaceXml) {
+        const activeCode = useCompileStore.getState().trackCodes[activeTrack.id];
+        if (activeCode) {
+          compile.setGeneratedCode(activeCode);
+        }
+      }
+    }
   };
 
   // Button style for toolbar actions
@@ -176,7 +217,7 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
               height: 'var(--btn-lg)',
               fontSize: 'var(--fs-lg)',
               boxShadow: 'var(--shadow-btn)',
-              gap: 4,
+              gap: 'var(--sp-1)',
             }}
             aria-label="おんがくをならす"
           >
@@ -520,7 +561,7 @@ export default function Toolbar({ onOpenSamples }: ToolbarProps) {
               style={{ fontSize: 'var(--fs-xs)' }}
             >
               {status === 'ready'
-                ? 'じゅんびOK！'
+                ? 'じゅんびできたよ！'
                 : status === 'compiling'
                   ? 'つくっているよ...'
                   : 'あれ？もういちどためしてね'}

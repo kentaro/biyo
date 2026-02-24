@@ -82,6 +82,9 @@ export default function ShareButton() {
         whiteSpace: 'nowrap',
         boxShadow: 'var(--shadow-sm)',
         transition: 'background 0.2s, color 0.2s',
+        minHeight: 44,
+        display: 'flex',
+        alignItems: 'center',
       }}
     >
       {label}

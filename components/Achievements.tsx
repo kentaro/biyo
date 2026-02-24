@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePlaybackStore } from '@/lib/stores/playback';
+import { useProjectStore } from '@/lib/stores/projects';
 import { useTrackStore } from '@/lib/stores/tracks';
 
 const STORAGE_KEY = 'biyo_achievements';
@@ -66,6 +67,7 @@ const EFFECT_TYPES = new Set([
   'biyo_highpass',
   'biyo_bandpass',
   'biyo_delay',
+  'biyo_pingpong',
   'biyo_reverb',
   'biyo_tremolo',
   'biyo_autowah',
@@ -116,6 +118,12 @@ function getBlockTypesFromXml(xml: string): Set<string> {
   return types;
 }
 
+/** Count total block instances (not unique types) in workspace XML. */
+function getBlockCountFromXml(xml: string): number {
+  const matches = xml.match(/type="biyo_\w+"/g);
+  return matches ? matches.length : 0;
+}
+
 export default function Achievements() {
   const [unlocked, setUnlocked] = useState<Set<string>>(new Set());
   const [panelOpen, setPanelOpen] = useState(false);
@@ -164,9 +172,10 @@ export default function Achievements() {
       const track = tracks.find((t) => t.id === activeTrackId);
       if (track?.workspaceXml) {
         const types = getBlockTypesFromXml(track.workspaceXml);
+        const blockCount = getBlockCountFromXml(track.workspaceXml);
 
-        // 3+ blocks connected
-        if (types.size >= 3) {
+        // 3+ blocks total in workspace
+        if (blockCount >= 3) {
           unlock('mix_master');
         }
 
@@ -196,12 +205,13 @@ export default function Achievements() {
     prevPlayingRef.current = isPlaying;
   }, [isPlaying, tracks, activeTrackId, unlock]);
 
-  // Also check save-count-based achievement when tracks change (save might have happened)
+  // Check save-count-based achievement whenever project list changes
+  const projectCount = useProjectStore((s) => s.projects.length);
   useEffect(() => {
-    if (getSaveCount() >= 5) {
+    if (projectCount >= 5) {
       unlock('musician');
     }
-  }, [unlock]);
+  }, [projectCount, unlock]);
 
   // Focus trap and Escape key for achievement panel
   useEffect(() => {
@@ -231,13 +241,27 @@ export default function Achievements() {
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    setTimeout(() => panelRef.current?.querySelector<HTMLElement>('button')?.focus(), 50);
+    const focusTimer = setTimeout(
+      () => panelRef.current?.querySelector<HTMLElement>('button')?.focus(),
+      50,
+    );
 
     return () => {
+      clearTimeout(focusTimer);
       document.removeEventListener('keydown', handleKeyDown);
       previousFocusRef.current?.focus();
     };
   }, [panelOpen]);
+
+  // Clean up notification timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (notifTimeoutRef.current) {
+        clearTimeout(notifTimeoutRef.current);
+        notifTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Dismiss notification toast when clicking outside it
   useEffect(() => {
@@ -277,6 +301,11 @@ export default function Achievements() {
           whiteSpace: 'nowrap',
           boxShadow: 'var(--shadow-sm)',
           position: 'relative',
+          minWidth: 44,
+          minHeight: 44,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
         {'\uD83C\uDFC5'} {unlocked.size}/{ACHIEVEMENT_DEFS.length}

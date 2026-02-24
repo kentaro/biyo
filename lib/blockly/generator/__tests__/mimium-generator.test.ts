@@ -152,6 +152,7 @@ describe('mimium-generator', () => {
       expect(PREAMBLE).toContain('fn envelope(trigger, attack, release)');
       expect(PREAMBLE).toContain('fn clamp(x, lo, hi)');
       expect(PREAMBLE).toContain('fn soft_clip(x)');
+      expect(PREAMBLE).toContain('fn microphone()');
     });
   });
 
@@ -239,6 +240,14 @@ describe('mimium-generator', () => {
       it('generates noise() with no parameters', () => {
         const [code, order] = generateBlock({ type: 'biyo_noise', fields: {} });
         expect(code).toBe('noise()');
+        expect(order).toBe(Order.FUNCTION_CALL);
+      });
+    });
+
+    describe('biyo_microphone', () => {
+      it('generates microphone() with no parameters', () => {
+        const [code, order] = generateBlock({ type: 'biyo_microphone', fields: {} });
+        expect(code).toBe('microphone()');
         expect(order).toBe(Order.FUNCTION_CALL);
       });
     });
@@ -441,7 +450,8 @@ describe('mimium-generator', () => {
           fields: { CENTER: '10', WIDTH: '100000' },
           connectedInputs: { SIGNAL: 'noise()' },
         });
-        expect(code).toBe('bandpass(noise(), 10.0, 0.10)');
+        // CENTER is clamped to minimum 20, so output shows 20.0
+        expect(code).toBe('bandpass(noise(), 20.0, 0.10)');
       });
     });
 
@@ -539,27 +549,29 @@ describe('mimium-generator', () => {
     });
 
     describe('biyo_vibrato', () => {
-      it('generates vibrato via modulated delay', () => {
+      it('generates vibrato via modulated delay with safety offset', () => {
         const [code, order] = generateBlock({
           type: 'biyo_vibrato',
           fields: { SPEED: '5', DEPTH: '0.3' },
           connectedInputs: { SIGNAL: 'sig' },
         });
-        const delayTime = (0.3 * 0.002).toFixed(6);
-        expect(code).toContain(`_delay(sig, ${delayTime}`);
+        const baseDelay = (0.3 * 0.002 + 0.001).toFixed(6);
+        const modAmt = (0.3 * 0.002).toFixed(6);
+        expect(code).toContain(`_delay(sig, ${baseDelay} + ${modAmt}`);
         expect(code).toContain('sinwave(5.0, 0.0)');
         expect(order).toBe(Order.FUNCTION_CALL);
       });
     });
 
     describe('biyo_distortion', () => {
-      it('generates soft_clip distortion', () => {
+      it('generates safe soft_clip distortion with capped output gain', () => {
         const [code, order] = generateBlock({
           type: 'biyo_distortion',
           fields: { DRIVE: '5' },
           connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toBe('soft_clip((sig) * 5.0) / 5.0 * 3.0');
+        // drive=5, outputGain = min(1.0, 3/5) = 0.6
+        expect(code).toBe('soft_clip((sig) * 5.0) * 0.600');
         expect(order).toBe(Order.MULTIPLY);
       });
 
@@ -569,7 +581,7 @@ describe('mimium-generator', () => {
           fields: {},
           connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toBe('soft_clip((sig) * 5.0) / 5.0 * 3.0');
+        expect(code).toBe('soft_clip((sig) * 5.0) * 0.600');
       });
 
       it('accepts custom drive value', () => {
@@ -578,7 +590,28 @@ describe('mimium-generator', () => {
           fields: { DRIVE: '10' },
           connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toBe('soft_clip((sig) * 10.0) / 10.0 * 3.0');
+        // drive=10, outputGain = min(1.0, 3/10) = 0.3
+        expect(code).toBe('soft_clip((sig) * 10.0) * 0.300');
+      });
+
+      it('caps output gain at 1.0 for low drive', () => {
+        const [code] = generateBlock({
+          type: 'biyo_distortion',
+          fields: { DRIVE: '2' },
+          connectedInputs: { SIGNAL: 'sig' },
+        });
+        // drive=2, outputGain = min(1.0, 3/2) = 1.0
+        expect(code).toBe('soft_clip((sig) * 2.0) * 1.000');
+      });
+
+      it('clamps drive minimum to 1 to prevent division by zero', () => {
+        const [code] = generateBlock({
+          type: 'biyo_distortion',
+          fields: { DRIVE: '0' },
+          connectedInputs: { SIGNAL: 'sig' },
+        });
+        // drive clamped to 1, outputGain = min(1.0, 3/1) = 1.0
+        expect(code).toBe('soft_clip((sig) * 1.0) * 1.000');
       });
     });
 
@@ -619,16 +652,31 @@ describe('mimium-generator', () => {
     });
 
     describe('biyo_pingpong', () => {
-      it('generates ping-pong delay', () => {
+      it('generates normalized ping-pong delay', () => {
         const [code, order] = generateBlock({
           type: 'biyo_pingpong',
           fields: { TIME: '0.25', FEEDBACK: '0.4' },
           connectedInputs: { SIGNAL: 'sig' },
         });
-        expect(code).toContain('(sig) * 0.5');
-        expect(code).toContain('_delay(sig, 0.25) * 0.4 * 0.5');
-        expect(code).toContain('_delay(sig, 0.5)');
+        // tap1=0.5, tap2=0.4*0.5=0.2, tap3=0.16*0.3=0.048, total=0.748 < 1.0
+        expect(code).toContain('(sig) * 0.500');
+        expect(code).toContain('_delay(sig, 0.25) * 0.200');
+        expect(code).toContain('_delay(sig, 0.5) * 0.048');
         expect(order).toBe(Order.ADD);
+      });
+
+      it('normalizes output when feedback is high to prevent clipping', () => {
+        const [code] = generateBlock({
+          type: 'biyo_pingpong',
+          fields: { TIME: '0.25', FEEDBACK: '0.9' },
+          connectedInputs: { SIGNAL: 'sig' },
+        });
+        // tap1=0.5, tap2=0.45, tap3=0.243, total=1.193 > 1.0
+        // norm = 1/1.193 = ~0.838
+        // All taps should be scaled down
+        expect(code).toContain('(sig) * 0.419');
+        expect(code).toContain('_delay(sig, 0.25) * 0.377');
+        expect(code).toContain('_delay(sig, 0.5) * 0.204');
       });
     });
 
@@ -1229,7 +1277,7 @@ describe('mimium-generator', () => {
     });
 
     it('deeply nested blocks produce valid code', () => {
-      const distortionCode = 'soft_clip((noise()) * 5.0) / 5.0 * 3.0';
+      const distortionCode = 'soft_clip((noise()) * 5.0) * 0.600';
       const [code] = generateBlock({
         type: 'biyo_lowpass',
         fields: { CUTOFF: '800', RESONANCE: '2' },

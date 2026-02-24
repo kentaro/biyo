@@ -305,7 +305,7 @@ export default function TrackItem({ track, canDelete }: TrackItemProps) {
               className="absolute font-bold text-white bg-[var(--c-text)] rounded-[var(--r-sm)] pointer-events-none animate-fade-in"
               style={{
                 fontSize: 'var(--fs-xs)',
-                padding: '1px 6px',
+                padding: 'var(--sp-half) var(--sp-2)',
                 top: '-22px',
                 left: `${track.volume}%`,
                 transform: 'translateX(-50%)',

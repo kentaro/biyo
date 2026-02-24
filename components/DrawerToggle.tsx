@@ -9,12 +9,15 @@ export default function DrawerToggle({ isOpen, onToggle }: DrawerToggleProps) {
   return (
     <button
       type="button"
-      className="drawer-toggle"
+      className={`drawer-toggle ${isOpen ? 'drawer-toggle-open' : ''}`}
       onClick={onToggle}
       aria-label={isOpen ? 'おとのへやをとじる' : 'おとのへやをひらく'}
       aria-expanded={isOpen}
+      aria-controls="drawer-panel"
     >
-      {isOpen ? '✕' : '♫'}
+      <span className="drawer-toggle-icon" aria-hidden="true">
+        {isOpen ? '✕' : '♫'}
+      </span>
     </button>
   );
 }

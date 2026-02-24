@@ -84,10 +84,11 @@ function makeBuiltins(state: DSPState) {
 
   function lowpass(input: number, freq: number, q: number): number {
     const fs = _getFilterState();
+    const safeQ = Math.max(0.1, q);
     const w0 = (TWO_PI * freq) / state.sampleRate;
     const sinW0 = Math.sin(w0);
     const cosW0 = Math.cos(w0);
-    const alpha = sinW0 / (2.0 * q);
+    const alpha = sinW0 / (2.0 * safeQ);
     const b0 = (1.0 - cosW0) / 2.0;
     const b1 = 1.0 - cosW0;
     const b2 = (1.0 - cosW0) / 2.0;
@@ -109,10 +110,11 @@ function makeBuiltins(state: DSPState) {
 
   function highpass(input: number, freq: number, q: number): number {
     const fs = _getFilterState();
+    const safeQ = Math.max(0.1, q);
     const w0 = (TWO_PI * freq) / state.sampleRate;
     const sinW0 = Math.sin(w0);
     const cosW0 = Math.cos(w0);
-    const alpha = sinW0 / (2.0 * q);
+    const alpha = sinW0 / (2.0 * safeQ);
     const b0 = (1.0 + cosW0) / 2.0;
     const b1 = -(1.0 + cosW0);
     const b2 = (1.0 + cosW0) / 2.0;
@@ -134,10 +136,11 @@ function makeBuiltins(state: DSPState) {
 
   function bandpass(input: number, freq: number, q: number): number {
     const fs = _getFilterState();
+    const safeQ = Math.max(0.1, q);
     const w0 = (TWO_PI * freq) / state.sampleRate;
     const sinW0 = Math.sin(w0);
     const cosW0 = Math.cos(w0);
-    const alpha = sinW0 / (2.0 * q);
+    const alpha = sinW0 / (2.0 * safeQ);
     const b0 = alpha;
     const b1 = 0;
     const b2 = -alpha;
@@ -193,12 +196,14 @@ function makeBuiltins(state: DSPState) {
   }
 
   function envelope(_trigger: number, attack: number, release: number): number {
-    const period = attack + release;
+    const safeAttack = Math.max(0.0001, attack);
+    const safeRelease = Math.max(0.0001, release);
+    const period = safeAttack + safeRelease;
     const t = (((state.now / state.sampleRate) % period) + period) % period;
-    if (t < attack) {
-      return t / attack;
+    if (t < safeAttack) {
+      return t / safeAttack;
     } else {
-      return 1.0 - (t - attack) / release;
+      return 1.0 - (t - safeAttack) / safeRelease;
     }
   }
 
@@ -774,6 +779,9 @@ class TranspilerContext implements MimiumContext {
     // Atomic swap: only update DSP function if compilation succeeds.
     // Preserve time counter (now) across recompiles for seamless hot-reload:
     // resetting `now` would cause oscillator phase jumps and audio pops.
+    // compileMimium() may throw on oversized code, and returns null on
+    // empty code or syntax errors. Exceptions propagate to
+    // AudioEngine.compile() which reports them to the compile store.
     const newFn = compileMimium(code);
     if (newFn !== null) {
       const prevNow = this.state.now;
@@ -781,8 +789,13 @@ class TranspilerContext implements MimiumContext {
       this.state.now = prevNow;
       this.builtins = makeBuiltins(this.state);
       this.dspFn = newFn;
+    } else if (code && code.trim()) {
+      // Non-empty code returned null => compilation failed (syntax error).
+      // Throw so AudioEngine.compile() can surface it to the user.
+      // The old DSP function is preserved (assignment above was skipped).
+      throw new Error('ブロックのくみあわせがうまくいかないみたい。べつのつなげかたをためしてみてね！');
     }
-    // If compilation fails, keep old DSP function running (no audio dropout)
+    // If compilation returns null for empty code, keep old DSP function running
   }
 
   process(output: Float32Array): void {

@@ -78,9 +78,13 @@ export default function SampleBrowser({ open, onClose, onLoadSample }: SampleBro
 
     document.addEventListener('keydown', handleKeyDown);
     // Auto-focus the dialog
-    setTimeout(() => dialogRef.current?.querySelector<HTMLElement>('input')?.focus(), 50);
+    const focusTimer = setTimeout(
+      () => dialogRef.current?.querySelector<HTMLElement>('input')?.focus(),
+      50,
+    );
 
     return () => {
+      clearTimeout(focusTimer);
       document.removeEventListener('keydown', handleKeyDown);
       previousFocusRef.current?.focus();
     };
@@ -270,6 +274,9 @@ export default function SampleBrowser({ open, onClose, onLoadSample }: SampleBro
               borderColor: activeCategory === 'all' ? 'var(--c-preset)' : 'var(--c-border)',
               background: activeCategory === 'all' ? 'var(--c-preset)' : 'var(--c-surface)',
               color: activeCategory === 'all' ? 'var(--c-text-inverse)' : 'var(--c-text-sub)',
+              minHeight: 44,
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             ぜんぶ ({allSamples.length})
@@ -296,6 +303,9 @@ export default function SampleBrowser({ open, onClose, onLoadSample }: SampleBro
                   borderColor: isActive ? 'var(--c-preset)' : 'var(--c-border)',
                   background: isActive ? 'var(--c-preset)' : 'var(--c-surface)',
                   color: isActive ? 'var(--c-text-inverse)' : 'var(--c-text-sub)',
+                  minHeight: 44,
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
                 {meta.emoji} {meta.label} ({count})
@@ -385,7 +395,7 @@ export default function SampleBrowser({ open, onClose, onLoadSample }: SampleBro
                     fontSize: 'var(--fs-sm)',
                     fontWeight: 700,
                     color: 'var(--c-text)',
-                    marginBottom: 2,
+                    marginBottom: 'var(--sp-half)',
                   }}
                 >
                   {meta.emoji} {sample.name}

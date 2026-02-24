@@ -83,14 +83,14 @@ describe('encodeWorkspace', () => {
     expect(decoded?.xml).not.toMatch(/>\s+</);
   });
 
-  it('minifies multiple consecutive spaces', () => {
+  it('preserves multiple spaces inside text content (no over-minification)', () => {
     const xml = '<xml><block type="biyo_note">    lots   of   spaces    </block></xml>';
     const result = encodeWorkspace(xml, 100);
     expect(result).not.toBeNull();
     const decoded = decodeWorkspace(result!);
     expect(decoded).not.toBeNull();
-    // Multiple spaces should be collapsed to single space
-    expect(decoded?.xml).not.toMatch(/\s{2,}/);
+    // Text content spaces should be preserved (only inter-tag whitespace is collapsed)
+    expect(decoded?.xml).toContain('    lots   of   spaces    ');
   });
 
   it('preserves the bpm value in the encoded payload', () => {
@@ -478,5 +478,154 @@ describe('XSS/injection prevention in decodeWorkspace', () => {
     const xml = '<xml><block/></xml>';
     const result = decodeWorkspace(makeShareHash(xml));
     expect(result).not.toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Minification preserves content integrity
+// ---------------------------------------------------------------------------
+
+describe('minification preserves content integrity', () => {
+  it('preserves multiple spaces inside attribute values', () => {
+    const xml = '<xml><block type="biyo_note" label="hello    world"></block></xml>';
+    const hash = encodeWorkspace(xml, 120)!;
+    expect(hash).not.toBeNull();
+    const decoded = decodeWorkspace(hash);
+    expect(decoded).not.toBeNull();
+    // Attribute value with multiple spaces must NOT be corrupted
+    expect(decoded?.xml).toContain('hello    world');
+  });
+
+  it('preserves multiple spaces inside field text content', () => {
+    const xml =
+      '<xml><block type="biyo_note"><field name="LYRIC">do  re  mi</field></block></xml>';
+    const hash = encodeWorkspace(xml, 120)!;
+    expect(hash).not.toBeNull();
+    const decoded = decodeWorkspace(hash);
+    expect(decoded).not.toBeNull();
+    expect(decoded?.xml).toContain('do  re  mi');
+  });
+
+  it('collapses only inter-tag whitespace, not intra-tag whitespace', () => {
+    // Mix of inter-tag whitespace (should be removed) and intra-tag content (should be kept)
+    const xml =
+      '<xml>  <block type="biyo_note">  text  content  </block>  </xml>';
+    const hash = encodeWorkspace(xml, 120)!;
+    const decoded = decodeWorkspace(hash);
+    expect(decoded).not.toBeNull();
+    // Inter-tag whitespace collapsed
+    expect(decoded?.xml).not.toMatch(/><\s+</);
+    // Intra-tag text content preserved
+    expect(decoded?.xml).toContain('  text  content  ');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Exact round-trip equality (for already-minified XML)
+// ---------------------------------------------------------------------------
+
+describe('exact round-trip for already-minified XML', () => {
+  it('returns byte-identical xml when input has no inter-tag whitespace', () => {
+    const xml =
+      '<xml><block type="biyo_note"><field name="NOTE">C4</field></block></xml>';
+    const hash = encodeWorkspace(xml, 120)!;
+    const decoded = decodeWorkspace(hash);
+    expect(decoded).not.toBeNull();
+    // Since there is no inter-tag whitespace to collapse, the XML should be identical
+    expect(decoded?.xml).toBe(xml);
+    expect(decoded?.bpm).toBe(120);
+  });
+
+  it('returns byte-identical xml for complex multi-block workspace', () => {
+    const xml = [
+      '<xml>',
+      '<block type="biyo_sine"><field name="FREQ">440</field></block>',
+      '<block type="biyo_reverb"><field name="MIX">0.5</field></block>',
+      '<block type="biyo_note"><field name="NOTE">C4</field></block>',
+      '</xml>',
+    ].join('');
+    const hash = encodeWorkspace(xml, 90)!;
+    const decoded = decodeWorkspace(hash);
+    expect(decoded?.xml).toBe(xml);
+    expect(decoded?.bpm).toBe(90);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// encodeWorkspace with edge-case BPM values
+// ---------------------------------------------------------------------------
+
+describe('encodeWorkspace with edge-case BPM values', () => {
+  const XML = '<xml><block type="biyo_note"></block></xml>';
+
+  it('encodes NaN bpm (JSON.stringify converts NaN to null)', () => {
+    // NaN becomes null in JSON, which means decode should reject it
+    const hash = encodeWorkspace(XML, NaN);
+    expect(hash).not.toBeNull(); // encode succeeds (NaN -> null in JSON)
+    // But decode should reject because bpm will be null, not a number
+    const decoded = decodeWorkspace(hash!);
+    expect(decoded).toBeNull();
+  });
+
+  it('encodes Infinity bpm (JSON.stringify converts Infinity to null)', () => {
+    const hash = encodeWorkspace(XML, Infinity);
+    expect(hash).not.toBeNull();
+    const decoded = decodeWorkspace(hash!);
+    expect(decoded).toBeNull();
+  });
+
+  it('encodes negative bpm and decode clamps to minimum', () => {
+    const hash = encodeWorkspace(XML, -10)!;
+    expect(hash).not.toBeNull();
+    const decoded = decodeWorkspace(hash);
+    expect(decoded).not.toBeNull();
+    expect(decoded?.bpm).toBe(20);
+  });
+
+  it('encodes zero bpm and decode clamps to minimum', () => {
+    const hash = encodeWorkspace(XML, 0)!;
+    expect(hash).not.toBeNull();
+    const decoded = decodeWorkspace(hash);
+    expect(decoded).not.toBeNull();
+    expect(decoded?.bpm).toBe(20);
+  });
+
+  it('encodes fractional bpm and preserves it within range', () => {
+    const hash = encodeWorkspace(XML, 120.5)!;
+    expect(hash).not.toBeNull();
+    const decoded = decodeWorkspace(hash);
+    expect(decoded?.bpm).toBe(120.5);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// decodeWorkspace with extra payload fields (forward compatibility)
+// ---------------------------------------------------------------------------
+
+describe('decodeWorkspace forward compatibility', () => {
+  function makeShareHash(payload: Record<string, unknown>): string {
+    const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(payload));
+    return `#share=${compressed}`;
+  }
+
+  it('ignores extra fields in the payload', () => {
+    const hash = makeShareHash({
+      xml: '<xml><block type="biyo_note"></block></xml>',
+      bpm: 120,
+      version: 2,
+      author: 'test',
+    });
+    const result = decodeWorkspace(hash);
+    expect(result).not.toBeNull();
+    expect(result?.bpm).toBe(120);
+    expect(result?.xml).toContain('biyo_note');
+  });
+
+  it('rejects payload with bpm as boolean (truthy but wrong type)', () => {
+    const hash = makeShareHash({
+      xml: '<xml><block type="biyo_note"></block></xml>',
+      bpm: true,
+    });
+    expect(decodeWorkspace(hash)).toBeNull();
   });
 });

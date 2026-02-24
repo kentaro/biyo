@@ -124,7 +124,7 @@ export default function ResizeHandle({
         WebkitUserSelect: 'none',
         outline: focused ? '2px solid var(--c-preset)' : 'none',
         outlineOffset: -2,
-        borderRadius: 4,
+        borderRadius: 'var(--sp-1)',
       }}
     >
       {/* Visual dot indicator */}
@@ -132,7 +132,7 @@ export default function ResizeHandle({
         style={{
           width: isHorizontal ? 2 : 24,
           height: isHorizontal ? 24 : 2,
-          borderRadius: 1,
+          borderRadius: 'var(--sp-half)',
           background: highlight ? 'var(--c-preset)' : 'var(--c-border)',
           transition: 'background 0.15s ease, transform 0.15s ease',
           transform: highlight ? (isHorizontal ? 'scaleY(1.6)' : 'scaleX(1.6)') : 'scale(1)',

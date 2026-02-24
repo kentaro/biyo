@@ -62,9 +62,13 @@ export default function ExportDialog({ open, onClose, projectName }: ExportDialo
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    setTimeout(() => dialogRef.current?.querySelector<HTMLElement>('button')?.focus(), 50);
+    const focusTimer = setTimeout(
+      () => dialogRef.current?.querySelector<HTMLElement>('button')?.focus(),
+      50,
+    );
 
     return () => {
+      clearTimeout(focusTimer);
       document.removeEventListener('keydown', handleKeyDown);
       previousFocusRef.current?.focus();
     };

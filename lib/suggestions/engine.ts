@@ -29,6 +29,7 @@ const SOURCE_TYPES = new Set([
   'biyo_kick',
   'biyo_hihat',
   'biyo_pluck',
+  'biyo_microphone',
 ]);
 
 const EFFECT_TYPES = new Set([
@@ -62,6 +63,21 @@ const NOTE_TYPES = new Set(['biyo_piano_note', 'biyo_note']);
 
 const CHORD_TYPES = new Set(['biyo_chord', 'biyo_scale', 'biyo_arpeggio', 'biyo_famicom']);
 
+const GENERATIVE_TYPES = new Set([
+  'biyo_random_melody',
+  'biyo_euclidean',
+  'biyo_lfo_random',
+  'biyo_probability',
+]);
+
+const UTILITY_TYPES = new Set([
+  'biyo_mix',
+  'biyo_multiply',
+  'biyo_number',
+  'biyo_invert',
+  'biyo_passthrough',
+]);
+
 const PRESET_TYPES = new Set([
   'biyo_robot_voice',
   'biyo_space',
@@ -88,6 +104,7 @@ interface WorkspaceAnalysis {
   hasSingleNote: boolean;
   hasChord: boolean;
   hasPreset: boolean;
+  hasGenerative: boolean;
   totalBlocks: number;
   isEmpty: boolean;
 }
@@ -98,7 +115,9 @@ function analyzeBlockTypes(blockTypes: string[]): WorkspaceAnalysis {
   const hasSource = blockTypes.some((t) => SOURCE_TYPES.has(t) || PRESET_TYPES.has(t));
   const hasEffect = blockTypes.some((t) => EFFECT_TYPES.has(t));
   const hasSpatialEffect = blockTypes.some((t) => SPATIAL_EFFECTS.has(t));
-  const hasRhythm = blockTypes.some((t) => RHYTHM_TYPES.has(t));
+  const hasGenerative = blockTypes.some((t) => GENERATIVE_TYPES.has(t));
+  // Generative blocks (random_melody, euclidean, etc.) function like rhythm patterns
+  const hasRhythm = blockTypes.some((t) => RHYTHM_TYPES.has(t)) || hasGenerative;
   const hasSingleNote = blockTypes.some((t) => NOTE_TYPES.has(t));
   const hasChord = blockTypes.some((t) => CHORD_TYPES.has(t));
   const hasPreset = blockTypes.some((t) => PRESET_TYPES.has(t));
@@ -112,6 +131,7 @@ function analyzeBlockTypes(blockTypes: string[]): WorkspaceAnalysis {
     hasSingleNote,
     hasChord,
     hasPreset,
+    hasGenerative,
     totalBlocks: blockTypes.length,
     isEmpty: blockTypes.length === 0,
   };

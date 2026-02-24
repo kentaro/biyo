@@ -21,21 +21,63 @@ export interface BiyoFile {
 
 const STORAGE_KEY = 'biyo_projects';
 
+/** Minimal shape check for a Track object loaded from untrusted JSON. */
+function isValidTrack(t: unknown): t is Track {
+  if (typeof t !== 'object' || t === null) return false;
+  const obj = t as Record<string, unknown>;
+  return (
+    typeof obj.id === 'string' &&
+    typeof obj.name === 'string' &&
+    typeof obj.volume === 'number' &&
+    typeof obj.muted === 'boolean' &&
+    typeof obj.solo === 'boolean' &&
+    (typeof obj.workspaceXml === 'string' || obj.workspaceXml === undefined)
+  );
+}
+
+/** Minimal shape check for a SavedProject loaded from untrusted JSON. */
+function isValidProject(p: unknown): p is SavedProject {
+  if (typeof p !== 'object' || p === null) return false;
+  const obj = p as Record<string, unknown>;
+  return (
+    typeof obj.id === 'string' &&
+    typeof obj.name === 'string' &&
+    typeof obj.savedAt === 'number' &&
+    typeof obj.bpm === 'number' &&
+    Array.isArray(obj.tracks) &&
+    (obj.tracks as unknown[]).every(isValidTrack)
+  );
+}
+
 function loadProjects(): SavedProject[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    // Filter out any malformed entries rather than rejecting everything
+    return parsed.filter(isValidProject);
   } catch {
     return [];
   }
 }
 
-function persistProjects(projects: SavedProject[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+function persistProjects(projects: SavedProject[]): boolean {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+    return true;
+  } catch (e) {
+    // localStorage quota exceeded or other storage error.
+    // Log the error but don't crash the app.
+    console.warn('[biyo] localStorage write failed:', e);
+    return false;
+  }
 }
 
 export interface ProjectStore {
   projects: SavedProject[];
+  /** Error message when save fails (e.g., localStorage quota exceeded). */
+  saveError: string | null;
   loadProjectList: () => void;
   saveProject: (name: string, bpm: number, tracks: Track[]) => string;
   deleteProject: (id: string) => void;
@@ -46,6 +88,7 @@ export interface ProjectStore {
 
 export const useProjectStore = create<ProjectStore>((set, get) => ({
   projects: [],
+  saveError: null,
 
   loadProjectList: () => {
     set({ projects: loadProjects() });
@@ -62,8 +105,17 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     };
     const existing = loadProjects();
     const updated = [project, ...existing];
-    persistProjects(updated);
-    set({ projects: updated });
+    const ok = persistProjects(updated);
+    if (ok) {
+      set({ projects: updated, saveError: null });
+    } else {
+      // localStorage quota exceeded — still update in-memory list so the UI
+      // reflects the current session, but surface an error to the user.
+      set({
+        projects: updated,
+        saveError: 'ほぞんできなかったよ。ふるいプロジェクトをけしてみてね！',
+      });
+    }
     return id;
   },
 
@@ -103,9 +155,23 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       reader.onload = () => {
         try {
           const data = JSON.parse(reader.result as string) as BiyoFile;
-          if (!data.version || !data.tracks || typeof data.bpm !== 'number') {
+          if (
+            !data.version ||
+            !Array.isArray(data.tracks) ||
+            typeof data.bpm !== 'number'
+          ) {
             reject(new Error('このファイルはひらけないみたい。べつのファイルをえらんでみてね！'));
             return;
+          }
+
+          // Validate each track has the required shape
+          for (const track of data.tracks) {
+            if (!isValidTrack(track)) {
+              reject(
+                new Error('このファイルはひらけないみたい。べつのファイルをえらんでみてね！'),
+              );
+              return;
+            }
           }
 
           // Validate workspace XML in each track to prevent XSS/injection

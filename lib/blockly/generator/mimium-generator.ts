@@ -41,8 +41,9 @@ fn noise() {
 }
 
 fn lowpass(input, freq, q) {
+  let _q = if q < 0.1 { 0.1 } else { q };
   let w0 = 2.0 * 3.14159265 * freq / samplerate;
-  let alpha = sin(w0) / (2.0 * q);
+  let alpha = sin(w0) / (2.0 * _q);
   let b0 = (1.0 - cos(w0)) / 2.0;
   let b1 = 1.0 - cos(w0);
   let b2 = (1.0 - cos(w0)) / 2.0;
@@ -53,16 +54,18 @@ fn lowpass(input, freq, q) {
 }
 
 fn highpass(input, freq, q) {
+  let _q = if q < 0.1 { 0.1 } else { q };
   let w0 = 2.0 * 3.14159265 * freq / samplerate;
-  let alpha = sin(w0) / (2.0 * q);
+  let alpha = sin(w0) / (2.0 * _q);
   let b0 = (1.0 + cos(w0)) / 2.0;
   let a0 = 1.0 + alpha;
   (b0/a0) * input
 }
 
 fn bandpass(input, freq, q) {
+  let _q = if q < 0.1 { 0.1 } else { q };
   let w0 = 2.0 * 3.14159265 * freq / samplerate;
-  let alpha = sin(w0) / (2.0 * q);
+  let alpha = sin(w0) / (2.0 * _q);
   let b0 = alpha;
   let a0 = 1.0 + alpha;
   (b0/a0) * input
@@ -79,8 +82,10 @@ fn _delay(input, time) {
 }
 
 fn envelope(trigger, attack, release) {
-  let t = fmod(now / samplerate, attack + release);
-  if t < attack { t / attack } else { 1.0 - (t - attack) / release }
+  let _atk = if attack < 0.0001 { 0.0001 } else { attack };
+  let _rel = if release < 0.0001 { 0.0001 } else { release };
+  let t = fmod(now / samplerate, _atk + _rel);
+  if t < _atk { t / _atk } else { 1.0 - (t - _atk) / _rel }
 }
 
 fn clamp(x, lo, hi) {
@@ -90,6 +95,10 @@ fn clamp(x, lo, hi) {
 fn soft_clip(x) {
   let t = clamp(x, -1.0, 1.0);
   t * (1.5 - 0.5 * t * t)
+}
+
+fn microphone() {
+  0.0
 }
 `.trim();
 
@@ -233,8 +242,8 @@ mimiumGenerator.forBlock.biyo_lowpass = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const cutoff = parseFloat(String(block.getFieldValue('CUTOFF') ?? '1000'));
-  const resonance = parseFloat(String(block.getFieldValue('RESONANCE') ?? '1'));
+  const cutoff = Math.max(20, Math.min(20000, parseFloat(String(block.getFieldValue('CUTOFF') ?? '1000'))));
+  const resonance = Math.max(0.1, Math.min(20, parseFloat(String(block.getFieldValue('RESONANCE') ?? '1'))));
   return [`lowpass(${signal}, ${cutoff}.0, ${resonance})`, Order.FUNCTION_CALL];
 };
 
@@ -243,8 +252,8 @@ mimiumGenerator.forBlock.biyo_highpass = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const cutoff = parseFloat(String(block.getFieldValue('CUTOFF') ?? '1000'));
-  const resonance = parseFloat(String(block.getFieldValue('RESONANCE') ?? '1'));
+  const cutoff = Math.max(20, Math.min(20000, parseFloat(String(block.getFieldValue('CUTOFF') ?? '1000'))));
+  const resonance = Math.max(0.1, Math.min(20, parseFloat(String(block.getFieldValue('RESONANCE') ?? '1'))));
   return [`highpass(${signal}, ${cutoff}.0, ${resonance})`, Order.FUNCTION_CALL];
 };
 
@@ -253,24 +262,24 @@ mimiumGenerator.forBlock.biyo_bandpass = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const center = parseFloat(String(block.getFieldValue('CENTER') ?? '1000'));
+  const center = Math.max(20, Math.min(20000, parseFloat(String(block.getFieldValue('CENTER') ?? '1000'))));
   const width = parseFloat(String(block.getFieldValue('WIDTH') ?? '500'));
-  const q = Math.max(0.1, center / Math.max(1, width));
+  const q = Math.min(20, Math.max(0.1, center / Math.max(1, width)));
   return [`bandpass(${signal}, ${center}.0, ${q.toFixed(2)})`, Order.FUNCTION_CALL];
 };
 
 mimiumGenerator.forBlock.biyo_delay = (block: Blockly.Block, generator: Blockly.CodeGenerator) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const time = parseFloat(String(block.getFieldValue('TIME') ?? '0.3'));
-  const mix = parseFloat(String(block.getFieldValue('MIX') ?? '0.5'));
+  const time = Math.max(0.001, Math.min(2.0, parseFloat(String(block.getFieldValue('TIME') ?? '0.3'))));
+  const mix = Math.max(0, Math.min(1.0, parseFloat(String(block.getFieldValue('MIX') ?? '0.5'))));
   const code = `(${signal}) * ${1.0 - mix} + _delay(${signal}, ${time}) * ${mix}`;
   return [code, Order.ADD];
 };
 
 mimiumGenerator.forBlock.biyo_reverb = (block: Blockly.Block, generator: Blockly.CodeGenerator) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const size = parseFloat(String(block.getFieldValue('SIZE') ?? '0.6'));
-  const mix = parseFloat(String(block.getFieldValue('MIX') ?? '0.3'));
+  const size = Math.max(0, Math.min(1.0, parseFloat(String(block.getFieldValue('SIZE') ?? '0.6'))));
+  const mix = Math.max(0, Math.min(0.8, parseFloat(String(block.getFieldValue('MIX') ?? '0.3'))));
   const d1 = (0.03 * size + 0.01).toFixed(4);
   const d2 = (0.05 * size + 0.02).toFixed(4);
   const d3 = (0.07 * size + 0.03).toFixed(4);
@@ -287,8 +296,8 @@ mimiumGenerator.forBlock.biyo_tremolo = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const speed = parseFloat(String(block.getFieldValue('SPEED') ?? '5'));
-  const depth = parseFloat(String(block.getFieldValue('DEPTH') ?? '0.5'));
+  const speed = Math.max(0.1, Math.min(30, parseFloat(String(block.getFieldValue('SPEED') ?? '5'))));
+  const depth = Math.max(0, Math.min(1.0, parseFloat(String(block.getFieldValue('DEPTH') ?? '0.5'))));
   const code = `(${signal}) * (1.0 - ${depth} * 0.5 + ${depth} * 0.5 * sinwave(${speed}.0, 0.0))`;
   return [code, Order.MULTIPLY];
 };
@@ -298,8 +307,8 @@ mimiumGenerator.forBlock.biyo_autowah = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const speed = parseFloat(String(block.getFieldValue('SPEED') ?? '2'));
-  const depth = parseFloat(String(block.getFieldValue('DEPTH') ?? '0.5'));
+  const speed = Math.max(0.1, Math.min(20, parseFloat(String(block.getFieldValue('SPEED') ?? '2'))));
+  const depth = Math.max(0, Math.min(1.0, parseFloat(String(block.getFieldValue('DEPTH') ?? '0.5'))));
   const baseFreq = 500;
   const range = 3000;
   const code = `lowpass(${signal}, ${baseFreq}.0 + ${range}.0 * ${depth} * (0.5 + 0.5 * sinwave(${speed}.0, 0.0)), 2.0)`;
@@ -311,10 +320,11 @@ mimiumGenerator.forBlock.biyo_vibrato = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const speed = parseFloat(String(block.getFieldValue('SPEED') ?? '5'));
-  const depth = parseFloat(String(block.getFieldValue('DEPTH') ?? '0.3'));
-  const delayTime = (depth * 0.002).toFixed(6);
-  const code = `_delay(${signal}, ${delayTime} + ${delayTime} * sinwave(${speed}.0, 0.0))`;
+  const speed = Math.max(0.1, Math.min(30, parseFloat(String(block.getFieldValue('SPEED') ?? '5'))));
+  const depth = Math.max(0, Math.min(1.0, parseFloat(String(block.getFieldValue('DEPTH') ?? '0.3'))));
+  const baseDelay = (depth * 0.002 + 0.001).toFixed(6); // offset so delay never reaches 0
+  const modAmt = (depth * 0.002).toFixed(6);
+  const code = `_delay(${signal}, ${baseDelay} + ${modAmt} * sinwave(${speed}.0, 0.0))`;
   return [code, Order.FUNCTION_CALL];
 };
 
@@ -323,8 +333,11 @@ mimiumGenerator.forBlock.biyo_distortion = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const drive = parseFloat(String(block.getFieldValue('DRIVE') ?? '5'));
-  const code = `soft_clip((${signal}) * ${drive}.0) / ${drive}.0 * 3.0`;
+  const drive = Math.max(1, Math.min(50, parseFloat(String(block.getFieldValue('DRIVE') ?? '5'))));
+  // Normalize output: soft_clip output is [-1,1], divide by drive then scale.
+  // Cap output gain so even at low drive the result stays within [-1, 1].
+  const outputGain = Math.min(1.0, 3.0 / drive);
+  const code = `soft_clip((${signal}) * ${drive}.0) * ${outputGain.toFixed(3)}`;
   return [code, Order.MULTIPLY];
 };
 
@@ -333,7 +346,7 @@ mimiumGenerator.forBlock.biyo_gain_up = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const gain = parseFloat(String(block.getFieldValue('GAIN') ?? '1.5'));
+  const gain = Math.max(1.0, Math.min(3.0, parseFloat(String(block.getFieldValue('GAIN') ?? '1.5'))));
   return [`(${signal}) * ${gain}`, Order.MULTIPLY];
 };
 
@@ -342,7 +355,7 @@ mimiumGenerator.forBlock.biyo_gain_down = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const amount = parseFloat(String(block.getFieldValue('AMOUNT') ?? '0.5'));
+  const amount = Math.max(0, Math.min(1.0, parseFloat(String(block.getFieldValue('AMOUNT') ?? '0.5'))));
   return [`(${signal}) * ${amount}`, Order.MULTIPLY];
 };
 
@@ -727,9 +740,15 @@ mimiumGenerator.forBlock.biyo_pingpong = (
   generator: Blockly.CodeGenerator,
 ) => {
   const signal = getSignalCode(block, 'SIGNAL', generator);
-  const time = parseFloat(String(block.getFieldValue('TIME') ?? '0.25'));
-  const feedback = parseFloat(String(block.getFieldValue('FEEDBACK') ?? '0.4'));
-  const code = `(${signal}) * 0.5 + _delay(${signal}, ${time}) * ${feedback} * 0.5 + _delay(${signal}, ${time * 2}) * ${feedback * feedback} * 0.3`;
+  const time = Math.max(0.01, Math.min(2.0, parseFloat(String(block.getFieldValue('TIME') ?? '0.25'))));
+  const feedback = Math.max(0, Math.min(0.9, parseFloat(String(block.getFieldValue('FEEDBACK') ?? '0.4'))));
+  // Normalize so total gain never exceeds 1.0
+  const tap1 = 0.5;
+  const tap2 = feedback * 0.5;
+  const tap3 = feedback * feedback * 0.3;
+  const totalGain = tap1 + tap2 + tap3;
+  const norm = totalGain > 1.0 ? (1.0 / totalGain) : 1.0;
+  const code = `((${signal}) * ${(tap1 * norm).toFixed(3)} + _delay(${signal}, ${time}) * ${(tap2 * norm).toFixed(3)} + _delay(${signal}, ${time * 2}) * ${(tap3 * norm).toFixed(3)})`;
   return [code, Order.ADD];
 };
 
@@ -916,6 +935,31 @@ export function generateMimiumCode(workspace: Blockly.Workspace): string {
   }
 
   return `${PREAMBLE}\n\nfn dsp() -> float {\n  ${body}\n}`;
+}
+
+/**
+ * Generate mimium code from a workspace XML string using a headless workspace.
+ * This is useful for generating code for tracks that are not currently displayed
+ * in the visual editor (e.g., when loading a saved project with multiple tracks).
+ *
+ * Creates a temporary headless Blockly workspace, loads the XML, generates code,
+ * and disposes the workspace.
+ */
+export function generateCodeFromXml(xml: string): string {
+  if (!xml || xml.trim() === '') {
+    return `${PREAMBLE}\n\nfn dsp() -> float {\n  0.0\n}`;
+  }
+
+  const headlessWorkspace = new Blockly.Workspace();
+  try {
+    const dom = Blockly.utils.xml.textToDom(xml);
+    Blockly.Xml.domToWorkspace(dom, headlessWorkspace);
+    return generateMimiumCode(headlessWorkspace);
+  } catch {
+    return `${PREAMBLE}\n\nfn dsp() -> float {\n  0.0\n}`;
+  } finally {
+    headlessWorkspace.dispose();
+  }
 }
 
 export { mimiumGenerator, PREAMBLE, Order };

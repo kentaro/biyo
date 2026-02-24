@@ -68,7 +68,7 @@ const samples: Sample[] = [
     <field name="NOTE1">72</field>
     <field name="NOTE2">74</field>
     <field name="NOTE3">76</field>
-    <field name="NOTE4">77</field>
+    <field name="NOTE4">72</field>
   </block>
 </xml>`,
   },
@@ -79,7 +79,7 @@ const samples: Sample[] = [
     description: 'たのしくスキップするおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_sequencer" ${X(80, 60)}>
-    <field name="BPM">140</field>
+    <field name="BPM">160</field>
     <field name="NOTE1">60</field>
     <field name="NOTE2">64</field>
     <field name="NOTE3">67</field>
@@ -94,10 +94,10 @@ const samples: Sample[] = [
     description: 'ちょっとせつないきもち',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_sequencer" ${X(80, 60)}>
-    <field name="BPM">90</field>
+    <field name="BPM">80</field>
     <field name="NOTE1">69</field>
     <field name="NOTE2">72</field>
-    <field name="NOTE3">68</field>
+    <field name="NOTE3">69</field>
     <field name="NOTE4">65</field>
   </block>
 </xml>`,
@@ -110,13 +110,13 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_delay" ${X(200, 60)}>
     <field name="TIME">0.3</field>
-    <field name="FEEDBACK">0.3</field>
-    <field name="MIX">0.4</field>
+    <field name="FEEDBACK">0.4</field>
+    <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_pluck">
         <field name="NOTE">E</field>
         <field name="OCTAVE">4</field>
-        <field name="SUSTAIN">0.8</field>
+        <field name="SUSTAIN">1.0</field>
       </block>
     </value>
   </block>
@@ -129,7 +129,7 @@ const samples: Sample[] = [
     description: 'ビブラートのきいたきれいなおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_vibrato" ${X(200, 60)}>
-    <field name="SPEED">6</field>
+    <field name="SPEED">5</field>
     <field name="DEPTH">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_sine">
@@ -148,12 +148,12 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
     <field name="SIZE">0.6</field>
-    <field name="DAMPING">0.4</field>
+    <field name="DAMPING">0.5</field>
     <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_vibrato">
         <field name="SPEED">5</field>
-        <field name="DEPTH">0.15</field>
+        <field name="DEPTH">0.1</field>
         <value name="SIGNAL">
           <block type="biyo_triangle">
             <field name="NOTE">C</field>
@@ -173,11 +173,11 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_pingpong" ${X(280, 60)}>
     <field name="TIME">0.25</field>
-    <field name="FEEDBACK">0.5</field>
-    <field name="MIX">0.4</field>
+    <field name="FEEDBACK">0.4</field>
+    <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_sequencer">
-        <field name="BPM">100</field>
+        <field name="BPM">80</field>
         <field name="NOTE1">60</field>
         <field name="NOTE2">67</field>
         <field name="NOTE3">64</field>
@@ -194,7 +194,7 @@ const samples: Sample[] = [
     description: 'みんなでこうしんしよう',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_sequencer" ${X(80, 60)}>
-    <field name="BPM">132</field>
+    <field name="BPM">120</field>
     <field name="NOTE1">60</field>
     <field name="NOTE2">60</field>
     <field name="NOTE3">67</field>
@@ -209,16 +209,16 @@ const samples: Sample[] = [
     description: 'おやすみなさいのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.8</field>
-    <field name="DAMPING">0.6</field>
-    <field name="MIX">0.5</field>
+    <field name="SIZE">0.85</field>
+    <field name="DAMPING">0.5</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_lowpass">
-        <field name="CUTOFF">800</field>
+        <field name="CUTOFF">1000</field>
         <field name="RESONANCE">1</field>
         <value name="SIGNAL">
           <block type="biyo_sequencer">
-            <field name="BPM">72</field>
+            <field name="BPM">80</field>
             <field name="NOTE1">60</field>
             <field name="NOTE2">64</field>
             <field name="NOTE3">67</field>
@@ -253,7 +253,7 @@ const samples: Sample[] = [
     description: 'ドンドンドンドン！テクノのリズム',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_drum_pattern" ${X(80, 60)}>
-    <field name="BPM">130</field>
+    <field name="BPM">120</field>
     <field name="PATTERN">techno</field>
   </block>
 </xml>`,
@@ -265,7 +265,7 @@ const samples: Sample[] = [
     description: 'スウィングするジャズのリズム',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_drum_pattern" ${X(80, 60)}>
-    <field name="BPM">110</field>
+    <field name="BPM">120</field>
     <field name="PATTERN">jazz</field>
   </block>
 </xml>`,
@@ -277,7 +277,7 @@ const samples: Sample[] = [
     description: 'みなみのくにのたのしいリズム',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_drum_pattern" ${X(80, 60)}>
-    <field name="BPM">100</field>
+    <field name="BPM">80</field>
     <field name="PATTERN">samba</field>
   </block>
 </xml>`,
@@ -289,7 +289,7 @@ const samples: Sample[] = [
     description: 'ドンチッドンチッのきほん',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_mix" ${X(280, 60)}>
-    <field name="BALANCE">0.6</field>
+    <field name="BALANCE">0.5</field>
     <value name="SIGNAL_A">
       <block type="biyo_kick">
         <field name="FREQ">60</field>
@@ -310,7 +310,7 @@ const samples: Sample[] = [
     description: 'ドキドキするはやいリズム',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_drum_pattern" ${X(80, 60)}>
-    <field name="BPM">180</field>
+    <field name="BPM">200</field>
     <field name="PATTERN">rock</field>
   </block>
 </xml>`,
@@ -322,7 +322,7 @@ const samples: Sample[] = [
     description: 'のんびりゆったりリズム',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_drum_pattern" ${X(80, 60)}>
-    <field name="BPM">75</field>
+    <field name="BPM">80</field>
     <field name="PATTERN">jazz</field>
   </block>
 </xml>`,
@@ -340,7 +340,7 @@ const samples: Sample[] = [
     </value>
     <value name="SIGNAL_B">
       <block type="biyo_kick">
-        <field name="FREQ">50</field>
+        <field name="FREQ">40</field>
       </block>
     </value>
   </block>
@@ -353,9 +353,9 @@ const samples: Sample[] = [
     description: 'ドドドドド！たいこのロール',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.4</field>
-    <field name="DAMPING">0.3</field>
-    <field name="MIX">0.2</field>
+    <field name="SIZE">0.3</field>
+    <field name="DAMPING">0.2</field>
+    <field name="MIX">0.15</field>
     <value name="SIGNAL">
       <block type="biyo_snare"></block>
     </value>
@@ -393,8 +393,8 @@ const samples: Sample[] = [
     description: 'ビビビ！レーザーをうつよ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_delay" ${X(200, 60)}>
-    <field name="TIME">0.15</field>
-    <field name="FEEDBACK">0.6</field>
+    <field name="TIME">0.1</field>
+    <field name="FEEDBACK">0.7</field>
     <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_laser"></block>
@@ -425,7 +425,7 @@ const samples: Sample[] = [
     description: 'うにょうにょうごくへんなおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_autowah" ${X(200, 60)}>
-    <field name="SPEED">4</field>
+    <field name="SPEED">6</field>
     <field name="DEPTH">0.8</field>
     <value name="SIGNAL">
       <block type="biyo_saw">
@@ -443,9 +443,9 @@ const samples: Sample[] = [
     description: 'ヒュードロドロ！おばけのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
-    <field name="SIZE">0.9</field>
+    <field name="SIZE">0.85</field>
     <field name="DAMPING">0.2</field>
-    <field name="MIX">0.7</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_ghost"></block>
     </value>
@@ -459,7 +459,7 @@ const samples: Sample[] = [
     description: 'パリパリにゆがんだおもしろいこえ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_distortion" ${X(200, 60)}>
-    <field name="DRIVE">20</field>
+    <field name="DRIVE">15</field>
     <value name="SIGNAL">
       <block type="biyo_robot_voice">
         <field name="VOWEL">a</field>
@@ -475,8 +475,8 @@ const samples: Sample[] = [
     description: 'いぬみたいにワンワンいうおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_bandpass" ${X(200, 60)}>
-    <field name="CENTER">800</field>
-    <field name="WIDTH">300</field>
+    <field name="CENTER">1000</field>
+    <field name="WIDTH">500</field>
     <value name="SIGNAL">
       <block type="biyo_saw">
         <field name="NOTE">D</field>
@@ -493,8 +493,8 @@ const samples: Sample[] = [
     description: 'ピピピピ！あさだよ おきて！',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_tremolo" ${X(200, 60)}>
-    <field name="SPEED">15</field>
-    <field name="DEPTH">0.9</field>
+    <field name="SPEED">10</field>
+    <field name="DEPTH">1.0</field>
     <value name="SIGNAL">
       <block type="biyo_square">
         <field name="NOTE">B</field>
@@ -511,8 +511,8 @@ const samples: Sample[] = [
     description: 'ふかーいおじさんみたいなこえ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_lowpass" ${X(200, 60)}>
-    <field name="CUTOFF">400</field>
-    <field name="RESONANCE">3</field>
+    <field name="CUTOFF">300</field>
+    <field name="RESONANCE">5</field>
     <value name="SIGNAL">
       <block type="biyo_robot_voice">
         <field name="VOWEL">o</field>
@@ -528,7 +528,7 @@ const samples: Sample[] = [
     description: 'たかくてかわいいこえ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_highpass" ${X(200, 60)}>
-    <field name="CUTOFF">2000</field>
+    <field name="CUTOFF">3000</field>
     <field name="RESONANCE">5</field>
     <value name="SIGNAL">
       <block type="biyo_robot_voice">
@@ -549,9 +549,9 @@ const samples: Sample[] = [
     description: 'あかるいドのわおん',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
-    <field name="SIZE">0.7</field>
-    <field name="DAMPING">0.4</field>
-    <field name="MIX">0.4</field>
+    <field name="SIZE">0.6</field>
+    <field name="DAMPING">0.5</field>
+    <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_chord">
         <field name="ROOT">C</field>
@@ -568,9 +568,9 @@ const samples: Sample[] = [
     description: 'かなしいラのわおん',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
-    <field name="SIZE">0.8</field>
+    <field name="SIZE">0.85</field>
     <field name="DAMPING">0.5</field>
-    <field name="MIX">0.4</field>
+    <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_chord">
         <field name="ROOT">A</field>
@@ -587,12 +587,12 @@ const samples: Sample[] = [
     description: 'きょうかいのオルガンのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(300, 60)}>
-    <field name="SIZE">0.9</field>
-    <field name="DAMPING">0.3</field>
-    <field name="MIX">0.5</field>
+    <field name="SIZE">0.85</field>
+    <field name="DAMPING">0.2</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_tremolo">
-        <field name="SPEED">6</field>
+        <field name="SPEED">5</field>
         <field name="DEPTH">0.2</field>
         <value name="SIGNAL">
           <block type="biyo_sine">
@@ -612,14 +612,14 @@ const samples: Sample[] = [
     description: 'うつくしいハープのしらべ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.7</field>
+    <field name="SIZE">0.6</field>
     <field name="DAMPING">0.5</field>
-    <field name="MIX">0.4</field>
+    <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_pluck">
         <field name="NOTE">C</field>
         <field name="OCTAVE">5</field>
-        <field name="SUSTAIN">1.2</field>
+        <field name="SUSTAIN">1.0</field>
       </block>
     </value>
   </block>
@@ -632,16 +632,16 @@ const samples: Sample[] = [
     description: 'ゆったりしたクラシックのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(300, 60)}>
-    <field name="SIZE">0.8</field>
-    <field name="DAMPING">0.4</field>
-    <field name="MIX">0.5</field>
+    <field name="SIZE">0.85</field>
+    <field name="DAMPING">0.5</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_lowpass">
-        <field name="CUTOFF">2000</field>
+        <field name="CUTOFF">3000</field>
         <field name="RESONANCE">1</field>
         <value name="SIGNAL">
           <block type="biyo_sequencer">
-            <field name="BPM">72</field>
+            <field name="BPM">80</field>
             <field name="NOTE1">60</field>
             <field name="NOTE2">64</field>
             <field name="NOTE3">67</field>
@@ -661,7 +661,7 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
     <field name="SIZE">0.6</field>
-    <field name="DAMPING">0.4</field>
+    <field name="DAMPING">0.5</field>
     <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_chord">
@@ -679,13 +679,13 @@ const samples: Sample[] = [
     description: 'バイオリンみたいなやさしいおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(350, 60)}>
-    <field name="SIZE">0.7</field>
+    <field name="SIZE">0.6</field>
     <field name="DAMPING">0.5</field>
-    <field name="MIX">0.4</field>
+    <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_vibrato">
-        <field name="SPEED">5.5</field>
-        <field name="DEPTH">0.15</field>
+        <field name="SPEED">5</field>
+        <field name="DEPTH">0.1</field>
         <value name="SIGNAL">
           <block type="biyo_lowpass">
             <field name="CUTOFF">3000</field>
@@ -710,7 +710,7 @@ const samples: Sample[] = [
     description: 'やさしいピアノのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
-    <field name="SIZE">0.5</field>
+    <field name="SIZE">0.6</field>
     <field name="DAMPING">0.5</field>
     <field name="MIX">0.3</field>
     <value name="SIGNAL">
@@ -730,11 +730,11 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(300, 60)}>
     <field name="SIZE">0.6</field>
-    <field name="DAMPING">0.4</field>
+    <field name="DAMPING">0.5</field>
     <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_sequencer">
-        <field name="BPM">96</field>
+        <field name="BPM">80</field>
         <field name="NOTE1">60</field>
         <field name="NOTE2">67</field>
         <field name="NOTE3">67</field>
@@ -751,14 +751,14 @@ const samples: Sample[] = [
     description: 'ゴーンとなるおおきなかね',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.95</field>
+    <field name="SIZE">1.0</field>
     <field name="DAMPING">0.2</field>
     <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_pluck">
         <field name="NOTE">C</field>
         <field name="OCTAVE">4</field>
-        <field name="SUSTAIN">2</field>
+        <field name="SUSTAIN">2.0</field>
       </block>
     </value>
   </block>
@@ -786,11 +786,11 @@ const samples: Sample[] = [
     description: 'むかしのゲームみたいなおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_sequencer" ${X(80, 60)}>
-    <field name="BPM">150</field>
+    <field name="BPM">160</field>
     <field name="NOTE1">72</field>
     <field name="NOTE2">76</field>
-    <field name="NOTE3">79</field>
-    <field name="NOTE4">84</field>
+    <field name="NOTE3">72</field>
+    <field name="NOTE4">76</field>
   </block>
 </xml>`,
   },
@@ -801,14 +801,14 @@ const samples: Sample[] = [
     description: 'ボスがあらわれた！',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_distortion" ${X(200, 60)}>
-    <field name="DRIVE">8</field>
+    <field name="DRIVE">5</field>
     <value name="SIGNAL">
       <block type="biyo_sequencer">
         <field name="BPM">160</field>
-        <field name="NOTE1">40</field>
-        <field name="NOTE2">43</field>
-        <field name="NOTE3">40</field>
-        <field name="NOTE4">46</field>
+        <field name="NOTE1">48</field>
+        <field name="NOTE2">52</field>
+        <field name="NOTE3">48</field>
+        <field name="NOTE4">53</field>
       </block>
     </value>
   </block>
@@ -822,12 +822,12 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_highpass" ${X(200, 60)}>
     <field name="CUTOFF">3000</field>
-    <field name="RESONANCE">2</field>
+    <field name="RESONANCE">1</field>
     <value name="SIGNAL">
       <block type="biyo_pluck">
         <field name="NOTE">D</field>
         <field name="OCTAVE">6</field>
-        <field name="SUSTAIN">0.3</field>
+        <field name="SUSTAIN">0.2</field>
       </block>
     </value>
   </block>
@@ -842,9 +842,9 @@ const samples: Sample[] = [
   <block type="biyo_sequencer" ${X(80, 60)}>
     <field name="BPM">80</field>
     <field name="NOTE1">52</field>
-    <field name="NOTE2">49</field>
-    <field name="NOTE3">46</field>
-    <field name="NOTE4">43</field>
+    <field name="NOTE2">50</field>
+    <field name="NOTE3">48</field>
+    <field name="NOTE4">48</field>
   </block>
 </xml>`,
   },
@@ -870,7 +870,7 @@ const samples: Sample[] = [
     description: 'たたかいのおんがく',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_mix" ${X(300, 60)}>
-    <field name="BALANCE">0.6</field>
+    <field name="BALANCE">0.5</field>
     <value name="SIGNAL_A">
       <block type="biyo_famicom">
         <field name="CHORD">A_minor</field>
@@ -893,7 +893,7 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_highpass" ${X(200, 60)}>
     <field name="CUTOFF">1000</field>
-    <field name="RESONANCE">3</field>
+    <field name="RESONANCE">5</field>
     <value name="SIGNAL">
       <block type="biyo_square">
         <field name="NOTE">D</field>
@@ -910,8 +910,8 @@ const samples: Sample[] = [
     description: 'ブンブンなるゲームのベース',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_lowpass" ${X(200, 60)}>
-    <field name="CUTOFF">600</field>
-    <field name="RESONANCE">3</field>
+    <field name="CUTOFF">1000</field>
+    <field name="RESONANCE">5</field>
     <value name="SIGNAL">
       <block type="biyo_square">
         <field name="NOTE">E</field>
@@ -928,16 +928,16 @@ const samples: Sample[] = [
     description: 'やった！かったよ！',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.5</field>
-    <field name="DAMPING">0.3</field>
+    <field name="SIZE">0.6</field>
+    <field name="DAMPING">0.2</field>
     <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_sequencer">
-        <field name="BPM">140</field>
+        <field name="BPM">160</field>
         <field name="NOTE1">67</field>
         <field name="NOTE2">72</field>
         <field name="NOTE3">76</field>
-        <field name="NOTE4">79</field>
+        <field name="NOTE4">72</field>
       </block>
     </value>
   </block>
@@ -954,9 +954,9 @@ const samples: Sample[] = [
     description: 'ぽちゃんぽちゃんとおちるみず',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
-    <field name="SIZE">0.8</field>
-    <field name="DAMPING">0.3</field>
-    <field name="MIX">0.5</field>
+    <field name="SIZE">0.85</field>
+    <field name="DAMPING">0.2</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_water_drop"></block>
     </value>
@@ -970,7 +970,7 @@ const samples: Sample[] = [
     description: 'ゴロゴロドカーン！かみなり',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
-    <field name="SIZE">0.95</field>
+    <field name="SIZE">1.0</field>
     <field name="DAMPING">0.2</field>
     <field name="MIX">0.6</field>
     <value name="SIGNAL">
@@ -986,7 +986,7 @@ const samples: Sample[] = [
     description: 'シューッときもちいいかぜ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_lowpass" ${X(200, 60)}>
-    <field name="CUTOFF">1500</field>
+    <field name="CUTOFF">1000</field>
     <field name="RESONANCE">1</field>
     <value name="SIGNAL">
       <block type="biyo_filtered_noise">
@@ -1003,10 +1003,10 @@ const samples: Sample[] = [
     description: 'ゴーゴーふくあらし',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_mix" ${X(280, 60)}>
-    <field name="BALANCE">0.4</field>
+    <field name="BALANCE">0.25</field>
     <value name="SIGNAL_A">
       <block type="biyo_filtered_noise">
-        <field name="BRIGHTNESS">4000</field>
+        <field name="BRIGHTNESS">5000</field>
       </block>
     </value>
     <value name="SIGNAL_B">
@@ -1022,9 +1022,9 @@ const samples: Sample[] = [
     description: 'ぶくぶくぶく！みずのなか',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
-    <field name="SIZE">0.7</field>
-    <field name="DAMPING">0.4</field>
-    <field name="MIX">0.5</field>
+    <field name="SIZE">0.6</field>
+    <field name="DAMPING">0.5</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_bubbles"></block>
     </value>
@@ -1053,11 +1053,11 @@ const samples: Sample[] = [
     description: 'ザーッとよせるなみ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_tremolo" ${X(200, 60)}>
-    <field name="SPEED">0.3</field>
-    <field name="DEPTH">0.7</field>
+    <field name="SPEED">2</field>
+    <field name="DEPTH">0.8</field>
     <value name="SIGNAL">
       <block type="biyo_filtered_noise">
-        <field name="BRIGHTNESS">1500</field>
+        <field name="BRIGHTNESS">2000</field>
       </block>
     </value>
   </block>
@@ -1070,8 +1070,8 @@ const samples: Sample[] = [
     description: 'ピヨピヨ！ことりがうたうよ',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_vibrato" ${X(200, 60)}>
-    <field name="SPEED">12</field>
-    <field name="DEPTH">0.4</field>
+    <field name="SPEED">10</field>
+    <field name="DEPTH">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_sine">
         <field name="NOTE">D</field>
@@ -1088,18 +1088,18 @@ const samples: Sample[] = [
     description: 'しずかなもりのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(300, 60)}>
-    <field name="SIZE">0.9</field>
-    <field name="DAMPING">0.3</field>
-    <field name="MIX">0.5</field>
+    <field name="SIZE">0.85</field>
+    <field name="DAMPING">0.2</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_mix">
-        <field name="BALANCE">0.3</field>
+        <field name="BALANCE">0.25</field>
         <value name="SIGNAL_A">
           <block type="biyo_water_drop"></block>
         </value>
         <value name="SIGNAL_B">
           <block type="biyo_filtered_noise">
-            <field name="BRIGHTNESS">1000</field>
+            <field name="BRIGHTNESS">500</field>
           </block>
         </value>
       </block>
@@ -1116,10 +1116,10 @@ const samples: Sample[] = [
   <block type="biyo_reverb" ${X(280, 60)}>
     <field name="SIZE">0.85</field>
     <field name="DAMPING">0.2</field>
-    <field name="MIX">0.4</field>
+    <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_gain_down">
-        <field name="AMOUNT">0.6</field>
+        <field name="AMOUNT">0.5</field>
         <value name="SIGNAL">
           <block type="biyo_filtered_noise">
             <field name="BRIGHTNESS">5000</field>
@@ -1141,8 +1141,8 @@ const samples: Sample[] = [
     description: 'ふしぎなうちゅうのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
-    <field name="SIZE">0.9</field>
-    <field name="DAMPING">0.3</field>
+    <field name="SIZE">0.85</field>
+    <field name="DAMPING">0.2</field>
     <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_space"></block>
@@ -1157,8 +1157,8 @@ const samples: Sample[] = [
     description: 'ヒョーン！UFOがとんでいく',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_pingpong" ${X(200, 60)}>
-    <field name="TIME">0.3</field>
-    <field name="FEEDBACK">0.5</field>
+    <field name="TIME">0.25</field>
+    <field name="FEEDBACK">0.4</field>
     <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_ufo"></block>
@@ -1173,12 +1173,12 @@ const samples: Sample[] = [
     description: 'キラキラひかるほしのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.9</field>
+    <field name="SIZE">0.85</field>
     <field name="DAMPING">0.2</field>
     <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_tremolo">
-        <field name="SPEED">3</field>
+        <field name="SPEED">2</field>
         <field name="DEPTH">0.5</field>
         <value name="SIGNAL">
           <block type="biyo_sine">
@@ -1199,12 +1199,12 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_lowpass" ${X(280, 60)}>
     <field name="CUTOFF">300</field>
-    <field name="RESONANCE">10</field>
+    <field name="RESONANCE">5</field>
     <value name="SIGNAL">
       <block type="biyo_reverb">
-        <field name="SIZE">0.95</field>
-        <field name="DAMPING">0.1</field>
-        <field name="MIX">0.8</field>
+        <field name="SIZE">1.0</field>
+        <field name="DAMPING">0.2</field>
+        <field name="MIX">0.6</field>
         <value name="SIGNAL">
           <block type="biyo_noise"></block>
         </value>
@@ -1220,12 +1220,12 @@ const samples: Sample[] = [
     description: 'ピピッ…じんこうえいせいのしんごう',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_delay" ${X(200, 60)}>
-    <field name="TIME">0.5</field>
-    <field name="FEEDBACK">0.6</field>
-    <field name="MIX">0.4</field>
+    <field name="TIME">0.6</field>
+    <field name="FEEDBACK">0.7</field>
+    <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_highpass">
-        <field name="CUTOFF">2000</field>
+        <field name="CUTOFF">3000</field>
         <field name="RESONANCE">5</field>
         <value name="SIGNAL">
           <block type="biyo_square">
@@ -1245,18 +1245,18 @@ const samples: Sample[] = [
     description: 'うつくしいうちゅうのくも',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.95</field>
+    <field name="SIZE">1.0</field>
     <field name="DAMPING">0.2</field>
-    <field name="MIX">0.7</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_lowpass">
-        <field name="CUTOFF">600</field>
-        <field name="RESONANCE">2</field>
+        <field name="CUTOFF">1000</field>
+        <field name="RESONANCE">1</field>
         <value name="SIGNAL">
           <block type="biyo_detune_saw">
             <field name="NOTE">G</field>
             <field name="OCTAVE">2</field>
-            <field name="DETUNE">2</field>
+            <field name="DETUNE">1</field>
           </block>
         </value>
       </block>
@@ -1271,8 +1271,8 @@ const samples: Sample[] = [
     description: 'ワレワレハウチュウジンダ！',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_vibrato" ${X(200, 60)}>
-    <field name="SPEED">8</field>
-    <field name="DEPTH">0.5</field>
+    <field name="SPEED">10</field>
+    <field name="DEPTH">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_robot_voice">
         <field name="VOWEL">u</field>
@@ -1288,18 +1288,18 @@ const samples: Sample[] = [
     description: 'ふわふわつきをあるくおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.9</field>
-    <field name="DAMPING">0.3</field>
+    <field name="SIZE">0.85</field>
+    <field name="DAMPING">0.2</field>
     <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_lowpass">
-        <field name="CUTOFF">500</field>
-        <field name="RESONANCE">2</field>
+        <field name="CUTOFF">300</field>
+        <field name="RESONANCE">1</field>
         <value name="SIGNAL">
           <block type="biyo_pluck">
             <field name="NOTE">G</field>
             <field name="OCTAVE">3</field>
-            <field name="SUSTAIN">1.5</field>
+            <field name="SUSTAIN">2.0</field>
           </block>
         </value>
       </block>
@@ -1315,8 +1315,8 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_delay" ${X(200, 60)}>
     <field name="TIME">0.1</field>
-    <field name="FEEDBACK">0.8</field>
-    <field name="MIX">0.6</field>
+    <field name="FEEDBACK">0.9</field>
+    <field name="MIX">0.8</field>
     <value name="SIGNAL">
       <block type="biyo_laser"></block>
     </value>
@@ -1330,9 +1330,9 @@ const samples: Sample[] = [
     description: 'はてしないうちゅうのひびき',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(300, 60)}>
-    <field name="SIZE">0.95</field>
-    <field name="DAMPING">0.15</field>
-    <field name="MIX">0.7</field>
+    <field name="SIZE">1.0</field>
+    <field name="DAMPING">0.2</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_mix">
         <field name="BALANCE">0.5</field>
@@ -1364,13 +1364,13 @@ const samples: Sample[] = [
     <field name="BALANCE">0.5</field>
     <value name="SIGNAL_A">
       <block type="biyo_drum_pattern">
-        <field name="BPM">128</field>
+        <field name="BPM">120</field>
         <field name="PATTERN">techno</field>
       </block>
     </value>
     <value name="SIGNAL_B">
       <block type="biyo_sequencer">
-        <field name="BPM">128</field>
+        <field name="BPM">120</field>
         <field name="NOTE1">48</field>
         <field name="NOTE2">48</field>
         <field name="NOTE3">55</field>
@@ -1387,7 +1387,7 @@ const samples: Sample[] = [
     description: 'ブンブンなるダンスのベース',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_lowpass" ${X(200, 60)}>
-    <field name="CUTOFF">500</field>
+    <field name="CUTOFF">300</field>
     <field name="RESONANCE">5</field>
     <value name="SIGNAL">
       <block type="biyo_saw">
@@ -1405,7 +1405,7 @@ const samples: Sample[] = [
     description: 'キラキラディスコでおどろう',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_mix" ${X(280, 60)}>
-    <field name="BALANCE">0.4</field>
+    <field name="BALANCE">0.25</field>
     <value name="SIGNAL_A">
       <block type="biyo_drum_pattern">
         <field name="BPM">120</field>
@@ -1414,8 +1414,8 @@ const samples: Sample[] = [
     </value>
     <value name="SIGNAL_B">
       <block type="biyo_autowah">
-        <field name="SPEED">3</field>
-        <field name="DEPTH">0.6</field>
+        <field name="SPEED">2</field>
+        <field name="DEPTH">0.5</field>
         <value name="SIGNAL">
           <block type="biyo_saw">
             <field name="NOTE">A</field>
@@ -1437,12 +1437,12 @@ const samples: Sample[] = [
     <field name="BALANCE">0.5</field>
     <value name="SIGNAL_A">
       <block type="biyo_kick">
-        <field name="FREQ">50</field>
+        <field name="FREQ">60</field>
       </block>
     </value>
     <value name="SIGNAL_B">
       <block type="biyo_hihat">
-        <field name="LENGTH">0.03</field>
+        <field name="LENGTH">0.02</field>
       </block>
     </value>
   </block>
@@ -1455,13 +1455,13 @@ const samples: Sample[] = [
     description: 'ギュイーンとなるシンセのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_delay" ${X(280, 60)}>
-    <field name="TIME">0.2</field>
-    <field name="FEEDBACK">0.3</field>
-    <field name="MIX">0.3</field>
+    <field name="TIME">0.3</field>
+    <field name="FEEDBACK">0.2</field>
+    <field name="MIX">0.2</field>
     <value name="SIGNAL">
       <block type="biyo_autowah">
         <field name="SPEED">2</field>
-        <field name="DEPTH">0.7</field>
+        <field name="DEPTH">0.8</field>
         <value name="SIGNAL">
           <block type="biyo_detune_saw">
             <field name="NOTE">A</field>
@@ -1484,7 +1484,7 @@ const samples: Sample[] = [
     <field name="BALANCE">0.5</field>
     <value name="SIGNAL_A">
       <block type="biyo_drum_pattern">
-        <field name="BPM">140</field>
+        <field name="BPM">160</field>
         <field name="PATTERN">techno</field>
       </block>
     </value>
@@ -1512,7 +1512,7 @@ const samples: Sample[] = [
     <field name="BALANCE">0.5</field>
     <value name="SIGNAL_A">
       <block type="biyo_kick">
-        <field name="FREQ">55</field>
+        <field name="FREQ">60</field>
       </block>
     </value>
     <value name="SIGNAL_B">
@@ -1528,16 +1528,16 @@ const samples: Sample[] = [
     description: 'トリップするようなおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_pingpong" ${X(280, 60)}>
-    <field name="TIME">0.33</field>
-    <field name="FEEDBACK">0.5</field>
-    <field name="MIX">0.4</field>
+    <field name="TIME">0.25</field>
+    <field name="FEEDBACK">0.4</field>
+    <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_sequencer">
-        <field name="BPM">138</field>
+        <field name="BPM">160</field>
         <field name="NOTE1">60</field>
-        <field name="NOTE2">63</field>
+        <field name="NOTE2">64</field>
         <field name="NOTE3">67</field>
-        <field name="NOTE4">70</field>
+        <field name="NOTE4">71</field>
       </block>
     </value>
   </block>
@@ -1550,8 +1550,8 @@ const samples: Sample[] = [
     description: 'ブリブリファンキーなベース',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_autowah" ${X(200, 60)}>
-    <field name="SPEED">4</field>
-    <field name="DEPTH">0.7</field>
+    <field name="SPEED">6</field>
+    <field name="DEPTH">0.8</field>
     <value name="SIGNAL">
       <block type="biyo_saw">
         <field name="NOTE">E</field>
@@ -1568,23 +1568,23 @@ const samples: Sample[] = [
     description: 'もりあがれー！レイヴパーティー',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_mix" ${X(300, 60)}>
-    <field name="BALANCE">0.4</field>
+    <field name="BALANCE">0.25</field>
     <value name="SIGNAL_A">
       <block type="biyo_drum_pattern">
-        <field name="BPM">150</field>
+        <field name="BPM">160</field>
         <field name="PATTERN">techno</field>
       </block>
     </value>
     <value name="SIGNAL_B">
       <block type="biyo_delay">
-        <field name="TIME">0.15</field>
+        <field name="TIME">0.1</field>
         <field name="FEEDBACK">0.4</field>
-        <field name="MIX">0.3</field>
+        <field name="MIX">0.2</field>
         <value name="SIGNAL">
           <block type="biyo_detune_saw">
             <field name="NOTE">E</field>
             <field name="OCTAVE">4</field>
-            <field name="DETUNE">5</field>
+            <field name="DETUNE">3</field>
           </block>
         </value>
       </block>
@@ -1614,9 +1614,9 @@ const samples: Sample[] = [
     description: 'ロボットがはなしかけてくる',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_delay" ${X(200, 60)}>
-    <field name="TIME">0.2</field>
-    <field name="FEEDBACK">0.3</field>
-    <field name="MIX">0.3</field>
+    <field name="TIME">0.3</field>
+    <field name="FEEDBACK">0.2</field>
+    <field name="MIX">0.2</field>
     <value name="SIGNAL">
       <block type="biyo_robot_voice">
         <field name="VOWEL">e</field>
@@ -1635,13 +1635,13 @@ const samples: Sample[] = [
     <field name="BALANCE">0.5</field>
     <value name="SIGNAL_A">
       <block type="biyo_drum_pattern">
-        <field name="BPM">100</field>
+        <field name="BPM">80</field>
         <field name="PATTERN">techno</field>
       </block>
     </value>
     <value name="SIGNAL_B">
       <block type="biyo_distortion">
-        <field name="DRIVE">10</field>
+        <field name="DRIVE">15</field>
         <value name="SIGNAL">
           <block type="biyo_square">
             <field name="NOTE">G</field>
@@ -1660,8 +1660,8 @@ const samples: Sample[] = [
     description: 'ピッピッ！ロボットのしんごう',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_tremolo" ${X(200, 60)}>
-    <field name="SPEED">8</field>
-    <field name="DEPTH">0.9</field>
+    <field name="SPEED">10</field>
+    <field name="DEPTH">1.0</field>
     <value name="SIGNAL">
       <block type="biyo_square">
         <field name="NOTE">G</field>
@@ -1702,8 +1702,8 @@ const samples: Sample[] = [
     <field name="DRIVE">15</field>
     <value name="SIGNAL">
       <block type="biyo_bandpass">
-        <field name="CENTER">500</field>
-        <field name="WIDTH">200</field>
+        <field name="CENTER">300</field>
+        <field name="WIDTH">500</field>
         <value name="SIGNAL">
           <block type="biyo_noise"></block>
         </value>
@@ -1719,8 +1719,8 @@ const samples: Sample[] = [
     description: 'ガキーン！きんぞくみたいなおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_highpass" ${X(200, 60)}>
-    <field name="CUTOFF">4000</field>
-    <field name="RESONANCE">10</field>
+    <field name="CUTOFF">3000</field>
+    <field name="RESONANCE">5</field>
     <value name="SIGNAL">
       <block type="biyo_noise"></block>
     </value>
@@ -1734,7 +1734,7 @@ const samples: Sample[] = [
     description: 'ロボットのでんげんがきれた',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_lowpass" ${X(200, 60)}>
-    <field name="CUTOFF">200</field>
+    <field name="CUTOFF">300</field>
     <field name="RESONANCE">5</field>
     <value name="SIGNAL">
       <block type="biyo_saw">
@@ -1752,12 +1752,12 @@ const samples: Sample[] = [
     description: 'ガチャガチャ！ロボットにへんしん',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_delay" ${X(280, 60)}>
-    <field name="TIME">0.08</field>
+    <field name="TIME">0.1</field>
     <field name="FEEDBACK">0.7</field>
     <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_distortion">
-        <field name="DRIVE">12</field>
+        <field name="DRIVE">15</field>
         <value name="SIGNAL">
           <block type="biyo_saw">
             <field name="NOTE">G</field>
@@ -1779,7 +1779,7 @@ const samples: Sample[] = [
     <field name="BALANCE">0.5</field>
     <value name="SIGNAL_A">
       <block type="biyo_drum_pattern">
-        <field name="BPM">110</field>
+        <field name="BPM">120</field>
         <field name="PATTERN">techno</field>
       </block>
     </value>
@@ -1806,7 +1806,7 @@ const samples: Sample[] = [
     description: 'キラーン！まほうがひかる',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.8</field>
+    <field name="SIZE">0.85</field>
     <field name="DAMPING">0.2</field>
     <field name="MIX">0.6</field>
     <value name="SIGNAL">
@@ -1832,13 +1832,13 @@ const samples: Sample[] = [
     description: 'シュワーン！つえをふった',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_pingpong" ${X(280, 60)}>
-    <field name="TIME">0.2</field>
-    <field name="FEEDBACK">0.6</field>
+    <field name="TIME">0.25</field>
+    <field name="FEEDBACK">0.7</field>
     <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_vibrato">
         <field name="SPEED">10</field>
-        <field name="DEPTH">0.5</field>
+        <field name="DEPTH">0.6</field>
         <value name="SIGNAL">
           <block type="biyo_sine">
             <field name="NOTE">D</field>
@@ -1858,8 +1858,8 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(200, 60)}>
     <field name="SIZE">0.6</field>
-    <field name="DAMPING">0.3</field>
-    <field name="MIX">0.4</field>
+    <field name="DAMPING">0.2</field>
+    <field name="MIX">0.3</field>
     <value name="SIGNAL">
       <block type="biyo_bubbles"></block>
     </value>
@@ -1873,13 +1873,13 @@ const samples: Sample[] = [
     description: 'キラキラとぶようせいのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(300, 60)}>
-    <field name="SIZE">0.7</field>
-    <field name="DAMPING">0.3</field>
-    <field name="MIX">0.5</field>
+    <field name="SIZE">0.6</field>
+    <field name="DAMPING">0.2</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_tremolo">
-        <field name="SPEED">8</field>
-        <field name="DEPTH">0.4</field>
+        <field name="SPEED">10</field>
+        <field name="DEPTH">0.5</field>
         <value name="SIGNAL">
           <block type="biyo_triangle">
             <field name="NOTE">G</field>
@@ -1898,13 +1898,13 @@ const samples: Sample[] = [
     description: 'シュン！いっしゅんでいどう',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_delay" ${X(280, 60)}>
-    <field name="TIME">0.05</field>
-    <field name="FEEDBACK">0.8</field>
-    <field name="MIX">0.6</field>
+    <field name="TIME">0.1</field>
+    <field name="FEEDBACK">0.9</field>
+    <field name="MIX">0.8</field>
     <value name="SIGNAL">
       <block type="biyo_highpass">
-        <field name="CUTOFF">5000</field>
-        <field name="RESONANCE">8</field>
+        <field name="CUTOFF">3000</field>
+        <field name="RESONANCE">5</field>
         <value name="SIGNAL">
           <block type="biyo_noise"></block>
         </value>
@@ -1920,14 +1920,14 @@ const samples: Sample[] = [
     description: 'キーンとなるクリスタルのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.9</field>
+    <field name="SIZE">0.85</field>
     <field name="DAMPING">0.2</field>
     <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_pluck">
         <field name="NOTE">G</field>
         <field name="OCTAVE">6</field>
-        <field name="SUSTAIN">1</field>
+        <field name="SUSTAIN">1.0</field>
       </block>
     </value>
   </block>
@@ -1940,13 +1940,13 @@ const samples: Sample[] = [
     description: 'くらーいやみのちからのおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(280, 60)}>
-    <field name="SIZE">0.95</field>
-    <field name="DAMPING">0.1</field>
-    <field name="MIX">0.7</field>
+    <field name="SIZE">1.0</field>
+    <field name="DAMPING">0.2</field>
+    <field name="MIX">0.6</field>
     <value name="SIGNAL">
       <block type="biyo_lowpass">
         <field name="CUTOFF">300</field>
-        <field name="RESONANCE">8</field>
+        <field name="RESONANCE">5</field>
         <value name="SIGNAL">
           <block type="biyo_ghost"></block>
         </value>
@@ -1962,14 +1962,14 @@ const samples: Sample[] = [
     description: 'キラキラ…きずがなおるおと',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_pingpong" ${X(280, 60)}>
-    <field name="TIME">0.15</field>
+    <field name="TIME">0.1</field>
     <field name="FEEDBACK">0.4</field>
-    <field name="MIX">0.4</field>
+    <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_reverb">
-        <field name="SIZE">0.7</field>
-        <field name="DAMPING">0.3</field>
-        <field name="MIX">0.5</field>
+        <field name="SIZE">0.6</field>
+        <field name="DAMPING">0.2</field>
+        <field name="MIX">0.6</field>
         <value name="SIGNAL">
           <block type="biyo_triangle">
             <field name="NOTE">C</field>
@@ -1989,17 +1989,17 @@ const samples: Sample[] = [
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_delay" ${X(280, 60)}>
     <field name="TIME">0.3</field>
-    <field name="FEEDBACK">0.5</field>
-    <field name="MIX">0.4</field>
+    <field name="FEEDBACK">0.4</field>
+    <field name="MIX">0.5</field>
     <value name="SIGNAL">
       <block type="biyo_vibrato">
-        <field name="SPEED">6</field>
-        <field name="DEPTH">0.4</field>
+        <field name="SPEED">5</field>
+        <field name="DEPTH">0.3</field>
         <value name="SIGNAL">
           <block type="biyo_detune_saw">
             <field name="NOTE">E</field>
             <field name="OCTAVE">4</field>
-            <field name="DETUNE">4</field>
+            <field name="DETUNE">3</field>
           </block>
         </value>
       </block>
@@ -2014,7 +2014,7 @@ const samples: Sample[] = [
     description: 'なにかがよびだされる！',
     xml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <block type="biyo_reverb" ${X(300, 60)}>
-    <field name="SIZE">0.9</field>
+    <field name="SIZE">0.85</field>
     <field name="DAMPING">0.2</field>
     <field name="MIX">0.6</field>
     <value name="SIGNAL">

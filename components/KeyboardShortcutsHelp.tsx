@@ -16,6 +16,7 @@ const shortcuts: ShortcutEntry[] = [
   { keys: 'Space', description: 'おんがくを ならす / とめる' },
   { keys: 'Ctrl/Cmd + Z', description: 'もどす（アンドゥ）' },
   { keys: 'Ctrl/Cmd + Shift + Z', description: 'やりなおす（リドゥ）' },
+  { keys: 'Ctrl/Cmd + Y', description: 'やりなおす（リドゥ）' },
   { keys: 'Ctrl/Cmd + S', description: 'ほぞんする' },
   { keys: 'Escape', description: 'ダイアログをとじる' },
   { keys: '?', description: 'このヘルプをひらく' },
@@ -25,10 +26,34 @@ export default function KeyboardShortcutsHelp({ open, onClose }: KeyboardShortcu
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  // Focus management and keyboard handling
+  // Focus management, keyboard handling, and focus trap
   useEffect(() => {
     if (!open) return;
     previousFocusRef.current = document.activeElement as HTMLElement;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
 
     // Focus the close button after mounting
     const timer = setTimeout(() => {
@@ -37,9 +62,10 @@ export default function KeyboardShortcutsHelp({ open, onClose }: KeyboardShortcu
 
     return () => {
       clearTimeout(timer);
+      document.removeEventListener('keydown', handleKeyDown);
       previousFocusRef.current?.focus();
     };
-  }, [open]);
+  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -73,6 +99,8 @@ export default function KeyboardShortcutsHelp({ open, onClose }: KeyboardShortcu
           padding: 'var(--sp-6)',
           maxWidth: 420,
           width: '90vw',
+          maxHeight: '85vh',
+          overflowY: 'auto',
           boxShadow: 'var(--shadow-lg)',
           fontFamily: 'var(--font-main)',
         }}
@@ -107,6 +135,11 @@ export default function KeyboardShortcutsHelp({ open, onClose }: KeyboardShortcu
               color: 'var(--c-text-muted)',
               padding: 'var(--sp-1)',
               lineHeight: 1,
+              minWidth: 44,
+              minHeight: 44,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
             aria-label="とじる"
           >

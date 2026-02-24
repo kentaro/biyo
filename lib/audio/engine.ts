@@ -28,7 +28,17 @@ class AudioEngine {
   async init(): Promise<void> {
     if (this.ctx) return;
 
-    this.ctx = new AudioContext({ sampleRate: 48000 });
+    try {
+      this.ctx = new AudioContext({ sampleRate: 48000 });
+    } catch {
+      // AudioContext constructor can throw on some browsers/devices
+      // (e.g., when the audio system is unavailable). Fail gracefully
+      // rather than crashing the app for children.
+      console.warn('[AudioEngine] Failed to create AudioContext. Audio will be unavailable.');
+      useCompileStore.getState().setStatus('error');
+      useCompileStore.getState().setError('おとがつかえないみたい。ブラウザをかえてみてね！');
+      return;
+    }
 
     // ScriptProcessorNode (Phase 1) — will migrate to AudioWorklet in Phase 3
     this.scriptNode = this.ctx.createScriptProcessor(4096, 0, 1);
@@ -86,7 +96,13 @@ class AudioEngine {
     this.mimium.set_samplerate(this.ctx.sampleRate);
 
     // Suspend immediately — play() will resume on user gesture
-    await this.ctx.suspend();
+    try {
+      await this.ctx.suspend();
+    } catch {
+      // Some browsers may reject suspend() if the context is already
+      // in the desired state or if the audio system is unavailable.
+      console.warn('[AudioEngine] Failed to suspend AudioContext during init.');
+    }
   }
 
   /** Compile mimium DSP code. Initialises the engine if needed. */
@@ -119,7 +135,17 @@ class AudioEngine {
     }
     // Chrome autoplay policy: resume must originate from user gesture
     if (this.ctx?.state === 'suspended') {
-      await this.ctx?.resume();
+      try {
+        await this.ctx?.resume();
+      } catch {
+        // resume() can reject on mobile when not triggered by a user
+        // gesture, or when the audio system is unavailable. Fail
+        // gracefully so the app remains usable (children can still
+        // build blocks even if audio is temporarily unavailable).
+        console.warn('[AudioEngine] Failed to resume AudioContext. Audio may be unavailable.');
+        useCompileStore.getState().setStatus('error');
+        useCompileStore.getState().setError('おとがならないみたい。がめんをタッチしてからもういちどためしてね！');
+      }
     }
     // Audio context is now resumed and playing
   }
@@ -133,12 +159,61 @@ class AudioEngine {
       }
       await new Promise<void>((resolve) => {
         setTimeout(async () => {
-          await this.ctx?.suspend();
+          try {
+            await this.ctx?.suspend();
+          } catch {
+            // suspend() can reject if the context is already closed
+            // or the audio system is unavailable. Fail gracefully.
+            console.warn('[AudioEngine] Failed to suspend AudioContext during stop.');
+          }
           resolve();
         }, 60);
       });
     }
     // Audio context is now suspended
+  }
+
+  /**
+   * Fully release all audio resources.
+   * Call this when the audio engine is no longer needed (e.g., page unmount).
+   * After calling dispose(), the engine can be re-initialised with init().
+   */
+  async dispose(): Promise<void> {
+    // Fade out first if running
+    if (this.ctx && this.ctx.state === 'running') {
+      if (this.masterGain) {
+        this.masterGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.05);
+      }
+      await new Promise<void>((r) => setTimeout(r, 60));
+    }
+
+    // Disconnect all nodes to release resources
+    try { this.scriptNode?.disconnect(); } catch { /* already disconnected */ }
+    try { this.analyser?.disconnect(); } catch { /* already disconnected */ }
+    try { this.masterGain?.disconnect(); } catch { /* already disconnected */ }
+    try { this.safetyLimiter?.disconnect(); } catch { /* already disconnected */ }
+    try { this.compressor?.disconnect(); } catch { /* already disconnected */ }
+    try { this.micSafetyGain?.disconnect(); } catch { /* already disconnected */ }
+
+    // Close the AudioContext to release system audio resources
+    if (this.ctx && this.ctx.state !== 'closed') {
+      try {
+        await this.ctx.close();
+      } catch {
+        // close() can reject if the context is already closed
+        console.warn('[AudioEngine] Failed to close AudioContext during dispose.');
+      }
+    }
+
+    // Null out all references so init() can rebuild from scratch
+    this.scriptNode = null;
+    this.analyser = null;
+    this.masterGain = null;
+    this.safetyLimiter = null;
+    this.compressor = null;
+    this.micSafetyGain = null;
+    this.mimium = null;
+    this.ctx = null;
   }
 
   /** Return the AnalyserNode for waveform / spectrum visualisation. */

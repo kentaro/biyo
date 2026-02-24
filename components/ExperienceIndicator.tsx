@@ -80,19 +80,19 @@ function getProgressMessage(
 const LEVEL_DETAILS: Record<ExperienceLevel, { blocks: string; description: string }> = {
   beginner: {
     blocks:
-      '\u30D4\u30FC / \u30D7\u30C3\u30D7\u30FC / \u30B6\u30FC / \u304A\u3075\u308D / \u3084\u307E\u3073\u3053 / \u30D1\u30EA\u30D1\u30EA',
+      '\u304A\u3068 / \u30D4\u30A2\u30CE / \u3078\u3093\u3057\u3093 / \u304A\u3070\u3051\u30FB\u30EC\u30FC\u30B6\u30FC\u306A\u3069',
     description:
-      '6\u3064\u306E\u304D\u307B\u3093\u30D6\u30ED\u30C3\u30AF\u3067\u305F\u306E\u3057\u3082\u3046',
+      '\u304D\u307B\u3093\u306E\u304A\u3068\u3068\u305F\u306E\u3057\u3044\u30D7\u30EA\u30BB\u30C3\u30C8\u3067\u3042\u305D\u307C\u3046',
   },
   intermediate: {
     blocks:
-      '\u3059\u3079\u3066\u306E\u304A\u3068 / \u305C\u3093\u3076\u306E\u3078\u3093\u3057\u3093 / \u30EA\u30BA\u30E0 / \u304A\u305F\u306E\u3057\u307F',
+      '\u305C\u3093\u3076\u306E\u304A\u3068 / \u305C\u3093\u3076\u306E\u3078\u3093\u3057\u3093 / \u30EA\u30BA\u30E0 / \u304A\u3093\u304C\u304F',
     description:
       '\u304A\u3068\u3068\u30EA\u30BA\u30E0\u3092\u304F\u307F\u3042\u308F\u305B\u3088\u3046',
   },
   advanced: {
     blocks:
-      '\u304A\u3093\u304B\u3044 / \u30A2\u30EB\u30DA\u30B8\u30AA / \u30E1\u30ED\u30C7\u30A3\u30FC / \u305C\u3093\u3076',
+      '\u305D\u3046\u305E\u3046 / \u30B9\u30B1\u30FC\u30EB / \u30A2\u30EB\u30DA\u30B8\u30AA / \u30E1\u30ED\u30C7\u30A3\u30FC / \u3079\u3093\u308A',
     description: '\u306A\u3093\u3067\u3082\u3064\u304B\u3048\u308B\u30DE\u30B9\u30BF\u30FC\uFF01',
   },
 };
@@ -217,7 +217,7 @@ export default function ExperienceIndicator() {
               background: 'var(--c-border)',
               borderRadius: 'var(--r-full)',
               overflow: 'hidden',
-              marginLeft: 2,
+              marginLeft: 'var(--sp-half)',
             }}
           >
             <span
@@ -404,7 +404,7 @@ export default function ExperienceIndicator() {
                       fontSize: 'var(--fs-xs)',
                       fontWeight: 700,
                       color: cfg.color,
-                      marginBottom: 2,
+                      marginBottom: 'var(--sp-half)',
                     }}
                   >
                     {cfg.emoji} {cfg.label}
@@ -433,7 +433,7 @@ export default function ExperienceIndicator() {
                     style={{
                       fontSize: 'var(--fs-xs)',
                       color: 'var(--c-text-muted)',
-                      marginTop: 2,
+                      marginTop: 'var(--sp-half)',
                     }}
                   >
                     {detail.blocks}

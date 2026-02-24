@@ -13,13 +13,15 @@ interface WorkspaceData {
 }
 
 /**
- * Minify workspace XML by collapsing unnecessary whitespace.
- * Preserves content inside attribute values.
+ * Minify workspace XML by collapsing whitespace between tags.
+ *
+ * Only removes whitespace that appears between a closing `>` and an opening `<`.
+ * Content inside tags (attribute values, text nodes) is left intact so that
+ * round-tripping does not corrupt user data.
  */
 function minifyXml(xml: string): string {
   return xml
     .replace(/>\s+</g, '><') // collapse whitespace between tags
-    .replace(/\s{2,}/g, ' ') // collapse multiple spaces to one
     .trim();
 }
 
@@ -93,7 +95,7 @@ export function decodeWorkspace(hash: string): WorkspaceData | null {
 
     const { xml, bpm } = data as { xml: unknown; bpm: unknown };
 
-    if (typeof xml !== 'string' || typeof bpm !== 'number') {
+    if (typeof xml !== 'string' || typeof bpm !== 'number' || !Number.isFinite(bpm)) {
       return null;
     }
 

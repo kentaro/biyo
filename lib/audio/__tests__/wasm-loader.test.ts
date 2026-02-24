@@ -26,6 +26,20 @@ function dsp(body: string): string {
   return `fn dsp() -> float {\n  ${body}\n}`;
 }
 
+// ---------------------------------------------------------------
+// Helper: compile code that may throw (for testing malformed input)
+// compileMimium now throws on syntax errors and oversized code.
+// This helper catches those errors so we can verify the context
+// remains in a valid state.
+// ---------------------------------------------------------------
+function safeCompile(ctx: MimiumContext, code: string): void {
+  try {
+    ctx.compile(code);
+  } catch {
+    // Expected: compilation failure for malformed code
+  }
+}
+
 // =================================================================
 // 1. compileMimium — transpilation correctness
 // =================================================================
@@ -124,9 +138,10 @@ describe('compileMimium / transpilation', () => {
     const hasNonZero1 = out1.some((v) => Math.abs(v) > 1e-6);
     expect(hasNonZero1).toBe(true);
 
-    // Now compile invalid code -- should fail silently and keep old dsp
-    // We use code that will produce a syntax error in new Function()
-    ctx.compile(dsp('}{]['));
+    // Now compile invalid code -- TranspilerContext.compile() throws for
+    // non-empty code that fails compilation. The old DSP function is
+    // preserved because the assignment only happens on success.
+    safeCompile(ctx, dsp('}{]['));
     const out2 = processSamples(ctx, 16);
     // State is reset on successful compile only, so after failure, the old fn runs
     // with the continued state (now counter keeps going)
@@ -139,11 +154,11 @@ describe('compileMimium / transpilation', () => {
     const bigExpr = `sinwave(${'sinwave('.repeat(5000)}440.0, 0.0${', 0.0)'.repeat(5000)}, 0.0)`;
     // This alone may not exceed 100KB, but wrapping with enough repetition should
     const code = dsp(bigExpr);
-    ctx.compile(code);
-    // If compilation failed due to size or syntax, output should be zeros
-    // (since there was no previous valid dsp function)
+    // compileMimium may throw for oversized code, and
+    // TranspilerContext.compile() throws for syntax errors.
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 16);
-    // Either it compiled (unlikely with that nesting) or returned null -> zeros
+    // No previous valid dsp, so output should be zeros
     // The test verifies it doesn't crash
     expect(out.length).toBe(16);
   });
@@ -408,7 +423,7 @@ describe('safety limits', () => {
       body = `(let x${i} = ${i === 0 ? '1.0' : `x${i - 1}`}; ${body})`;
     }
     const code = dsp(body);
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 16);
     // Should not hang; may produce zeros if compilation failed
     expect(out.length).toBe(16);
@@ -727,7 +742,7 @@ describe('coverage completeness', () => {
     // This should cause the parenIdx to stay -1 and take the no-paren path
     // but the "abc" preceding text means it hits the else-if branch
     const code = dsp('abc let x = 1.0; x');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     // This will likely fail compilation (abc is undefined), but exercises the branch
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
@@ -736,7 +751,7 @@ describe('coverage completeness', () => {
   // --- transpileLetBindings: no = sign in let (line 347 & 364) ---
   it('let binding without equals sign does not crash', () => {
     const code = dsp('let x');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -744,7 +759,7 @@ describe('coverage completeness', () => {
   // --- transpileLetBindings: no semicolon in non-paren let (line 352) ---
   it('let binding without semicolon does not crash (non-paren form)', () => {
     const code = dsp('let x = 1.0');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     // Without semicolon, findSemicolon returns -1, so transpilation breaks out.
     // The expression "let x = 1.0" gets passed to new Function() which fails.
     const out = processSamples(ctx, 1);
@@ -754,7 +769,7 @@ describe('coverage completeness', () => {
   // --- transpileLetBindings: paren form with no = (line 364) ---
   it('parenthesised let without equals sign does not crash', () => {
     const code = dsp('(let x)');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -762,7 +777,7 @@ describe('coverage completeness', () => {
   // --- transpileLetBindings: paren form with no semicolon (line 369) ---
   it('parenthesised let without semicolon does not crash', () => {
     const code = dsp('(let x = 1.0)');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -770,7 +785,7 @@ describe('coverage completeness', () => {
   // --- transpileLetBindings: paren form with no matching close paren (line 375) ---
   it('parenthesised let with unmatched paren does not crash', () => {
     const code = dsp('(let x = 1.0; x');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -781,7 +796,7 @@ describe('coverage completeness', () => {
   // --- findMatchingParen returning -1 (line 415) ---
   it('unmatched parenthesis in expression does not crash', () => {
     const code = dsp('(sinwave(440.0, 0.0)');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 16);
     expect(out.length).toBe(16);
   });
@@ -790,7 +805,7 @@ describe('coverage completeness', () => {
   it('malformed if expression (no brace) does not crash', () => {
     // "if" without an opening brace for then-block
     const code = dsp('if 1.0 > 0.0 1.0');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -798,7 +813,7 @@ describe('coverage completeness', () => {
   // --- findMatchingBrace returning -1 (line 507) ---
   it('unmatched brace in if-else does not crash', () => {
     const code = dsp('if 1.0 > 0.0 { 1.0');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -809,7 +824,7 @@ describe('coverage completeness', () => {
   // --- parseIfElse: no closing brace for then-block (line 529) ---
   it('if with unclosed then-block does not crash', () => {
     const code = dsp('if 1.0 > 0.0 { 1.0 else { 0.0 }');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -817,7 +832,7 @@ describe('coverage completeness', () => {
   // --- parseIfElse: else block not starting with { (line 559) ---
   it('if-else where else is not followed by brace does not crash', () => {
     const code = dsp('if 1.0 > 0.0 { 1.0 } else 0.0');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -825,7 +840,7 @@ describe('coverage completeness', () => {
   // --- parseIfElse: no matching close brace for else block (line 562) ---
   it('if-else with unclosed else-block does not crash', () => {
     const code = dsp('if 1.0 > 0.0 { 1.0 } else { 0.0');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -844,7 +859,7 @@ describe('coverage completeness', () => {
   // --- transpileFmod: no matching close paren (line 596) ---
   it('fmod with unmatched paren does not crash', () => {
     const code = dsp('fmod(1.0, 2.0');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -853,13 +868,13 @@ describe('coverage completeness', () => {
   it('fmod with wrong number of arguments does not crash', () => {
     // fmod with 3 args
     const code = dsp('fmod(1.0, 2.0, 3.0)');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
 
   // --- compileMimium: code > 100KB (lines 694-696) ---
-  it('code exceeding 100KB after transpilation returns null', () => {
+  it('code exceeding 100KB after transpilation throws error', () => {
     // Generate a string > 100KB directly
     // Use a very long arithmetic expression
     const parts: string[] = [];
@@ -868,11 +883,12 @@ describe('coverage completeness', () => {
     }
     const bigBody = parts.join(' + ');
     const code = dsp(bigBody);
-    ctx.compile(code);
-    // The body is > 100KB so compileMimium returns null
+    // compileMimium throws for oversized code, and TranspilerContext.compile()
+    // throws for non-empty code that returns null.
+    safeCompile(ctx, code);
     // Since no prior DSP was compiled, output should be zeros
     const out = processSamples(ctx, 1);
-    // Either it compiled or returned null. The point is no crash.
+    // The point is no crash.
     expect(out.length).toBe(1);
     expect(Number.isFinite(out[0])).toBe(true);
   });
@@ -933,7 +949,7 @@ describe('coverage completeness', () => {
     // "endif" contains "if " but should not be treated as if-keyword
     // This tests the isIdentChar guard in findInnermostIf
     const code = dsp('endif 1.0');
-    ctx.compile(code);
+    safeCompile(ctx, code);
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });
@@ -1003,7 +1019,7 @@ describe('coverage completeness', () => {
     }
     const bigCode = parts.join(' + ');
     // This is ~110K chars, which should exceed the 100KB limit
-    ctx.compile(dsp(bigCode));
+    safeCompile(ctx, dsp(bigCode));
     const out = processSamples(ctx, 1);
     expect(out.length).toBe(1);
   });

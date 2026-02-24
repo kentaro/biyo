@@ -36,7 +36,7 @@ describe('analyzeWorkspace', () => {
       expect(ids(result)).toEqual(['source_no_effect', 'source_no_rhythm']);
     });
 
-    it('works with every source type', () => {
+    it('works with every source type including microphone', () => {
       const sourceTypes = [
         'biyo_sine',
         'biyo_saw',
@@ -48,6 +48,7 @@ describe('analyzeWorkspace', () => {
         'biyo_kick',
         'biyo_hihat',
         'biyo_pluck',
+        'biyo_microphone',
       ];
       for (const src of sourceTypes) {
         const result = analyzeWorkspace([src]);
@@ -55,6 +56,11 @@ describe('analyzeWorkspace', () => {
         // First suggestion should always be source_no_effect for a lone source
         expect(result[0].id).toBe('source_no_effect');
       }
+    });
+
+    it('detects microphone as a source', () => {
+      const result = analyzeWorkspace(['biyo_microphone']);
+      expect(ids(result)).toEqual(['source_no_effect', 'source_no_rhythm']);
     });
   });
 
@@ -157,7 +163,7 @@ describe('analyzeWorkspace', () => {
       expect(ids(result)).toEqual(['source_no_effect', 'rhythm_no_effect']);
     });
 
-    it('suggests delay for all rhythm types', () => {
+    it('suggests delay for all rhythm types including generative', () => {
       const rhythmTypes = [
         'biyo_metro',
         'biyo_sequencer',
@@ -165,6 +171,11 @@ describe('analyzeWorkspace', () => {
         'biyo_drum_pattern',
         'biyo_bpm',
         'biyo_envelope',
+        // Generative blocks also count as rhythm
+        'biyo_random_melody',
+        'biyo_euclidean',
+        'biyo_lfo_random',
+        'biyo_probability',
       ];
       for (const r of rhythmTypes) {
         const result = analyzeWorkspace(['biyo_sine', r]);
@@ -428,6 +439,47 @@ describe('analyzeWorkspace', () => {
     });
   });
 
+  // ── Generative blocks as rhythm ─────────────────────────────
+  describe('generative blocks count as rhythm', () => {
+    it('treats random_melody as rhythm', () => {
+      const result = analyzeWorkspace(['biyo_sine', 'biyo_random_melody']);
+      // source + rhythm → source_no_effect (1) + rhythm_no_effect (4)
+      expect(ids(result)).toEqual(['source_no_effect', 'rhythm_no_effect']);
+      // Should NOT suggest source_no_rhythm since generative counts as rhythm
+      expect(ids(result)).not.toContain('source_no_rhythm');
+    });
+
+    it('treats euclidean as rhythm', () => {
+      const result = analyzeWorkspace(['biyo_sine', 'biyo_euclidean']);
+      expect(ids(result)).not.toContain('source_no_rhythm');
+    });
+
+    it('treats lfo_random as rhythm', () => {
+      const result = analyzeWorkspace(['biyo_sine', 'biyo_lfo_random']);
+      expect(ids(result)).not.toContain('source_no_rhythm');
+    });
+
+    it('treats probability as rhythm', () => {
+      const result = analyzeWorkspace(['biyo_sine', 'biyo_probability']);
+      expect(ids(result)).not.toContain('source_no_rhythm');
+    });
+
+    it('suggests drums when source + effect + generative but no drum_pattern', () => {
+      const result = analyzeWorkspace(['biyo_sine', 'biyo_reverb', 'biyo_random_melody']);
+      expect(ids(result)).toEqual(['add_drums', 'try_preset']);
+    });
+
+    it('suggests new track with generative completing the chain', () => {
+      const result = analyzeWorkspace([
+        'biyo_sine',
+        'biyo_reverb',
+        'biyo_random_melody',
+        'biyo_drum_pattern',
+      ]);
+      expect(ids(result)).toContain('complete_add_track');
+    });
+  });
+
   // ── No duplicate suggestions ─────────────────────────────────
   describe('no duplicate suggestions', () => {
     it('never returns duplicate suggestion IDs', () => {
@@ -440,6 +492,11 @@ describe('analyzeWorkspace', () => {
         ['biyo_sine', 'biyo_reverb', 'biyo_sequencer', 'biyo_drum_pattern'],
         ['biyo_piano_note'],
         ['biyo_piano_note', 'biyo_chord'],
+        ['biyo_microphone'],
+        ['biyo_microphone', 'biyo_reverb'],
+        ['biyo_sine', 'biyo_random_melody'],
+        ['biyo_sine', 'biyo_reverb', 'biyo_euclidean'],
+        ['biyo_sine', 'biyo_reverb', 'biyo_random_melody', 'biyo_drum_pattern'],
       ];
       for (const blocks of scenarios) {
         const result = analyzeWorkspace(blocks);

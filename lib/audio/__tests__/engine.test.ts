@@ -643,4 +643,217 @@ describe('AudioEngine', () => {
       expect(audioEngine.getMaxSafeGain()).toBe(0.5);
     });
   });
+
+  // -----------------------------------------------------------------------
+  // Graceful error handling (mobile autoplay policy, unavailable audio)
+  // -----------------------------------------------------------------------
+  describe('graceful error handling', () => {
+    it('init() handles AudioContext constructor throwing', async () => {
+      vi.resetModules();
+
+      // Make AudioContext throw (e.g., audio system unavailable)
+      const ThrowingCtor = vi.fn(function ThrowingAudioContext() {
+        throw new Error('Audio system unavailable');
+      });
+      (globalThis as Record<string, unknown>).AudioContext = ThrowingCtor;
+
+      const mod = await import('../engine');
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      // Should NOT throw -- fails gracefully
+      await mod.audioEngine.init();
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to create AudioContext'),
+      );
+      // Context should remain null
+      expect(mod.audioEngine.getAudioContext()).toBeNull();
+      expect(mod.audioEngine.getAnalyser()).toBeNull();
+
+      warnSpy.mockRestore();
+    });
+
+    it('init() handles suspend() rejecting gracefully', async () => {
+      vi.resetModules();
+
+      const rejectingSuspend = vi.fn(() => Promise.reject(new Error('suspend failed')));
+      const Ctor = vi.fn(function MockAudioContext2(this: Record<string, unknown>) {
+        Object.defineProperty(this, 'state', { get: () => 'running' });
+        Object.defineProperty(this, 'currentTime', { get: () => 0 });
+        Object.defineProperty(this, 'sampleRate', { get: () => 48000 });
+        this.destination = {};
+        this.createScriptProcessor = vi.fn(() => createMockScriptProcessorNode());
+        this.createAnalyser = vi.fn(() => createMockAnalyserNode());
+        this.createGain = vi.fn(() => createMockGainNode());
+        this.createDynamicsCompressor = vi.fn(() => createMockDynamicsCompressorNode());
+        this.suspend = rejectingSuspend;
+        this.resume = vi.fn(() => Promise.resolve());
+      });
+      (globalThis as Record<string, unknown>).AudioContext = Ctor;
+
+      const mod = await import('../engine');
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      // Should NOT throw -- handles reject gracefully
+      await mod.audioEngine.init();
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to suspend AudioContext during init'),
+      );
+
+      warnSpy.mockRestore();
+    });
+
+    it('play() handles resume() rejecting gracefully (mobile autoplay policy)', async () => {
+      await audioEngine.init();
+
+      // Make resume reject (mobile autoplay policy blocks it)
+      mockResume.mockImplementation(() => Promise.reject(new Error('Not allowed')));
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      // Should NOT throw
+      await audioEngine.play();
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to resume AudioContext'),
+      );
+
+      warnSpy.mockRestore();
+    });
+
+    it('stop() handles suspend() rejecting gracefully', async () => {
+      await audioEngine.init();
+      mockContextState = 'running';
+
+      // Make suspend reject
+      mockSuspend.mockImplementation(() => Promise.reject(new Error('suspend failed')));
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const stopPromise = audioEngine.stop();
+      await vi.advanceTimersByTimeAsync(60);
+      // Should NOT throw
+      await stopPromise;
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to suspend AudioContext during stop'),
+      );
+
+      warnSpy.mockRestore();
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // dispose()
+  // -----------------------------------------------------------------------
+  describe('dispose()', () => {
+    it('disconnects all nodes and closes the AudioContext', async () => {
+      await audioEngine.init();
+      mockContextState = 'running';
+
+      // Add a mock close method
+      const mockClose = vi.fn(() => {
+        mockContextState = 'closed';
+        return Promise.resolve();
+      });
+      const ctx = audioEngine.getAudioContext() as unknown as Record<string, unknown>;
+      ctx.close = mockClose;
+
+      const disposePromise = audioEngine.dispose();
+      await vi.advanceTimersByTimeAsync(60);
+      await disposePromise;
+
+      // All nodes should have been disconnected
+      expect(mockScriptNode.disconnect).toHaveBeenCalled();
+      expect(
+        (mockAnalyser as unknown as { disconnect: ReturnType<typeof vi.fn> }).disconnect,
+      ).toHaveBeenCalled();
+      for (const node of createdGainNodes) {
+        expect(
+          (node as unknown as { disconnect: ReturnType<typeof vi.fn> }).disconnect,
+        ).toHaveBeenCalled();
+      }
+      expect(
+        (mockCompressorNode as unknown as { disconnect: ReturnType<typeof vi.fn> }).disconnect,
+      ).toHaveBeenCalled();
+
+      // AudioContext should have been closed
+      expect(mockClose).toHaveBeenCalled();
+
+      // All references should be nulled out
+      expect(audioEngine.getAudioContext()).toBeNull();
+      expect(audioEngine.getAnalyser()).toBeNull();
+      expect(audioEngine.getMicSafetyGain()).toBeNull();
+    });
+
+    it('can re-initialise after dispose', async () => {
+      await audioEngine.init();
+
+      const mockClose = vi.fn(() => {
+        mockContextState = 'closed';
+        return Promise.resolve();
+      });
+      const ctx = audioEngine.getAudioContext() as unknown as Record<string, unknown>;
+      ctx.close = mockClose;
+
+      const disposePromise = audioEngine.dispose();
+      await vi.advanceTimersByTimeAsync(60);
+      await disposePromise;
+
+      expect(audioEngine.getAudioContext()).toBeNull();
+
+      // Re-build the mock AudioContext for re-init
+      MockAudioContextCtor = buildMockAudioContextClass();
+      (globalThis as Record<string, unknown>).AudioContext = MockAudioContextCtor;
+
+      // Should be able to init again
+      await audioEngine.init();
+      expect(audioEngine.getAudioContext()).not.toBeNull();
+    });
+
+    it('handles dispose when context was never created', async () => {
+      // Should not throw
+      await audioEngine.dispose();
+      expect(audioEngine.getAudioContext()).toBeNull();
+    });
+
+    it('handles dispose when context is already suspended', async () => {
+      await audioEngine.init();
+      // Context is already suspended from init
+
+      const mockClose = vi.fn(() => {
+        mockContextState = 'closed';
+        return Promise.resolve();
+      });
+      const ctx = audioEngine.getAudioContext() as unknown as Record<string, unknown>;
+      ctx.close = mockClose;
+
+      // Should not try to fade out (context not running)
+      await audioEngine.dispose();
+
+      expect(mockClose).toHaveBeenCalled();
+      expect(audioEngine.getAudioContext()).toBeNull();
+    });
+
+    it('handles close() rejecting gracefully', async () => {
+      await audioEngine.init();
+
+      const mockClose = vi.fn(() => Promise.reject(new Error('close failed')));
+      const ctx = audioEngine.getAudioContext() as unknown as Record<string, unknown>;
+      ctx.close = mockClose;
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      // Should NOT throw
+      await audioEngine.dispose();
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to close AudioContext during dispose'),
+      );
+      expect(audioEngine.getAudioContext()).toBeNull();
+
+      warnSpy.mockRestore();
+    });
+  });
 });

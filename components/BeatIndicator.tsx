@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePlaybackStore } from '@/lib/stores/playback';
 
 /**
@@ -16,17 +16,65 @@ const CATEGORY_COLORS = [
 ];
 
 /**
+ * Compute the beat-pulse transform & opacity from a normalised beat phase [0,1).
+ *
+ * The curve mimics the CSS @keyframes beat-pulse:
+ *   0%   -> scale(1),    opacity 1
+ *   30%  -> scale(1.35), opacity 0.85
+ *   100% -> scale(1),    opacity 0.6
+ *
+ * Using JS instead of CSS animation keeps the pulse, color change,
+ * and beat timing on the same requestAnimationFrame clock,
+ * preventing drift between independent CSS-animation and setInterval clocks.
+ */
+function beatTransform(phase: number): { scale: number; opacity: number } {
+  if (phase < 0.3) {
+    // 0 -> 0.3: scale 1 -> 1.35, opacity 1 -> 0.85
+    const t = phase / 0.3;
+    return {
+      scale: 1 + 0.35 * t,
+      opacity: 1 - 0.15 * t,
+    };
+  }
+  // 0.3 -> 1: scale 1.35 -> 1, opacity 0.85 -> 0.6
+  const t = (phase - 0.3) / 0.7;
+  return {
+    scale: 1.35 - 0.35 * t,
+    opacity: 0.85 - 0.25 * t,
+  };
+}
+
+/**
  * A small pulsing ring that beats in sync with the current BPM.
  * Visible only during playback. Shows BPM text on hover.
  * Respects prefers-reduced-motion with a static glow fallback.
+ *
+ * Timing strategy: A single requestAnimationFrame loop drives both
+ * the pulse animation and the color cycling from one timestamp-based
+ * beat clock. This avoids:
+ *   - setInterval drift (accumulates over long playback sessions)
+ *   - Desync between CSS animation clock and JS interval clock
+ *   - Unnecessary React state re-renders (we mutate the DOM directly via ref)
  */
 export default function BeatIndicator() {
   const isPlaying = usePlaybackStore((s) => s.isPlaying);
   const bpm = usePlaybackStore((s) => s.bpm);
   const [hovered, setHovered] = useState(false);
-  const [colorIndex, setColorIndex] = useState(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // DOM ref for the pulsing ring - we mutate style directly to avoid re-renders
+  const ringRef = useRef<HTMLSpanElement>(null);
+
+  // Mutable refs for the rAF loop (no re-renders on change)
+  const rafRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0);
+  const bpmRef = useRef(bpm);
+  const colorIndexRef = useRef(0);
+
+  // Keep bpmRef in sync without re-starting the loop
+  useEffect(() => {
+    bpmRef.current = bpm;
+  }, [bpm]);
 
   // Detect prefers-reduced-motion
   useEffect(() => {
@@ -37,35 +85,65 @@ export default function BeatIndicator() {
     return () => mql.removeEventListener('change', handler);
   }, []);
 
-  // Cycle colors on each beat interval
-  const beatMs = (60 / bpm) * 1000;
-
-  const advanceColor = useCallback(() => {
-    setColorIndex((prev) => (prev + 1) % CATEGORY_COLORS.length);
-  }, []);
-
+  // Main rAF beat loop
   useEffect(() => {
     if (!isPlaying) {
-      setColorIndex(0);
+      colorIndexRef.current = 0;
+      // Reset ring styles when stopping
+      if (ringRef.current) {
+        ringRef.current.style.transform = 'scale(1)';
+        ringRef.current.style.opacity = '1';
+        ringRef.current.style.borderColor = CATEGORY_COLORS[0];
+      }
       return;
     }
 
-    // Advance color immediately on start, then on each beat
-    advanceColor();
-    intervalRef.current = setInterval(advanceColor, beatMs);
+    startTimeRef.current = 0;
+    colorIndexRef.current = 0;
+    let lastBeatIndex = -1;
+
+    const tick = (timestamp: number) => {
+      if (startTimeRef.current === 0) {
+        startTimeRef.current = timestamp;
+      }
+
+      const elapsed = timestamp - startTimeRef.current;
+      const currentBpm = bpmRef.current;
+      const beatMs = (60 / currentBpm) * 1000;
+
+      // Which beat are we on (integer index) and how far through it (0..1)
+      const beatIndex = Math.floor(elapsed / beatMs);
+      const phase = (elapsed % beatMs) / beatMs;
+
+      // Advance color on each new beat
+      if (beatIndex !== lastBeatIndex) {
+        lastBeatIndex = beatIndex;
+        colorIndexRef.current = beatIndex % CATEGORY_COLORS.length;
+      }
+
+      // Update DOM directly (no React state = no re-render)
+      const ring = ringRef.current;
+      if (ring) {
+        const { scale, opacity } = beatTransform(phase);
+        ring.style.transform = `scale(${scale})`;
+        ring.style.opacity = String(opacity);
+        ring.style.borderColor = CATEGORY_COLORS[colorIndexRef.current];
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = 0;
       }
     };
-  }, [isPlaying, beatMs, advanceColor]);
+  }, [isPlaying]);
 
   if (!isPlaying) return null;
-
-  const currentColor = CATEGORY_COLORS[colorIndex];
-  const beatDuration = `${60 / bpm}s`;
 
   return (
     <output
@@ -82,22 +160,20 @@ export default function BeatIndicator() {
       }}
       aria-label={`はやさ ${bpm}`}
     >
-      {/* Pulsing ring */}
+      {/* Pulsing ring — animated via rAF, not CSS animation */}
       <span
+        ref={ringRef}
         className="beat-indicator-ring"
         style={{
           display: 'block',
           width: 14,
           height: 14,
           borderRadius: 'var(--r-full)',
-          border: `2.5px solid ${currentColor}`,
+          border: '2.5px solid var(--c-source)',
           background: 'transparent',
-          boxShadow: prefersReducedMotion ? `0 0 8px ${currentColor}` : undefined,
-          animationName: prefersReducedMotion ? undefined : 'beat-pulse',
-          animationDuration: prefersReducedMotion ? undefined : beatDuration,
-          animationTimingFunction: 'ease-out',
-          animationIterationCount: 'infinite',
-          transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
+          boxShadow: prefersReducedMotion ? 'var(--shadow-sm)' : undefined,
+          // No CSS animation — rAF handles transform, opacity, and border-color
+          willChange: 'transform, opacity, border-color',
         }}
         aria-hidden="true"
       />
@@ -110,7 +186,7 @@ export default function BeatIndicator() {
             top: '100%',
             left: '50%',
             transform: 'translateX(-50%)',
-            marginTop: 4,
+            marginTop: 'var(--sp-1)',
             fontFamily: 'var(--font-main)',
             fontSize: 'var(--fs-xs)',
             fontWeight: 700,
@@ -118,7 +194,7 @@ export default function BeatIndicator() {
             background: 'var(--c-surface)',
             border: '1px solid var(--c-border)',
             borderRadius: 'var(--r-sm)',
-            padding: '2px 6px',
+            padding: 'var(--sp-half) var(--sp-2)',
             whiteSpace: 'nowrap',
             boxShadow: 'var(--shadow-sm)',
             zIndex: 10,
@@ -126,7 +202,7 @@ export default function BeatIndicator() {
             animation: 'fadeIn 0.15s ease-out both',
           }}
         >
-          {bpm} BPM
+          はやさ {bpm}
         </span>
       )}
     </output>

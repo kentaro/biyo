@@ -131,7 +131,62 @@ function getBlockColor(blockType: string): string {
 function getDefaultParticleColor(): string {
   return getResolvedColors().source;
 }
-const MAX_PARTICLES = 20;
+
+// Cached text-inverse color (white dot at particle center)
+let _cachedTextInverse: string | null = null;
+function getTextInverseColor(): string {
+  if (!_cachedTextInverse) {
+    _cachedTextInverse = getCssVar('--c-text-inverse') || '#fff';
+  }
+  return _cachedTextInverse;
+}
+
+/**
+ * Convert a color value to an rgba() string with the given alpha.
+ * Handles hex (#rgb, #rrggbb, #rrggbbaa) and falls back to canvas parsing.
+ */
+function colorWithAlpha(color: string, alpha: number): string {
+  // Fast path for 6-digit hex
+  const hex6 = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(color);
+  if (hex6) {
+    return `rgba(${Number.parseInt(hex6[1], 16)},${Number.parseInt(hex6[2], 16)},${Number.parseInt(hex6[3], 16)},${alpha})`;
+  }
+  // 3-digit hex
+  const hex3 = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i.exec(color);
+  if (hex3) {
+    const r = Number.parseInt(hex3[1] + hex3[1], 16);
+    const g = Number.parseInt(hex3[2] + hex3[2], 16);
+    const b = Number.parseInt(hex3[3] + hex3[3], 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+  // Fallback: use a temporary canvas to parse the color
+  if (typeof document !== 'undefined') {
+    const tmp = document.createElement('canvas');
+    tmp.width = tmp.height = 1;
+    const tctx = tmp.getContext('2d');
+    if (tctx) {
+      tctx.fillStyle = color;
+      tctx.fillRect(0, 0, 1, 1);
+      const [r, g, b] = tctx.getImageData(0, 0, 1, 1).data;
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+  }
+  return color;
+}
+
+/** Check if user prefers reduced motion (cached per session) */
+let _prefersReducedMotion: boolean | null = null;
+function prefersReducedMotion(): boolean {
+  if (_prefersReducedMotion === null) {
+    _prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  return _prefersReducedMotion;
+}
+
+const MAX_PARTICLES_GLOBAL = 100; // absolute upper bound
+const MAX_PARTICLES_PER_EDGE = 3; // at most 3 concurrent per edge
 const PARTICLE_SPEED = 0.008; // progress per frame (0..1)
 const PARTICLE_RADIUS = 4;
 const PARTICLE_SPAWN_INTERVAL = 18; // frames between spawns per edge
@@ -228,6 +283,20 @@ function SignalFlowOverlay({
   const particlesRef = useRef<Particle[]>([]);
   const frameCountRef = useRef(0);
   const cachedEdgesRef = useRef<ConnectionEdge[]>([]);
+  const spawnIndexRef = useRef(0); // round-robin spawn index
+
+  // Listen for reduced-motion preference changes at runtime
+  const reducedMotionRef = useRef(prefersReducedMotion());
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = (e: MediaQueryListEvent) => {
+      reducedMotionRef.current = e.matches;
+      _prefersReducedMotion = e.matches;
+    };
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -239,6 +308,7 @@ function SignalFlowOverlay({
       particlesRef.current = [];
       cachedEdgesRef.current = [];
       frameCountRef.current = 0;
+      spawnIndexRef.current = 0;
       const canvas = canvasRef.current;
       if (canvas) {
         const ctx = canvas.getContext('2d');
@@ -287,21 +357,68 @@ function SignalFlowOverlay({
       }
 
       const edges = cachedEdgesRef.current;
+      const canvasRect = canvas.getBoundingClientRect();
 
-      // Spawn new particles at regular intervals
-      if (edges.length > 0 && frame % PARTICLE_SPAWN_INTERVAL === 0) {
+      // --- Reduced-motion: static indicators only, no animated particles ---
+      if (reducedMotionRef.current) {
         for (const edge of edges) {
-          if (particlesRef.current.length >= MAX_PARTICLES) break;
-          particlesRef.current.push({
-            edge,
-            t: 0,
-            radius: PARTICLE_RADIUS + (Math.random() - 0.5) * 2,
-          });
+          const src = wsToPixel(edge.srcX, edge.srcY, workspace, canvasRect);
+          const dst = wsToPixel(edge.dstX, edge.dstY, workspace, canvasRect);
+
+          // Connection line
+          ctx.beginPath();
+          ctx.moveTo(src.px, src.py);
+          ctx.lineTo(dst.px, dst.py);
+          ctx.strokeStyle = colorWithAlpha(edge.color, 0.25);
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Static dot at midpoint to indicate signal flow
+          const mx = (src.px + dst.px) / 2;
+          const my = (src.py + dst.py) / 2;
+          ctx.beginPath();
+          ctx.arc(mx, my, PARTICLE_RADIUS, 0, Math.PI * 2);
+          ctx.fillStyle = colorWithAlpha(edge.color, 0.6);
+          ctx.fill();
         }
+        animRef.current = requestAnimationFrame(animate);
+        return;
       }
 
-      // Update and draw particles
-      const canvasRect = canvas.getBoundingClientRect();
+      // --- Full animation mode ---
+
+      // Scale max particles based on edge count to keep perf in check
+      const maxParticles = Math.min(
+        MAX_PARTICLES_GLOBAL,
+        Math.max(6, edges.length * MAX_PARTICLES_PER_EDGE),
+      );
+
+      // Spawn new particles using round-robin to distribute fairly across edges
+      if (edges.length > 0 && frame % PARTICLE_SPAWN_INTERVAL === 0) {
+        const edgeParticleCounts = new Map<ConnectionEdge, number>();
+        for (const p of particlesRef.current) {
+          edgeParticleCounts.set(p.edge, (edgeParticleCounts.get(p.edge) ?? 0) + 1);
+        }
+
+        const startIdx = spawnIndexRef.current;
+        for (let i = 0; i < edges.length; i++) {
+          if (particlesRef.current.length >= maxParticles) break;
+          const idx = (startIdx + i) % edges.length;
+          const edge = edges[idx];
+          const count = edgeParticleCounts.get(edge) ?? 0;
+          if (count < MAX_PARTICLES_PER_EDGE) {
+            particlesRef.current.push({
+              edge,
+              t: 0,
+              radius: PARTICLE_RADIUS + (Math.random() - 0.5) * 2,
+            });
+          }
+        }
+        spawnIndexRef.current = (startIdx + 1) % Math.max(1, edges.length);
+      }
+
+      // Cache the text-inverse color outside the per-particle loop
+      const textInverse = getTextInverseColor();
       const alive: Particle[] = [];
       for (const p of particlesRef.current) {
         p.t += PARTICLE_SPEED;
@@ -330,10 +447,10 @@ function SignalFlowOverlay({
         // Pulsing alpha for liveliness
         const alpha = 0.6 + 0.4 * Math.sin(t * Math.PI);
 
-        // Draw glow
+        // Draw glow (using proper rgba for reliable color parsing)
         ctx.beginPath();
         ctx.arc(xFinal, yFinal, p.radius * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = `${p.edge.color}20`; // very transparent glow
+        ctx.fillStyle = colorWithAlpha(p.edge.color, 0.125);
         ctx.fill();
 
         // Draw particle
@@ -346,7 +463,7 @@ function SignalFlowOverlay({
         // Draw bright center
         ctx.beginPath();
         ctx.arc(xFinal, yFinal, p.radius * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = getCssVar('--c-text-inverse') || '#fff';
+        ctx.fillStyle = textInverse;
         ctx.globalAlpha = alpha * 0.8;
         ctx.fill();
 
@@ -365,7 +482,7 @@ function SignalFlowOverlay({
           ctx.beginPath();
           ctx.moveTo(src.px, src.py);
           ctx.lineTo(dst.px, dst.py);
-          ctx.strokeStyle = `${edge.color}18`; // very subtle
+          ctx.strokeStyle = colorWithAlpha(edge.color, 0.094);
           ctx.lineWidth = 2;
           ctx.stroke();
         }
@@ -537,7 +654,7 @@ function MicPermissionDialog({
                 fontFamily: 'var(--font-main)',
               }}
             >
-              OK
+              わかった
             </button>
           )}
         </div>
@@ -717,68 +834,66 @@ function BlockEditorInner() {
     const initialToolbox = getToolboxForLevel(currentLevel);
 
     // Set Japanese locale for Blockly context menu (child-friendly hiragana)
+    // Only override Msg keys for items we keep visible in the context menu.
     Blockly.Msg['DELETE_BLOCK'] = 'ブロックをけす';
     Blockly.Msg['DELETE_X_BLOCKS'] = '%1このブロックをけす';
     Blockly.Msg['DELETE_ALL_BLOCKS'] = 'ぜんぶのブロックをけす (%1こ)';
     Blockly.Msg['DUPLICATE_BLOCK'] = 'ブロックをコピーする';
-    Blockly.Msg['ADD_COMMENT'] = 'メモをつける';
-    Blockly.Msg['REMOVE_COMMENT'] = 'メモをけす';
-    Blockly.Msg['EXTERNAL_INPUTS'] = 'そとがわにいれる';
-    Blockly.Msg['INLINE_INPUTS'] = 'よこにならべる';
-    Blockly.Msg['COLLAPSE_BLOCK'] = 'ブロックをたたむ';
-    Blockly.Msg['EXPAND_BLOCK'] = 'ブロックをひらく';
-    Blockly.Msg['DISABLE_BLOCK'] = 'ブロックをおやすみ';
-    Blockly.Msg['ENABLE_BLOCK'] = 'ブロックをおこす';
-    Blockly.Msg['HELP'] = 'ヘルプ';
     Blockly.Msg['UNDO'] = 'もどす';
     Blockly.Msg['REDO'] = 'やりなおす';
     Blockly.Msg['CLEAN_UP'] = 'ブロックをせいりする';
 
-    const workspace = Blockly.inject(containerRef.current, {
-      toolbox: initialToolbox,
-      theme: biyoTheme,
-      grid: {
-        spacing: 20,
-        length: 3,
-        colour: getCssVar('--c-blockly-grid') || '#e8e4f0',
-        snap: true,
-      },
-      zoom: {
-        controls: true,
-        wheel: true,
-        pinch: true,
-        startScale: isTouchDevice ? 0.85 : 0.9,
-        maxScale: 3,
-        minScale: 0.3,
-        scaleSpeed: 1.2,
-      },
-      trashcan: true,
-      move: { scrollbars: true, drag: true, wheel: true },
-      renderer: 'zelos',
-      sounds: false,
-    });
-
-    // Simplify context menu for children: remove confusing options
-    workspace.configureContextMenu = (menuOptions, _e) => {
-      const removeTexts = new Set([
-        Blockly.Msg['COLLAPSE_BLOCK'],
-        Blockly.Msg['EXPAND_BLOCK'],
-        Blockly.Msg['DISABLE_BLOCK'],
-        Blockly.Msg['ENABLE_BLOCK'],
-        Blockly.Msg['EXTERNAL_INPUTS'],
-        Blockly.Msg['INLINE_INPUTS'],
-        Blockly.Msg['ADD_COMMENT'],
-        Blockly.Msg['REMOVE_COMMENT'],
-        Blockly.Msg['HELP'],
-      ]);
-      // configureContextMenu mutates the array in-place
-      for (let i = menuOptions.length - 1; i >= 0; i--) {
-        const item = menuOptions[i];
-        if ('text' in item && typeof item.text === 'string' && removeTexts.has(item.text)) {
-          menuOptions.splice(i, 1);
-        }
+    // Remove confusing context menu items for children.
+    // Using ContextMenuRegistry.unregister() removes items globally from BOTH
+    // workspace-level (right-click on empty space) AND block-level (right-click
+    // on a block) context menus. The previous approach using
+    // workspace.configureContextMenu only filtered workspace-level menus.
+    const confusingMenuIds = [
+      'blockCollapseExpand', // Collapse/expand individual block
+      'blockDisable', // Disable/enable block
+      'blockInline', // External/inline inputs
+      'blockComment', // Add/remove comment
+      'blockHelp', // Help (no help pages configured)
+      'collapseWorkspace', // Collapse all blocks (workspace menu)
+      'expandWorkspace', // Expand all blocks (workspace menu)
+    ];
+    const registry = Blockly.ContextMenuRegistry.registry;
+    for (const id of confusingMenuIds) {
+      if (registry.getItem(id)) {
+        registry.unregister(id);
       }
-    };
+    }
+
+    let workspace: Blockly.WorkspaceSvg;
+    try {
+      workspace = Blockly.inject(containerRef.current, {
+        toolbox: initialToolbox,
+        theme: biyoTheme,
+        grid: {
+          spacing: 20,
+          length: 3,
+          colour: getCssVar('--c-blockly-grid') || '#e8e4f0',
+          snap: true,
+        },
+        zoom: {
+          controls: true,
+          wheel: true,
+          pinch: true,
+          startScale: isTouchDevice ? 0.85 : 0.9,
+          maxScale: 3,
+          minScale: 0.3,
+          scaleSpeed: 1.2,
+        },
+        trashcan: true,
+        move: { scrollbars: true, drag: true, wheel: true },
+        renderer: 'zelos',
+        sounds: false,
+      });
+    } catch (e) {
+      console.error('[BlockEditor] Blockly.inject failed:', e);
+      setStatus('error');
+      return;
+    }
 
     // On touch devices, increase block text size for easier reading
     if (isTouchDevice) {
@@ -789,6 +904,28 @@ function BlockEditorInner() {
         size: 16,
       });
       workspace.setTheme(theme);
+    }
+
+    // Monkey-patch trashcan's setLidOpen to toggle a CSS class.
+    // Blockly's .blocklyDragging class is on the dragged *block*, not on a
+    // parent of the trashcan, so we cannot use `.blocklyDragging .blocklyTrash`
+    // in CSS. Instead we add/remove `.blocklyTrashLidOpen` on the trashcan's
+    // SVG group element when the lid opens/closes (triggered by onDragOver/onDragExit).
+    const trashcan = workspace.trashcan;
+    if (trashcan) {
+      const origSetLidOpen = trashcan.setLidOpen.bind(trashcan);
+      trashcan.setLidOpen = (state: boolean) => {
+        origSetLidOpen(state);
+        // Access the SVG group via the trashcan's DOM
+        const svgGroup = (trashcan as unknown as { svgGroup?: SVGElement }).svgGroup;
+        if (svgGroup) {
+          if (state) {
+            svgGroup.classList.add('blocklyTrashLidOpen');
+          } else {
+            svgGroup.classList.remove('blocklyTrashLidOpen');
+          }
+        }
+      };
     }
 
     workspaceRef.current = workspace;
@@ -844,8 +981,9 @@ function BlockEditorInner() {
         }
 
         setIsEmpty(false);
-      } catch {
-        // invalid XML
+      } catch (e) {
+        console.warn('[BlockEditor] Append XML parse error:', e);
+        setStatus('error');
       }
       justAppendedRef.current = true;
       clearPendingAppend();
@@ -868,8 +1006,8 @@ function BlockEditorInner() {
       try {
         const xml = Blockly.utils.xml.textToDom(track.workspaceXml);
         Blockly.Xml.domToWorkspace(xml, workspace);
-      } catch {
-        // invalid XML
+      } catch (e) {
+        console.warn('[BlockEditor] Track XML parse error:', e);
       }
     }
 

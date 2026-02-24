@@ -113,7 +113,9 @@ export const toolbox = {
   ],
 };
 
-// ---- Beginner toolbox: only 6 essential blocks, simplified categories ----
+// ---- Beginner toolbox: ~12 blocks across 3 categories ----
+// Enough to make interesting sounds immediately: basic sources, a few effects,
+// and fun presets that reward experimentation.
 
 const beginnerToolbox = {
   kind: 'categoryToolbox',
@@ -126,6 +128,7 @@ const beginnerToolbox = {
         { kind: 'block', type: 'biyo_sine' },
         { kind: 'block', type: 'biyo_square' },
         { kind: 'block', type: 'biyo_noise' },
+        { kind: 'block', type: 'biyo_piano_note' },
       ],
     },
     {
@@ -138,10 +141,26 @@ const beginnerToolbox = {
         { kind: 'block', type: 'biyo_distortion' },
       ],
     },
+    {
+      kind: 'category',
+      name: '\uD83C\uDFAA \u304A\u305F\u306E\u3057\u307F',
+      colour: '#B050B0',
+      contents: [
+        { kind: 'block', type: 'biyo_ghost' },
+        { kind: 'block', type: 'biyo_siren' },
+        { kind: 'block', type: 'biyo_laser' },
+        { kind: 'block', type: 'biyo_water_drop' },
+        { kind: 'block', type: 'biyo_thunder' },
+      ],
+    },
   ],
 };
 
-// ---- Intermediate toolbox: all sources, all effects, basic rhythm ----
+// ---- Intermediate toolbox: more sources, all effects, rhythm, presets, basic notes ----
+// Unlocks the full sound palette: all wave types, percussion, all effects,
+// rhythm/sequencing, all fun presets, and basic note/chord blocks.
+// Does NOT include: generative blocks, advanced notes (scale, arpeggio),
+// melody sequencer, or utility blocks -- those are reserved for advanced.
 
 const intermediateToolbox = {
   kind: 'categoryToolbox',
@@ -225,38 +244,15 @@ const intermediateToolbox = {
         { kind: 'block', type: 'biyo_snare' },
       ],
     },
-    {
-      kind: 'category',
-      name: '\uD83C\uDFB2 \u305D\u3046\u305E\u3046',
-      colour: '#7060E0',
-      contents: [
-        { kind: 'block', type: 'biyo_random_melody' },
-        { kind: 'block', type: 'biyo_euclidean' },
-        { kind: 'block', type: 'biyo_lfo_random' },
-        { kind: 'block', type: 'biyo_probability' },
-      ],
-    },
-    {
-      kind: 'category',
-      name: '\uD83D\uDD27 \u3079\u3093\u308A',
-      colour: '#9F6A08',
-      contents: [
-        { kind: 'block', type: 'biyo_mix' },
-        { kind: 'block', type: 'biyo_multiply' },
-        { kind: 'block', type: 'biyo_number' },
-        { kind: 'block', type: 'biyo_invert' },
-        { kind: 'block', type: 'biyo_passthrough' },
-      ],
-    },
   ],
 };
 
 /**
  * Returns the appropriate Blockly toolbox definition based on experience level.
  *
- * - beginner: 6 blocks only (sine, square, noise + reverb, delay, distortion)
- * - intermediate: All sources, all effects, basic rhythm, basic notes, presets, utility
- * - advanced: Everything including scale, arpeggio, melody
+ * - beginner:     12 blocks in 3 categories (basic sources + piano, 3 effects, 5 fun presets)
+ * - intermediate: 44 blocks in 5 categories (all sources, all effects, rhythm, notes, all presets)
+ * - advanced:     56 blocks in 7 categories (everything: generative, scale, arpeggio, melody, utility)
  */
 export function getToolboxForLevel(level: ExperienceLevel) {
   switch (level) {

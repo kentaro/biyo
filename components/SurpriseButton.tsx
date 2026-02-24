@@ -292,6 +292,9 @@ export default function SurpriseButton({ onSurprise }: SurpriseButtonProps) {
         boxShadow: 'var(--shadow-btn)',
         position: 'relative',
         overflow: 'hidden',
+        minHeight: 44,
+        display: 'flex',
+        alignItems: 'center',
       }}
     >
       おまかせ &#x2728;

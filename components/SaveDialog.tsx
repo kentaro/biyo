@@ -19,7 +19,7 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  const { projects, loadProjectList, saveProject, deleteProject, exportAsFile, importFromFile } =
+  const { projects, saveError, loadProjectList, saveProject, deleteProject, exportAsFile, importFromFile } =
     useProjectStore();
   const tracks = useTrackStore((s) => s.tracks);
   const bpm = usePlaybackStore((s) => s.bpm);
@@ -60,12 +60,13 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    setTimeout(
+    const focusTimer = setTimeout(
       () => dialogRef.current?.querySelector<HTMLElement>('input[type="text"]')?.focus(),
       50,
     );
 
     return () => {
+      clearTimeout(focusTimer);
       document.removeEventListener('keydown', handleKeyDown);
       previousFocusRef.current?.focus();
     };
@@ -337,6 +338,18 @@ export default function SaveDialog({ open, onClose, onLoadProject }: SaveDialogP
               }}
             >
               {importError}
+            </p>
+          )}
+          {saveError && (
+            <p
+              role="alert"
+              style={{
+                fontSize: 'var(--fs-xs)',
+                color: 'var(--c-error)',
+                margin: 'var(--sp-2) 0 0 0',
+              }}
+            >
+              {saveError}
             </p>
           )}
         </div>

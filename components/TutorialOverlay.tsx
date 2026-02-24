@@ -16,32 +16,47 @@ interface TutorialStep {
 const STEPS: TutorialStep[] = [
   {
     title: 'ブロックをえらぼう！',
-    text: 'ひだりのメニューから、ピンクのブロックをえらんでね！',
+    text: 'ひだりの「おと」メニューから、ピンクのブロックをえらんでね！',
+    hint: '「ピー」「プップー」「ザー」のなかから、すきなおとをえらぼう！',
     emoji: '👈',
     arrowDirection: 'left',
   },
   {
-    title: 'ワークスペースにおこう！',
-    text: 'まんなかのひろばにドラッグしてね！',
+    title: 'ひろばにおこう！',
+    text: 'えらんだブロックを、まんなかのひろばにドラッグしてね！',
     emoji: '✋',
     arrowDirection: 'center',
   },
   {
-    title: 'つなげてみよう！',
-    text: 'もうひとつブロックをえらんで、くっつけてね！',
-    hint: 'ピンクのおとブロックを、あおいエフェクトブロックにはめてみよう！',
-    emoji: '🧩',
-    arrowDirection: 'center',
-  },
-  {
     title: 'おとをならそう！',
-    text: '▶ボタンをおして、おとをきいてみよう！',
+    text: 'みぎうえの ▶ ボタンをおして、おとをきいてみよう！',
     emoji: '🔊',
     arrowDirection: 'right',
   },
   {
+    title: 'へんしんさせよう！',
+    text: 'ひだりの「へんしん」メニューから、あおいブロックをえらんでね！',
+    hint: '「おふろ」「やまびこ」「パリパリ」で、おとがかわるよ！',
+    emoji: '✨',
+    arrowDirection: 'left',
+  },
+  {
+    title: 'つなげてみよう！',
+    text: 'ピンクのおとブロックを、あおいへんしんブロックにはめてみよう！',
+    hint: 'ブロックのくぼみに、べつのブロックをドラッグしてくっつけるよ！',
+    emoji: '🧩',
+    arrowDirection: 'center',
+  },
+  {
+    title: 'おとのへやをふやそう！',
+    text: 'みぎの「おとのへや」の ＋ ボタンで、あたらしいへやをつくれるよ！',
+    hint: 'いくつものおとをかさねると、もっとすてきなおんがくになるよ！',
+    emoji: '🏠',
+    arrowDirection: 'right',
+  },
+  {
     title: 'できたね！',
-    text: 'すごい！じぶんだけのおんがくができたよ！',
+    text: 'すごい！じぶんだけのおんがくができたよ！\nいろんなブロックをためしてみてね！',
     emoji: '🎵',
     arrowDirection: 'none',
   },
@@ -55,6 +70,7 @@ interface TutorialOverlayProps {
 export default function TutorialOverlay({ onDismiss, onOpenSamples }: TutorialOverlayProps) {
   const [step, setStep] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
 
@@ -78,8 +94,10 @@ export default function TutorialOverlay({ onDismiss, onOpenSamples }: TutorialOv
     onOpenSamples();
   }, [onDismiss, onOpenSamples]);
 
-  // Escape key and focus trap
+  // Escape key, focus trap, and focus restore
   useEffect(() => {
+    previousFocusRef.current = document.activeElement as HTMLElement;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         handleFinish();
@@ -102,9 +120,14 @@ export default function TutorialOverlay({ onDismiss, onOpenSamples }: TutorialOv
       }
     };
     document.addEventListener('keydown', handleKeyDown);
-    setTimeout(() => cardRef.current?.querySelector<HTMLElement>('button')?.focus(), 50);
+    const focusTimer = setTimeout(
+      () => cardRef.current?.querySelector<HTMLElement>('button')?.focus(),
+      50,
+    );
     return () => {
+      clearTimeout(focusTimer);
       document.removeEventListener('keydown', handleKeyDown);
+      previousFocusRef.current?.focus();
     };
   }, [handleFinish]);
 
@@ -249,7 +272,7 @@ export default function TutorialOverlay({ onDismiss, onOpenSamples }: TutorialOv
           {current.arrowDirection !== 'none' && (
             <div
               style={{
-                fontSize: 36,
+                fontSize: 'var(--fs-xxl)',
                 marginBottom: 'var(--sp-2)',
                 lineHeight: 1,
               }}
@@ -276,7 +299,7 @@ export default function TutorialOverlay({ onDismiss, onOpenSamples }: TutorialOv
           {current.arrowDirection === 'none' && (
             <div
               className="tut-emoji-pulse"
-              style={{ fontSize: 48, marginBottom: 'var(--sp-2)', lineHeight: 1 }}
+              style={{ fontSize: 'var(--fs-emoji)', marginBottom: 'var(--sp-2)', lineHeight: 1 }}
             >
               {current.emoji}
             </div>

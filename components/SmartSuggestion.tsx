@@ -20,13 +20,19 @@ export default function SmartSuggestion() {
   const [visible, setVisible] = useState<string[]>([]);
   const [exiting, setExiting] = useState<Set<string>>(new Set());
   const prevIdsRef = useRef<string>('');
+  const visibleRef = useRef<string[]>([]);
 
   const tracks = useTrackStore((s) => s.tracks);
   const activeTrackId = useTrackStore((s) => s.activeTrackId);
   const appendWorkspaceXml = useTrackStore((s) => s.appendWorkspaceXml);
   const addTrack = useTrackStore((s) => s.addTrack);
 
+  // Keep visibleRef in sync with visible state
+  visibleRef.current = visible;
+
   // Analyze workspace whenever the active track's XML changes
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     const activeTrack = tracks.find((t) => t.id === activeTrackId);
     const xml = activeTrack?.workspaceXml ?? '';
@@ -37,24 +43,37 @@ export default function SmartSuggestion() {
     if (newIds === prevIdsRef.current) return;
     prevIdsRef.current = newIds;
 
+    // Clear any pending exit animation timer
+    if (exitTimerRef.current) {
+      clearTimeout(exitTimerRef.current);
+      exitTimerRef.current = null;
+    }
+
     // Mark departing suggestions for exit animation
     const newIdSet = new Set(newSuggestions.map((s) => s.id));
-    const departingIds = visible.filter((id) => !newIdSet.has(id));
+    const departingIds = visibleRef.current.filter((id) => !newIdSet.has(id));
 
     if (departingIds.length > 0) {
       setExiting(new Set(departingIds));
       // After exit animation, swap in new suggestions
-      setTimeout(() => {
+      exitTimerRef.current = setTimeout(() => {
         setSuggestions(newSuggestions);
         setVisible(newSuggestions.map((s) => s.id));
         setExiting(new Set());
+        exitTimerRef.current = null;
       }, 250);
     } else {
       setSuggestions(newSuggestions);
       setVisible(newSuggestions.map((s) => s.id));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tracks, activeTrackId, visible.filter]);
+
+    return () => {
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current);
+        exitTimerRef.current = null;
+      }
+    };
+  }, [tracks, activeTrackId]);
 
   const handleClick = useCallback(
     (suggestion: Suggestion) => {
@@ -108,13 +127,14 @@ export default function SmartSuggestion() {
               background: 'linear-gradient(135deg, var(--c-preset), var(--c-effect))',
               border: 'none',
               borderRadius: 'var(--r-full)',
-              padding: 'var(--sp-1) var(--sp-3)',
+              padding: 'var(--sp-2) var(--sp-3)',
               cursor: 'pointer',
               whiteSpace: 'nowrap',
               boxShadow: 'var(--shadow-suggestion)',
               display: 'flex',
               alignItems: 'center',
               gap: 'var(--sp-1)',
+              minHeight: 44,
               animation: isExiting
                 ? 'suggestion-exit 0.25s ease-in forwards'
                 : isNew

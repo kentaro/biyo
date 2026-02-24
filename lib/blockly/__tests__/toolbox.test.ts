@@ -140,8 +140,8 @@ describe('toolbox', () => {
         expect(tb.kind).toBe('categoryToolbox');
       });
 
-      it('has 2 categories', () => {
-        expect(tb.contents).toHaveLength(2);
+      it('has 3 categories', () => {
+        expect(tb.contents).toHaveLength(3);
       });
 
       it('returns correct category names', () => {
@@ -149,12 +149,13 @@ describe('toolbox', () => {
         expect(names).toEqual([
           '\uD83C\uDFB5 \u304A\u3068', // おと
           '\u2728 \u3078\u3093\u3057\u3093', // へんしん
+          '\uD83C\uDFAA \u304A\u305F\u306E\u3057\u307F', // おたのしみ
         ]);
       });
 
-      it('contains exactly 6 blocks total', () => {
+      it('contains exactly 12 blocks total', () => {
         const blocks = collectBlockTypes(tb);
-        expect(blocks).toHaveLength(6);
+        expect(blocks).toHaveLength(12);
       });
 
       it('contains the expected block types', () => {
@@ -163,9 +164,15 @@ describe('toolbox', () => {
           'biyo_sine',
           'biyo_square',
           'biyo_noise',
+          'biyo_piano_note',
           'biyo_reverb',
           'biyo_delay',
           'biyo_distortion',
+          'biyo_ghost',
+          'biyo_siren',
+          'biyo_laser',
+          'biyo_water_drop',
+          'biyo_thunder',
         ]);
       });
 
@@ -186,8 +193,8 @@ describe('toolbox', () => {
         expect(tb.kind).toBe('categoryToolbox');
       });
 
-      it('has 7 categories', () => {
-        expect(tb.contents).toHaveLength(7);
+      it('has 5 categories', () => {
+        expect(tb.contents).toHaveLength(5);
       });
 
       it('returns correct category names', () => {
@@ -198,14 +205,12 @@ describe('toolbox', () => {
           '\uD83E\uDD41 \u30EA\u30BA\u30E0', // リズム
           '\u2728 \u3078\u3093\u3057\u3093', // へんしん
           '\uD83C\uDFAA \u304A\u305F\u306E\u3057\u307F', // おたのしみ
-          '\uD83C\uDFB2 \u305D\u3046\u305E\u3046', // そうぞう
-          '\uD83D\uDD27 \u3079\u3093\u308A', // べんり
         ]);
       });
 
-      it('contains 53 blocks total', () => {
+      it('contains 44 blocks total', () => {
         const blocks = collectBlockTypes(tb);
-        expect(blocks).toHaveLength(53);
+        expect(blocks).toHaveLength(44);
       });
 
       it('includes all source blocks (11)', () => {
@@ -229,17 +234,17 @@ describe('toolbox', () => {
         }
       });
 
-      it('includes all generative blocks (4)', () => {
+      it('does NOT include generative blocks (reserved for advanced)', () => {
         const blocks = new Set(collectBlockTypes(tb));
         for (const b of GENERATIVE_BLOCKS) {
-          expect(blocks.has(b)).toBe(true);
+          expect(blocks.has(b)).toBe(false);
         }
       });
 
-      it('includes all utility blocks (5)', () => {
+      it('does NOT include utility blocks (reserved for advanced)', () => {
         const blocks = new Set(collectBlockTypes(tb));
         for (const b of UTILITY_BLOCKS) {
-          expect(blocks.has(b)).toBe(true);
+          expect(blocks.has(b)).toBe(false);
         }
       });
 

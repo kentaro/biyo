@@ -75,9 +75,13 @@ export default function WelcomeOverlay({
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    setTimeout(() => dialogRef.current?.querySelector<HTMLElement>('button')?.focus(), 50);
+    const focusTimer = setTimeout(
+      () => dialogRef.current?.querySelector<HTMLElement>('button')?.focus(),
+      50,
+    );
 
     return () => {
+      clearTimeout(focusTimer);
       document.removeEventListener('keydown', handleKeyDown);
       previousFocusRef.current?.focus();
     };
@@ -187,7 +191,7 @@ export default function WelcomeOverlay({
             <div
               className="welcome-note"
               style={{
-                fontSize: 48,
+                fontSize: 'var(--fs-emoji)',
                 marginBottom: 'var(--sp-3)',
                 lineHeight: 1,
               }}
@@ -343,7 +347,7 @@ export default function WelcomeOverlay({
                         fontSize: 'var(--fs-sm)',
                         fontWeight: 700,
                         color: 'var(--c-text)',
-                        marginBottom: 2,
+                        marginBottom: 'var(--sp-half)',
                       }}
                     >
                       {meta.emoji} {meta.label}
@@ -377,6 +381,8 @@ export default function WelcomeOverlay({
                 cursor: 'pointer',
                 padding: 'var(--sp-2)',
                 flexShrink: 0,
+                minWidth: 44,
+                minHeight: 44,
               }}
             >
               もどる

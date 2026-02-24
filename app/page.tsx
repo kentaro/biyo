@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Achievements from '@/components/Achievements';
 import { getWorkspace } from '@/components/BlockEditor';
 import CodePreview from '@/components/CodePreview';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import DrawerToggle from '@/components/DrawerToggle';
 import EmojiReaction from '@/components/EmojiReaction';
 import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
@@ -131,23 +132,25 @@ export default function Home() {
     if (!hash || !hash.includes('share=')) return;
 
     const data = decodeWorkspace(hash);
-    if (data) {
-      // Load the shared workspace
-      loadWorkspaceXml(data.xml);
-      setBpm(data.bpm);
+    if (!data) return;
 
-      // Dismiss welcome overlay since we're loading shared content
-      setShowWelcome(false);
+    // Load the shared workspace
+    loadWorkspaceXml(data.xml);
+    setBpm(data.bpm);
 
-      // Show confirmation message
-      setShareMessage('ともだちのおんがくをよみこんだよ！');
-      setTimeout(() => setShareMessage(null), 3000);
+    // Dismiss welcome overlay since we're loading shared content
+    setShowWelcome(false);
 
-      // Clean the hash from URL without triggering navigation
-      if (window.history.replaceState) {
-        window.history.replaceState(null, '', window.location.pathname);
-      }
+    // Show confirmation message
+    setShareMessage('ともだちのおんがくをよみこんだよ！');
+    const shareTimer = setTimeout(() => setShareMessage(null), 3000);
+
+    // Clean the hash from URL without triggering navigation
+    if (window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
     }
+
+    return () => clearTimeout(shareTimer);
   }, [loadWorkspaceXml, setBpm]);
 
   // Live coding: auto-recompile when code changes during playback
@@ -161,6 +164,21 @@ export default function Home() {
 
   // Keyboard shortcuts
   useEffect(() => {
+    /**
+     * Check if the event target is inside the Blockly workspace.
+     * When focus is inside Blockly (e.g. blocks selected, toolbox focused),
+     * Blockly handles its own shortcuts (undo/redo/delete/copy/paste/escape)
+     * via ShortcutRegistry. We must avoid double-handling those here.
+     */
+    const isInsideBlockly = (target: HTMLElement): boolean => {
+      return !!(
+        target.closest('.injectionDiv') ||
+        target.closest('.blocklyToolboxDiv') ||
+        target.closest('.blocklyWidgetDiv') ||
+        target.closest('.blocklyDropDownDiv')
+      );
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger shortcuts when typing in inputs
       const target = e.target as HTMLElement;
@@ -169,8 +187,10 @@ export default function Home() {
       }
 
       const isMod = e.metaKey || e.ctrlKey;
+      const inBlockly = isInsideBlockly(target);
 
       // Cmd/Ctrl+S: Save project (prevent browser save dialog)
+      // This is NOT handled by Blockly, so we always handle it.
       if (isMod && e.key === 's' && !e.shiftKey) {
         e.preventDefault();
         // Trigger save by dispatching a custom event that Toolbar listens to
@@ -179,28 +199,43 @@ export default function Home() {
       }
 
       // Cmd/Ctrl+Z: Undo (delegate to Blockly workspace)
+      // Only handle when focus is NOT inside Blockly, because Blockly
+      // already registers its own Ctrl+Z shortcut via ShortcutRegistry.
       if (isMod && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
-        getWorkspace()?.undo(false);
+        if (!inBlockly) {
+          getWorkspace()?.undo(false);
+        }
         return;
       }
 
       // Cmd/Ctrl+Shift+Z: Redo (delegate to Blockly workspace)
+      // Same as above: skip when Blockly already handled it.
       if (isMod && e.key === 'z' && e.shiftKey) {
         e.preventDefault();
-        getWorkspace()?.undo(true);
+        if (!inBlockly) {
+          getWorkspace()?.undo(true);
+        }
         return;
       }
 
       // Cmd/Ctrl+Y: Redo (alternative shortcut)
+      // Blockly also registers Ctrl+Y, so skip when inside Blockly.
       if (isMod && e.key === 'y') {
         e.preventDefault();
-        getWorkspace()?.undo(true);
+        if (!inBlockly) {
+          getWorkspace()?.undo(true);
+        }
         return;
       }
 
       switch (e.code) {
         case 'Space': {
+          // Skip play/stop when Blockly toolbox or dropdown is focused,
+          // because Space is used to toggle/select items there.
+          if (inBlockly) {
+            break;
+          }
           e.preventDefault();
           if (isPlaying) {
             audioEngine.stop();
@@ -225,6 +260,11 @@ export default function Home() {
             setShortcutsHelpOpen(false);
             break;
           }
+          // Close sample browser if open
+          if (sampleBrowserOpen) {
+            setSampleBrowserOpen(false);
+            break;
+          }
           // Close drawer on mobile
           if (isMobile && drawerOpen) {
             closeDrawer();
@@ -234,7 +274,7 @@ export default function Home() {
       }
 
       // ? key: Toggle keyboard shortcuts help
-      if (e.key === '?' || (e.shiftKey && e.code === 'Slash')) {
+      if (e.key === '?') {
         e.preventDefault();
         setShortcutsHelpOpen((prev) => !prev);
       }
@@ -250,9 +290,11 @@ export default function Home() {
     drawerOpen,
     closeDrawer,
     shortcutsHelpOpen,
+    sampleBrowserOpen,
   ]);
 
   return (
+    <ErrorBoundary>
     <div
       className="h-[100dvh] flex flex-col bg-[var(--c-bg)]"
       style={{ height: '100dvh', position: 'relative' }}
@@ -272,7 +314,9 @@ export default function Home() {
       {/* Main: Editor + Sidebar */}
       <div className="flex-1 min-h-0 flex">
         <div className="flex-1 min-w-0 p-[var(--sp-2)]">
-          <BlockEditor />
+          <ErrorBoundary fallbackMessage="エディタでエラーがおきちゃった！">
+            <BlockEditor />
+          </ErrorBoundary>
         </div>
 
         {/* Desktop: vertical resize handle + sidebar */}
@@ -334,14 +378,20 @@ export default function Home() {
       {/* Mobile: Drawer overlay + panel */}
       {isMobile && (
         <>
+          {/* Overlay is decorative; click closes drawer */}
           <div
             className={`drawer-overlay ${drawerOpen ? 'open' : ''}`}
             onClick={closeDrawer}
-            aria-hidden="true"
+            role="presentation"
           />
-          <div className={`drawer-panel ${drawerOpen ? 'open' : ''}`}>
+          <aside
+            id="drawer-panel"
+            className={`drawer-panel ${drawerOpen ? 'open' : ''}`}
+            role="complementary"
+            aria-label="トラックパネル"
+          >
             <TrackPanel />
-          </div>
+          </aside>
           <DrawerToggle isOpen={drawerOpen} onToggle={toggleDrawer} />
         </>
       )}
@@ -408,5 +458,6 @@ export default function Home() {
         </output>
       )}
     </div>
+    </ErrorBoundary>
   );
 }
