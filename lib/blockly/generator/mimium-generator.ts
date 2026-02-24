@@ -276,7 +276,8 @@ mimiumGenerator.forBlock.biyo_reverb = (block: Blockly.Block, generator: Blockly
   const d3 = (0.07 * size + 0.03).toFixed(4);
   const d4 = (0.11 * size + 0.04).toFixed(4);
   // Use let binding to cache signal and prevent exponential code growth on nested reverbs
-  const varName = `_rv${block.id.slice(0, 4)}`;
+  const safeId = block.id.replace(/[^a-zA-Z0-9]/g, '').slice(0, 4) || '0000';
+  const varName = `_rv${safeId}`;
   const code = `(let ${varName} = ${signal}; ${varName} * ${(1.0 - mix).toFixed(3)} + (_delay(${varName}, ${d1}) + _delay(${varName}, ${d2}) + _delay(${varName}, ${d3}) + _delay(${varName}, ${d4})) * ${(mix / 4).toFixed(3)})`;
   return [code, Order.ADD];
 };
